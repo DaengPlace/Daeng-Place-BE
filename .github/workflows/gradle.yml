@@ -29,7 +29,11 @@ jobs:
       - name: Build with Gradle Wrapper
         run: ./gradlew build
         env:
-          SPRING_PROFILES_ACTIVE: test
+              SPRING_PROFILES_ACTIVE: test
+              SPRING_DATASOURCE_URL: jdbc:h2:mem:testdb
+              SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
+              SPRING_DATASOURCE_USERNAME: sa
+              SPRING_DATASOURCE_PASSWORD: password
 
       - name: Backend CI Slack Notification (Success)
         if: success()
@@ -56,3 +60,4 @@ jobs:
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
