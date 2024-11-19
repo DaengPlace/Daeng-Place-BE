@@ -43,7 +43,15 @@ jobs:
           fields: workflow,job,commit,repo,ref,author,took
           custom_payload: |
             {
-              "text": "✅ Backend CI Success"
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Success:* ✅ Backend CI Success ✅\n\n*Repository:* ${{ github.repository }}\n*Ref:* ${{ github.ref }}\n\n*Event:* ${{ github.event_name }}\n*Commit:* ${{ github.sha }}\n*Triggered by:* ${{ github.actor }}\n*Workflow:* ${{ github.workflow }}"
+                  }
+                }
+              ]
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -56,7 +64,15 @@ jobs:
           fields: workflow,job,commit,repo,ref,author,took
           custom_payload: |
             {
-              "text": "❗️ Backend CI Failed"
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Failure:* ❗️ Backend CI Failed ❗️\n\n*Repository:* ${{ github.repository }}\n*Ref:* ${{ github.ref }}\n\n*Event:* ${{ github.event_name }}\n*Commit:* ${{ github.sha }}\n*Triggered by:* ${{ github.actor }}\n*Workflow:* ${{ github.workflow }}"
+                  }
+                }
+              ]
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
