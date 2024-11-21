@@ -1,4 +1,4 @@
-package com.mycom.backenddaengplace.common.doamin;
+package com.mycom.backenddaengplace.common.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
