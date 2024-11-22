@@ -28,8 +28,8 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<Pet> pets = new ArrayList<>();
+//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+//    private List<Pet> pets = new ArrayList<>();
 
     private String phone;
     private String profileImageUrl;
