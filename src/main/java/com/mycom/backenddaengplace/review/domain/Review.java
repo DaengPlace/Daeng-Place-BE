@@ -1,5 +1,6 @@
 package com.mycom.backenddaengplace.review.domain;
 
+import com.mycom.backenddaengplace.common.domain.BaseEntity;
 import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.place.domain.Place;
 import jakarta.persistence.*;
@@ -10,8 +11,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "review")
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Review {
+public class Review extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
