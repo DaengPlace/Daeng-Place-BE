@@ -6,15 +6,15 @@ import com.mycom.backenddaengplace.place.domain.Place;
 import com.mycom.backenddaengplace.place.dto.response.PlaceDetailResponse;
 import com.mycom.backenddaengplace.place.repository.OperationHourRepository;
 import com.mycom.backenddaengplace.place.repository.PlaceRepository;
+import com.mycom.backenddaengplace.review.domain.Review;
+import com.mycom.backenddaengplace.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Locale;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +22,7 @@ public class PlaceService {
 
     private final PlaceRepository placeRepository;
     private final OperationHourRepository operationHourRepository;
+    private final ReviewRepository reviewRepository;
 
     @Transactional
     public PlaceDetailResponse getPlaceDetail(Long placeId) {
@@ -49,6 +50,19 @@ public class PlaceService {
         Address address = place.getAddress();
         String roadAddress = address != null ? address.getRoadAddress() : null;
 
+        long reviewCount = reviewRepository.countByPlaceId(placeId);
+        List<Review> latestReviews = reviewRepository.findTop3ByPlaceIdOrderByCreatedAtDesc(placeId);
+
+        List<Map<String, Object>> reviews = latestReviews.stream()
+                .map(review -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("rating", review.getRating());
+                    map.put("content", review.getContent());
+                    map.put("createdAt", review.getCreatedAt());
+                    return map;
+                })
+                .toList();
+
         return PlaceDetailResponse.builder()
                 .placeId(place.getId())
                 .name(place.getName())
@@ -63,6 +77,8 @@ public class PlaceService {
                 .weight_limit(place.getWeightLimit() != null ? place.getWeightLimit() : 0)
                 .pet_fee(place.getPetFee() != null ? place.getPetFee() : 0)
 //                .rating(rating)
+                .review_count(reviewCount)
+                .reviews(reviews)
                 .build();
     }
 }
