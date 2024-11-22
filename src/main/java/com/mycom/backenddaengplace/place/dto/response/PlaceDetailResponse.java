@@ -3,6 +3,9 @@ package com.mycom.backenddaengplace.place.dto.response;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+import java.util.Map;
+
 @Data
 @Builder
 public class PlaceDetailResponse {
@@ -19,4 +22,6 @@ public class PlaceDetailResponse {
     private int weight_limit;
     private int pet_fee;
 //    private float rating;  // 추가 예정
+    private long review_count;
+    private List<Map<String, Object>> reviews;
 }
