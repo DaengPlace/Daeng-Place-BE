@@ -1,11 +1,11 @@
-package com.mycom.backenddaengplace.pet.domain;
+package com.mycom.backenddaengplace.trait.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Table(name = "trait_answer")
-@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class TraitAnswer {
@@ -14,13 +14,12 @@ public class TraitAnswer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id")
-    private TraitQuestion question;
+    private TraitQuestion traitQuestion;
 
     @Column(name = "content", nullable = false)
     private String content;
 
-    @Column(name = "trait_code")
-    private String traitCode;
+
 }

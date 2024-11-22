@@ -1,15 +1,11 @@
 package com.mycom.backenddaengplace.place.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "address")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Address {
 
     @Id
@@ -25,5 +21,25 @@ public class Address {
 
     @Column(name = "zipcode")
     private String zipcode;
+
+    @OneToOne(mappedBy = "address")
+    private Place place;
+
+    @OneToOne(mappedBy = "address", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Location location;
+
+    @Builder
+    public Address(
+            String roadAddress,
+            String detailAddress,
+            String zipcode
+    ) {
+
+        this.roadAddress = roadAddress;
+        this.detailAddress = detailAddress;
+        this.zipcode = zipcode;
+
+    }
+
 
 }

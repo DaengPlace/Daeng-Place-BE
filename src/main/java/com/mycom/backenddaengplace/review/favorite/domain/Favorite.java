@@ -1,13 +1,11 @@
-package com.mycom.backenddaengplace.review.domain;
+package com.mycom.backenddaengplace.review.favorite.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Table(name = "favorite")
-@Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class Favorite {
 
     @Id

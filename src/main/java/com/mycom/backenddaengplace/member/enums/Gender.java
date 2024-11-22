@@ -1,4 +1,4 @@
-package com.mycom.backenddaengplace.member.domain;
+package com.mycom.backenddaengplace.member.enums;
 
 public enum Gender {
     MALE,

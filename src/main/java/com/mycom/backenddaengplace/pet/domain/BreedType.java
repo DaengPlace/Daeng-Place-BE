@@ -2,17 +2,16 @@ package com.mycom.backenddaengplace.pet.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "breed_type")
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class BreedType {
 
     @Id
@@ -21,5 +20,9 @@ public class BreedType {
     private Long id;
 
     private String breedType;
+
+    @OneToOne(mappedBy = "breedType")
+    private Pet pet;
+
 
 }
