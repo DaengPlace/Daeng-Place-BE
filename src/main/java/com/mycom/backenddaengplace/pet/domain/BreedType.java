@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "breed_type")
 @Getter
@@ -21,8 +24,8 @@ public class BreedType {
 
     private String breedType;
 
-    @OneToOne(mappedBy = "breedType")
-    private Pet pet;
+    @OneToMany(mappedBy = "breedType")
+    private List<Pet> pets = new ArrayList<>();
 
 
 }
