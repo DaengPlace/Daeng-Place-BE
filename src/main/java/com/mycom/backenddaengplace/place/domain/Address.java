@@ -5,6 +5,7 @@ import lombok.*;
 
 @Entity
 @Table(name = "address")
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Address {
 
