@@ -2,8 +2,6 @@ spring:
   profiles:
     active: dev
   jpa:
-    hibernate:
-      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
