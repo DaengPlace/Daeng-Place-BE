@@ -3,7 +3,7 @@ package com.mycom.backenddaengplace.place.service;
 import com.mycom.backenddaengplace.place.domain.Address;
 import com.mycom.backenddaengplace.place.domain.OperationHour;
 import com.mycom.backenddaengplace.place.domain.Place;
-import com.mycom.backenddaengplace.place.dto.PlaceDetailResponse;
+import com.mycom.backenddaengplace.place.dto.response.PlaceDetailResponse;
 import com.mycom.backenddaengplace.place.repository.OperationHourRepository;
 import com.mycom.backenddaengplace.place.repository.PlaceRepository;
 import lombok.RequiredArgsConstructor;

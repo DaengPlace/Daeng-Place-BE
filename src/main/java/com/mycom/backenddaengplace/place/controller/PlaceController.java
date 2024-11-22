@@ -2,7 +2,7 @@ package com.mycom.backenddaengplace.place.controller;
 
 
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
-import com.mycom.backenddaengplace.place.dto.PlaceDetailResponse;
+import com.mycom.backenddaengplace.place.dto.response.PlaceDetailResponse;
 import com.mycom.backenddaengplace.place.service.PlaceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
