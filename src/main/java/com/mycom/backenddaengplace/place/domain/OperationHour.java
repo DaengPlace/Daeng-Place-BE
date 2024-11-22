@@ -3,10 +3,11 @@ package com.mycom.backenddaengplace.place.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "operation_hour")
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OperationHour {
 
@@ -23,10 +24,10 @@ public class OperationHour {
     private String dayOfWeek;
 
     @Column(name = "start_time")
-    private LocalDateTime startTime;
+    private LocalTime startTime;
 
     @Column(name = "end_time")
-    private LocalDateTime endTime;
+    private LocalTime endTime;
 
     @Column(name = "is_day_off", nullable = false)
     private Boolean isDayOff;
@@ -35,8 +36,8 @@ public class OperationHour {
     public OperationHour(
             Place place,
             String dayOfWeek,
-            LocalDateTime startTime,
-            LocalDateTime endTime,
+            LocalTime startTime,
+            LocalTime endTime,
             boolean isDayOff
     ){
         this.place = place;
