@@ -20,13 +20,14 @@ public class Pet extends BaseEntity {
     @Column(name = "pet_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "member_id")
+//    private Member member;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "breed_type_id")
     private BreedType breedType;
+
     private String name;
     private LocalDateTime birthDate;
     private Boolean isNeutered;
@@ -36,16 +37,9 @@ public class Pet extends BaseEntity {
     private String chipId;
 
     @Builder
-    public Pet(
-            Member member,
-            BreedType breedType,
-            String name,
-            LocalDateTime birthDate,
-            boolean isNeutered,
-            int weight,
-            Gender gender
+    public Pet(BreedType breedType, String name, LocalDateTime birthDate,
+            boolean isNeutered, int weight, Gender gender
     ) {
-        this.member = member;
         this.breedType = breedType;
         this.name = name;
         this.birthDate = birthDate;
