@@ -4,6 +4,7 @@ import com.mycom.backenddaengplace.place.domain.Address;
 import com.mycom.backenddaengplace.place.domain.OperationHour;
 import com.mycom.backenddaengplace.place.domain.Place;
 import com.mycom.backenddaengplace.place.dto.response.PlaceDetailResponse;
+import com.mycom.backenddaengplace.place.exception.PlaceNotFoundException;
 import com.mycom.backenddaengplace.place.repository.OperationHourRepository;
 import com.mycom.backenddaengplace.place.repository.PlaceRepository;
 import com.mycom.backenddaengplace.review.domain.Review;
@@ -28,7 +29,7 @@ public class PlaceService {
     public PlaceDetailResponse getPlaceDetail(Long placeId) {
 
         Place place = placeRepository.findById(placeId)
-                .orElseThrow(() -> new IllegalArgumentException(String.valueOf("장소를 찾을 수 없습니다! placeId: " + placeId)));
+                .orElseThrow(() -> new PlaceNotFoundException(placeId));
 
         // 오늘의 요일 계산
         String todayName = LocalDateTime.now().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.KOREAN);
