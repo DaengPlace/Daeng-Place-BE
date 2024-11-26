@@ -14,4 +14,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findTop3ByPlaceIdOrderByCreatedAtDesc(Long placeId);
 
     boolean existsByMemberAndPlace(Member member, Place place);
+
+    List<Review> findByPlaceId(Long placeId);
 }
