@@ -1,5 +1,7 @@
 package com.mycom.backenddaengplace.review.favorite.domain;
 
+import com.mycom.backenddaengplace.member.domain.Member;
+import com.mycom.backenddaengplace.place.domain.Place;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,9 +15,21 @@ public class Favorite {
     @Column(name = "favorite_id")
     private Long id;
 
-    @Column(name = "member_id", nullable = false)
-    private Long memberId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
-    @Column(name = "place_id", nullable = false)
-    private Long placeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "place_id", nullable = false)
+    private Place place;
+
+    @Builder
+    public Favorite(
+            Member member,
+            Place place
+    ) {
+        this.member = member;
+        this.place = place;
+    }
+
 }
