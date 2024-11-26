@@ -1,14 +1,16 @@
-package com.mycom.backenddaengplace.review.favorite.domain;
+package com.mycom.backenddaengplace.favorite.domain;
 
+import com.mycom.backenddaengplace.common.domain.BaseEntity;
 import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.place.domain.Place;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
+@Getter
 @Table(name = "favorite")
 @NoArgsConstructor
-public class Favorite {
+public class Favorite extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

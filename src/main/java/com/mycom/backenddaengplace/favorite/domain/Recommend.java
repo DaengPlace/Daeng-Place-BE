@@ -1,4 +1,4 @@
-package com.mycom.backenddaengplace.review.favorite.domain;
+package com.mycom.backenddaengplace.favorite.domain;
 
 import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.review.domain.Review;

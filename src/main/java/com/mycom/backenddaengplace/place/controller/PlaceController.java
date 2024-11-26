@@ -31,22 +31,6 @@ public class PlaceController {
         return ResponseEntity.ok(ApiResponse.success("OK", response));
     }
 
-    @PostMapping("/favorite")
-    public ResponseEntity<ApiResponse<FavoriteRegisterResponse>> registerFavorite(
-            @Valid @RequestBody FavoriteRegisterRequest request
-    ) {
-        log.debug("즐겨찾기 등록 요청: {}", request);
-        FavoriteRegisterResponse response = placeService.registerFavorite(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("즐겨찾기가 등록되었습니다.", response));
-    }
 
-    @DeleteMapping("/favorite")
-    public ResponseEntity<ApiResponse<FavoriteDeleteResponse>> deleteFavorite(
-            @Valid @RequestBody FavoriteDeleteRequest request
-    ) {
-        log.debug("즐겨찾기 삭제 요청: {}", request);
-        FavoriteDeleteResponse response = placeService.deleteFavorite(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("즐겨찾기가 삭제되었습니다.", response));
-    }
 
 }
