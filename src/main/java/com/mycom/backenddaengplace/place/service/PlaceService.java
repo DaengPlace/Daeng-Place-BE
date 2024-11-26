@@ -3,12 +3,16 @@ package com.mycom.backenddaengplace.place.service;
 import com.mycom.backenddaengplace.place.domain.Address;
 import com.mycom.backenddaengplace.place.domain.OperationHour;
 import com.mycom.backenddaengplace.place.domain.Place;
+import com.mycom.backenddaengplace.place.dto.request.SearchCriteria;
 import com.mycom.backenddaengplace.place.dto.response.PlaceDetailResponse;
+import com.mycom.backenddaengplace.place.dto.response.PlaceListResponse;
 import com.mycom.backenddaengplace.place.repository.OperationHourRepository;
+import com.mycom.backenddaengplace.place.repository.PlaceQueryRepository;
 import com.mycom.backenddaengplace.place.repository.PlaceRepository;
 import com.mycom.backenddaengplace.review.domain.Review;
 import com.mycom.backenddaengplace.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +27,7 @@ public class PlaceService {
     private final PlaceRepository placeRepository;
     private final OperationHourRepository operationHourRepository;
     private final ReviewRepository reviewRepository;
+    private final PlaceQueryRepository placeQueryRepository;
 
     @Transactional
     public PlaceDetailResponse getPlaceDetail(Long placeId) {
@@ -80,5 +85,9 @@ public class PlaceService {
                 .review_count(reviewCount)
                 .reviews(reviews)
                 .build();
+    }
+
+    public PlaceListResponse searchPlaces(SearchCriteria criteria, Pageable pageable) {
+        return placeQueryRepository.searchPlaces(criteria, pageable);
     }
 }
