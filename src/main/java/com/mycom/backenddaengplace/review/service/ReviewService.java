@@ -15,6 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -51,6 +54,17 @@ public class ReviewService {
         review = reviewRepository.save(review);
 
         return ReviewResponse.from(review);
+    }
+
+    public List<ReviewResponse> getReviews(Long placeId) {
+        if (!placeRepository.existsById(placeId)) {
+            throw new PlaceNotFoundException(placeId);
+        }
+
+        List<Review> reviews = reviewRepository.findByPlaceId(placeId);
+        return reviews.stream()
+                .map(ReviewResponse::from)
+                .collect(Collectors.toList());
     }
 
 }

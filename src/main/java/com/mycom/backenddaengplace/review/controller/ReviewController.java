@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/places")
 @RequiredArgsConstructor
@@ -27,5 +29,12 @@ public class ReviewController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success("리뷰가 성공적으로 등록되었습니다.", response));
+    }
+
+    @GetMapping("/{placeId}/reviews")
+    public ResponseEntity<ApiResponse<List<ReviewResponse>>> getReviews(@PathVariable Long placeId) {
+        List<ReviewResponse> reviews = reviewService.getReviews(placeId);
+
+        return ResponseEntity.ok(ApiResponse.success("리뷰 목록을 성공적으로 조회했습니다.", reviews));
     }
 }
