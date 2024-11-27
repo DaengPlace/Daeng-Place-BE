@@ -37,4 +37,16 @@ public class ReviewController {
 
         return ResponseEntity.ok(ApiResponse.success("리뷰 목록을 성공적으로 조회했습니다.", reviews));
     }
+
+    @GetMapping("/{placeId}/reviews/{reviewId}")
+    public ResponseEntity<ApiResponse<ReviewResponse>> getReviewDetail(
+            @PathVariable Long placeId,
+            @PathVariable Long reviewId) {
+
+        ReviewResponse review = reviewService.getReviewDetail(placeId, reviewId);
+
+        return ResponseEntity.ok(
+                ApiResponse.success("리뷰 상세 정보를 성공적으로 조회했습니다.", review)
+        );
+    }
 }
