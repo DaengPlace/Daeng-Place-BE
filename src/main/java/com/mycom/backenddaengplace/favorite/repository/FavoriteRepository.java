@@ -14,11 +14,11 @@ import java.util.Optional;
 public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 
 
-    @Modifying
-    @Query("delete from Favorite f where f.id = :favoriteId")
-    void deleteFavoriteById(@Param("favoriteId") Long favoriteId);
+//    @Modifying
+//    @Query("delete from Favorite f where f.id = :favoriteId")
+//    void deleteById(@Param("favoriteId") Long favoriteId);
 
-    Favorite findByMemberIdAndPlaceId(Long memberId, Long placeId);
+    Optional<Favorite> findByMemberIdAndPlaceId(Long memberId, Long placeId);
 
     @Query("select f from Favorite f where f.member.id = :memberId")
     List<Favorite> findFavoritesByMemberId(Long memberId);

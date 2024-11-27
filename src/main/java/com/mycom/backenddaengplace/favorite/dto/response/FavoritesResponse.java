@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class FavoritesResponse {
+
     private Long favoriteId;
     private Long memberId;
     private Long placeId;
