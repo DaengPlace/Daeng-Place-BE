@@ -3,8 +3,6 @@ package com.mycom.backenddaengplace.favorite.service;
 import com.mycom.backenddaengplace.favorite.domain.Favorite;
 import com.mycom.backenddaengplace.favorite.dto.request.FavoriteDeleteRequest;
 import com.mycom.backenddaengplace.favorite.dto.request.FavoriteRegisterRequest;
-import com.mycom.backenddaengplace.favorite.dto.request.FavoritesRequest;
-import com.mycom.backenddaengplace.favorite.dto.response.FavoriteDeleteResponse;
 import com.mycom.backenddaengplace.favorite.dto.response.FavoriteRegisterResponse;
 import com.mycom.backenddaengplace.favorite.dto.response.FavoritesResponse;
 import com.mycom.backenddaengplace.favorite.exception.FavoriteAlreadyExistException;
