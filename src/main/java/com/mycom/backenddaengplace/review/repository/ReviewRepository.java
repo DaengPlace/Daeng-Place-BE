@@ -6,6 +6,7 @@ import com.mycom.backenddaengplace.review.domain.Review;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
@@ -16,4 +17,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     boolean existsByMemberAndPlace(Member member, Place place);
 
     List<Review> findByPlaceId(Long placeId);
+
+    Optional<Review> findByIdAndPlaceId(Long reviewId, Long placeId);
 }

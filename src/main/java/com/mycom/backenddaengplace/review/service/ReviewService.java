@@ -10,6 +10,7 @@ import com.mycom.backenddaengplace.review.domain.Review;
 import com.mycom.backenddaengplace.review.dto.request.ReviewRequest;
 import com.mycom.backenddaengplace.review.dto.response.ReviewResponse;
 import com.mycom.backenddaengplace.review.exception.ReviewAlreadyExistsException;
+import com.mycom.backenddaengplace.review.exception.ReviewNotFoundException;
 import com.mycom.backenddaengplace.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -65,6 +66,19 @@ public class ReviewService {
         return reviews.stream()
                 .map(ReviewResponse::from)
                 .collect(Collectors.toList());
+    }
+
+    public ReviewResponse getReviewDetail(Long placeId, Long reviewId) {
+        // 장소 존재 여부 확인
+        if (!placeRepository.existsById(placeId)) {
+            throw new PlaceNotFoundException(placeId);
+        }
+
+        // 리뷰 조회
+        Review review = reviewRepository.findByIdAndPlaceId(reviewId, placeId)
+                .orElseThrow(() -> new ReviewNotFoundException(reviewId, placeId));
+
+        return ReviewResponse.from(review);
     }
 
 }
