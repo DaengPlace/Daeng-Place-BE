@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/places")
 @RequiredArgsConstructor
@@ -33,5 +35,12 @@ public class PlaceController {
 
         PlaceListResponse response = placeService.searchPlaces(criteria, pageable);
         return ResponseEntity.ok(ApiResponse.success("OK", response));
+    }
+
+    @GetMapping("/popular")
+    public ResponseEntity<ApiResponse<List<PlaceDetailResponse>>> getPopularPlaces() {
+        List<PlaceDetailResponse> popularPlaces = placeService.getPopularPlaces();
+
+        return ResponseEntity.ok(ApiResponse.success("인기 장소 목록 조회를 성공했습니다.", popularPlaces));
     }
 }

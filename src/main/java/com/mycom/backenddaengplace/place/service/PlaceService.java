@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -90,5 +91,23 @@ public class PlaceService {
 
     public PlaceListResponse searchPlaces(SearchCriteria criteria, Pageable pageable) {
         return placeQueryRepository.searchPlaces(criteria, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PlaceDetailResponse> getPopularPlaces() {
+        // 평균 평점순으로 장소 ID와 평점 정보를 가져옴
+        List<Object[]> topPlaces = reviewRepository.findTopPlacesByAverageRating();
+
+        // 상위 3개만 추출하여 장소 상세 정보 조회
+        return topPlaces.stream()
+                .limit(3)
+                .map(result -> {
+                    Long placeId = (Long) result[0];
+                    Double avgRating = (Double) result[1];
+                    Long reviewCount = (Long) result[2];
+
+                    return getPlaceDetail(placeId);
+                })
+                .collect(Collectors.toList());
     }
 }
