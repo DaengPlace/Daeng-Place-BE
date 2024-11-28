@@ -27,6 +27,7 @@ public class MemberService {
 
     public BaseMemberResponse getMember(Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
+
         return BaseMemberResponse.from(member);
     }
 
