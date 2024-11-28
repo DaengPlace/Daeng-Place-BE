@@ -6,6 +6,8 @@ import com.mycom.backenddaengplace.place.domain.Place;
 import com.mycom.backenddaengplace.place.dto.request.SearchCriteria;
 import com.mycom.backenddaengplace.place.dto.response.PlaceDetailResponse;
 import com.mycom.backenddaengplace.place.dto.response.PlaceListResponse;
+import com.mycom.backenddaengplace.place.dto.response.PopularPlaceResponse;
+import com.mycom.backenddaengplace.place.enums.Category;
 import com.mycom.backenddaengplace.place.exception.PlaceNotFoundException;
 import com.mycom.backenddaengplace.place.repository.OperationHourRepository;
 import com.mycom.backenddaengplace.place.repository.PlaceQueryRepository;
@@ -13,6 +15,7 @@ import com.mycom.backenddaengplace.place.repository.PlaceRepository;
 import com.mycom.backenddaengplace.review.domain.Review;
 import com.mycom.backenddaengplace.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,5 +93,10 @@ public class PlaceService {
 
     public PlaceListResponse searchPlaces(SearchCriteria criteria, Pageable pageable) {
         return placeQueryRepository.searchPlaces(criteria, pageable);
+    }
+
+
+    public Page<PopularPlaceResponse> getPopularPlaces(String sort, Category category, Pageable pageable) {
+        return placeQueryRepository.findPopularPlaces(sort, category, pageable);
     }
 }
