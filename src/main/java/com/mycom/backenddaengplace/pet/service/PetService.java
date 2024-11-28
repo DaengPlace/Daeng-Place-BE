@@ -2,15 +2,13 @@ package com.mycom.backenddaengplace.pet.service;
 
 import com.mycom.backenddaengplace.pet.domain.BreedType;
 import com.mycom.backenddaengplace.pet.domain.Pet;
-import com.mycom.backenddaengplace.pet.dto.request.PetRegisterRequest;
-import com.mycom.backenddaengplace.pet.dto.request.PetReviseRequest;
+import com.mycom.backenddaengplace.pet.dto.request.BasePetRequest;
 import com.mycom.backenddaengplace.pet.dto.response.*;
 import com.mycom.backenddaengplace.pet.exception.BreedNotFoundException;
 import com.mycom.backenddaengplace.pet.exception.InvalidBirthDateException;
 import com.mycom.backenddaengplace.pet.exception.PetNotFoundException;
 import com.mycom.backenddaengplace.pet.repository.BreedTypeRepository;
 import com.mycom.backenddaengplace.pet.repository.PetRepository;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,7 +30,7 @@ public class PetService {
     private final PetRepository petRepository;
     private final BreedTypeRepository breedTypeRepository;
 
-    public PetRegisterResponse registerPet(PetRegisterRequest request) {
+    public BasePetResponse registerPet(BasePetRequest request) {
         log.debug("반려견 등록 시작");
 
         BreedType breedType = getBreedType(request.getBreedTypeId());
@@ -51,17 +49,7 @@ public class PetService {
         Pet savedPet = petRepository.save(pet);
         log.info("반려견 등록 완료. petId: {}", savedPet.getId());
 
-        return PetRegisterResponse.builder()
-                .petId(savedPet.getId())
-                .name(savedPet.getName())
-                .breed(savedPet.getBreedType().getBreedType())
-                .birthDate(savedPet.getBirthDate().format(DateTimeFormatter.ISO_DATE))
-                .age(calculateAge(savedPet.getBirthDate()))
-                .weight(savedPet.getWeight())
-                .gender(savedPet.getGender())
-                .isNeutered(savedPet.getIsNeutered())
-                .registeredAt(savedPet.getCreatedAt())
-                .build();
+        return BasePetResponse.from(pet);
     }
 
     private BreedType getBreedType(Long breedTypeId) {
@@ -79,15 +67,15 @@ public class PetService {
                 .collect(Collectors.toList());
     }
 
-    public PetGetResponse getPet(Long petId) {
+    public BasePetResponse getPet(Long petId) {
 
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new PetNotFoundException(petId));
 
-        return PetGetResponse.from(pet);
+        return BasePetResponse.from(pet);
     }
 
-    public PetReviseResponse revisePet(PetReviseRequest request, Long petId) {
+    public BasePetResponse revisePet(BasePetRequest request, Long petId) {
 
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new PetNotFoundException(petId));
@@ -109,7 +97,7 @@ public class PetService {
         // 수정된 Pet 객체 저장
         petRepository.save(pet);
 
-        return PetReviseResponse.from(pet);
+        return BasePetResponse.from(pet);
     }
 
     public PetDeleteResponse deletePet(Long petId) {
