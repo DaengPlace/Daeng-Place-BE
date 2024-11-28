@@ -7,6 +7,7 @@ import com.mycom.backenddaengplace.place.dto.request.SearchCriteria;
 import com.mycom.backenddaengplace.place.dto.response.PlaceDetailResponse;
 import com.mycom.backenddaengplace.place.dto.response.PlaceListResponse;
 import com.mycom.backenddaengplace.place.dto.response.PopularPlaceResponse;
+import com.mycom.backenddaengplace.place.enums.Category;
 import com.mycom.backenddaengplace.place.exception.PlaceNotFoundException;
 import com.mycom.backenddaengplace.place.repository.OperationHourRepository;
 import com.mycom.backenddaengplace.place.repository.PlaceQueryRepository;
@@ -96,7 +97,7 @@ public class PlaceService {
     }
 
 
-    public Page<PopularPlaceResponse> getPopularPlaces(String sort, String category, Pageable pageable) {
+    public Page<PopularPlaceResponse> getPopularPlaces(String sort, Category category, Pageable pageable) {
         return placeQueryRepository.findPopularPlaces(sort, category, pageable);
     }
 }

@@ -137,7 +137,7 @@ public class PlaceQueryRepository {
                 .build();
     }
 
-    public Page<PopularPlaceResponse> findPopularPlaces(String sort, String category, Pageable pageable) {
+    public Page<PopularPlaceResponse> findPopularPlaces(String sort, Category category, Pageable pageable) {
         QPlace place = QPlace.place;
         QReview review = QReview.review;
 
@@ -177,16 +177,8 @@ public class PlaceQueryRepository {
         };
     }
 
-    private BooleanExpression categoryEq(String category) {
-        if (category == null) {
-            return null;
-        }
-        try {
-            Category placeCategory = Category.valueOf(category);
-            return QPlace.place.category.eq(placeCategory);
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
+    private BooleanExpression categoryEq(Category category) {
+        return category != null ? QPlace.place.category.eq(category) : null;
     }
 
     private OrderSpecifier<?> getSortOrderForPopular(String sort) {
@@ -201,7 +193,7 @@ public class PlaceQueryRepository {
         };
     }
 
-    private long getTotal(String category) {
+    private long getTotal(Category category) {
         QPlace place = QPlace.place;
         return jpaQueryFactory
                 .select(place.count())
