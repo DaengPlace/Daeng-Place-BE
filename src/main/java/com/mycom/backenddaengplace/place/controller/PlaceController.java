@@ -5,9 +5,11 @@ import com.mycom.backenddaengplace.common.dto.ApiResponse;
 import com.mycom.backenddaengplace.place.dto.request.SearchCriteria;
 import com.mycom.backenddaengplace.place.dto.response.PlaceDetailResponse;
 import com.mycom.backenddaengplace.place.dto.response.PlaceListResponse;
+import com.mycom.backenddaengplace.place.dto.response.PopularPlaceResponse;
 import com.mycom.backenddaengplace.place.service.PlaceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,9 +40,11 @@ public class PlaceController {
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<ApiResponse<List<PlaceDetailResponse>>> getPopularPlaces() {
-        List<PlaceDetailResponse> popularPlaces = placeService.getPopularPlaces();
-
-        return ResponseEntity.ok(ApiResponse.success("인기 장소 목록 조회를 성공했습니다.", popularPlaces));
+    public ResponseEntity<ApiResponse<List<PopularPlaceResponse>>> getPopularPlaces(
+            @RequestParam(value = "sort", defaultValue = "popularity") String sort,
+            @RequestParam(value = "category", required = false) String category,
+            Pageable pageable) {
+        Page<PopularPlaceResponse> page = placeService.getPopularPlaces(sort, category, pageable);
+        return ResponseEntity.ok(ApiResponse.success("인기 장소 목록 조회를 성공했습니다.", page.getContent()));
     }
 }

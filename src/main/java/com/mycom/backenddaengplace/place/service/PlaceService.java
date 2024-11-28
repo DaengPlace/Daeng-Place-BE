@@ -6,6 +6,7 @@ import com.mycom.backenddaengplace.place.domain.Place;
 import com.mycom.backenddaengplace.place.dto.request.SearchCriteria;
 import com.mycom.backenddaengplace.place.dto.response.PlaceDetailResponse;
 import com.mycom.backenddaengplace.place.dto.response.PlaceListResponse;
+import com.mycom.backenddaengplace.place.dto.response.PopularPlaceResponse;
 import com.mycom.backenddaengplace.place.exception.PlaceNotFoundException;
 import com.mycom.backenddaengplace.place.repository.OperationHourRepository;
 import com.mycom.backenddaengplace.place.repository.PlaceQueryRepository;
@@ -13,6 +14,7 @@ import com.mycom.backenddaengplace.place.repository.PlaceRepository;
 import com.mycom.backenddaengplace.review.domain.Review;
 import com.mycom.backenddaengplace.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,21 +95,8 @@ public class PlaceService {
         return placeQueryRepository.searchPlaces(criteria, pageable);
     }
 
-    @Transactional(readOnly = true)
-    public List<PlaceDetailResponse> getPopularPlaces() {
-        // 평균 평점순으로 장소 ID와 평점 정보를 가져옴
-        List<Object[]> topPlaces = reviewRepository.findTopPlacesByAverageRating();
 
-        // 상위 3개만 추출하여 장소 상세 정보 조회
-        return topPlaces.stream()
-                .limit(3)
-                .map(result -> {
-                    Long placeId = (Long) result[0];
-                    Double avgRating = (Double) result[1];
-                    Long reviewCount = (Long) result[2];
-
-                    return getPlaceDetail(placeId);
-                })
-                .collect(Collectors.toList());
+    public Page<PopularPlaceResponse> getPopularPlaces(String sort, String category, Pageable pageable) {
+        return placeQueryRepository.findPopularPlaces(sort, category, pageable);
     }
 }
