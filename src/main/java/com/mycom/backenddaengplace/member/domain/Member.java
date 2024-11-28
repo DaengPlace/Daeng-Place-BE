@@ -24,14 +24,12 @@ public class Member extends BaseEntity {
     private String name;
     private String nickname;
     private LocalDateTime birthDate;
-
     @Enumerated(EnumType.STRING)
     private Gender gender;
-
 //    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
 //    private List<Pet> pets = new ArrayList<>();
-
-    private String phone;
+    private String state;
+    private String city;
     private String profileImageUrl;
     private Boolean locationStatus;
 
@@ -41,7 +39,11 @@ public class Member extends BaseEntity {
             String name,
             String nickname,
             LocalDateTime birthDate,
-            Gender gender
+            Gender gender,
+            String state,
+            String city,
+            String profileImageUrl,
+            Boolean locationStatus
     ) {
 
         this.email = email;
@@ -49,6 +51,10 @@ public class Member extends BaseEntity {
         this.nickname = nickname;
         this.birthDate = birthDate;
         this.gender = gender;
+        this.state = state;
+        this.city = city;
+        this.profileImageUrl = profileImageUrl;
+        this.locationStatus = locationStatus;
 
     }
 
