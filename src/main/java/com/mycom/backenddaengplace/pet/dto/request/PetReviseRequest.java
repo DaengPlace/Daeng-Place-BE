@@ -1,19 +1,14 @@
 package com.mycom.backenddaengplace.pet.dto.request;
 
 import com.mycom.backenddaengplace.member.enums.Gender;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PetRegisterRequest {
+public class PetReviseRequest {
     @NotBlank(message = "이름을 입력해주세요.")
     @Size(min = 2, max = 20, message = "이름은 2자 이상 20자 이하로 입력해주세요.")
     private String name;

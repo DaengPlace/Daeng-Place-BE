@@ -1,5 +1,6 @@
 package com.mycom.backenddaengplace.pet.domain;
 
+import com.mycom.backenddaengplace.common.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,6 +27,5 @@ public class BreedType {
 
     @OneToMany(mappedBy = "breedType")
     private List<Pet> pets = new ArrayList<>();
-
 
 }

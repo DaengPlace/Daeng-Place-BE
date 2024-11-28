@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Setter
 @Table(name = "pet")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Pet extends BaseEntity {
@@ -31,14 +32,19 @@ public class Pet extends BaseEntity {
     private String name;
     private LocalDateTime birthDate;
     private Boolean isNeutered;
-    private Gender gender;
-    private Integer weight;
 
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+    @Column(name = "weight", precision = 4, nullable = false)
+    private Double weight;
+
+    @Column(name = "chip_id")
     private String chipId;
 
     @Builder
     public Pet(BreedType breedType, String name, LocalDateTime birthDate,
-            boolean isNeutered, int weight, Gender gender
+               Boolean isNeutered, Double weight, Gender gender
     ) {
         this.breedType = breedType;
         this.name = name;
