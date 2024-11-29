@@ -1,11 +1,11 @@
 package com.mycom.backenddaengplace.member.service;
 
 import com.mycom.backenddaengplace.member.domain.Member;
-import com.mycom.backenddaengplace.member.dto.request.EmailCheckRequest;
+import com.mycom.backenddaengplace.member.dto.request.BaseEmailRequest;
 import com.mycom.backenddaengplace.member.dto.request.MemberRegisterRequest;
 import com.mycom.backenddaengplace.member.dto.request.MemberReviseRequest;
-import com.mycom.backenddaengplace.member.dto.response.EmailCheckResponse;
 import com.mycom.backenddaengplace.member.dto.response.BaseMemberResponse;
+import com.mycom.backenddaengplace.member.dto.response.EmailDuplicateCheckResponse;
 import com.mycom.backenddaengplace.member.exception.MemberNotFoundException;
 import com.mycom.backenddaengplace.member.repository.MemberRepository;
 import com.mycom.backenddaengplace.pet.exception.InvalidBirthDateException;
@@ -86,11 +86,11 @@ public class MemberService {
         }
     }
 
-    public EmailCheckResponse checkEmail(EmailCheckRequest request) {
+    public EmailDuplicateCheckResponse checkDuplicateEmail(BaseEmailRequest request) {
 
         boolean isValid = memberRepository.existsByEmail(request.getEmail());
 
-        return EmailCheckResponse.from(!isValid);
+        return EmailDuplicateCheckResponse.from(!isValid);
     }
 
     public BaseMemberResponse deleteMember(Long memberId) {

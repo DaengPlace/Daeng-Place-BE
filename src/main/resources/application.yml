@@ -1,6 +1,9 @@
 spring:
   profiles:
-    active: dev
+    active: dev, email
+  config:
+    import:
+      - application-email.yml
   jpa:
     properties:
       hibernate:
