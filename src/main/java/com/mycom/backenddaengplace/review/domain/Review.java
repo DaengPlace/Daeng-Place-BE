@@ -41,7 +41,8 @@ public class Review extends BaseEntity {
     @Column(name = "rating", precision = 2, nullable = false)
     private Double rating;
 
-
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewLike> reviewLikes = new ArrayList<>();
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MediaFile> mediaFiles;
