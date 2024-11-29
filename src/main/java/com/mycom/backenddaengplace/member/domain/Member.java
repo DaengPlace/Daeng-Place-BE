@@ -3,6 +3,7 @@ package com.mycom.backenddaengplace.member.domain;
 import com.mycom.backenddaengplace.common.domain.BaseEntity;
 import com.mycom.backenddaengplace.member.enums.Gender;
 import com.mycom.backenddaengplace.pet.domain.Pet;
+import com.mycom.backenddaengplace.review.domain.ReviewLike;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,6 +33,9 @@ public class Member extends BaseEntity {
     private String city;
     private String profileImageUrl;
     private Boolean locationStatus;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewLike> reviewLikes = new ArrayList<>();
 
     @Builder
     public Member(
