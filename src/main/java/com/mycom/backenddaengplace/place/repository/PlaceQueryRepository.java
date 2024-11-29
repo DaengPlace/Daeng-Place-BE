@@ -1,5 +1,7 @@
 package com.mycom.backenddaengplace.place.repository;
 
+import com.mycom.backenddaengplace.member.domain.QMember;
+import com.mycom.backenddaengplace.member.enums.Gender;
 import com.mycom.backenddaengplace.place.domain.QLocation;
 import com.mycom.backenddaengplace.place.domain.QOperationHour;
 import com.mycom.backenddaengplace.place.domain.QPlace;
@@ -14,6 +16,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.DateTimePath;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -23,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -187,8 +191,8 @@ public class PlaceQueryRepository {
         return switch (sort) {
             case "rating" -> review.rating.avg().desc();
             case "review" -> review.count().desc();
-            default -> review.rating.avg().multiply(0.6)
-                    .add(review.count().castToNum(Double.class).multiply(0.4))
+            default -> review.rating.avg().multiply(0.7)
+                    .add(review.count().castToNum(Double.class).multiply(0.3))
                     .desc();
         };
     }
@@ -201,4 +205,47 @@ public class PlaceQueryRepository {
                 .where(categoryEq(category))
                 .fetchOne();
     }
+
+    public List<PopularPlaceResponse> getPopularPlacesByGenderAndAge(Gender gender, int age) {
+        QPlace place = QPlace.place;
+        QReview review = QReview.review;
+        QMember member = QMember.member;
+
+        List<PopularPlaceResponse> content = jpaQueryFactory
+                .select(Projections.bean(PopularPlaceResponse.class,
+                        place.category.stringValue().as("type"),
+                        place.id.as("placeId"),
+                        place.name,
+                        Expressions.numberTemplate(Double.class,
+                                "ROUND({0}, 1)", review.rating.avg()).as("rating"),
+                        review.rating.avg().multiply(0.7)
+                                .add(review.count().castToNum(Double.class).multiply(0.3))
+                                .as("popularityScore")
+                ))
+                .from(place)
+                .leftJoin(review).on(review.place.eq(place))
+                .leftJoin(member).on(review.member.eq(member))
+                .where(
+                        member.gender.eq(gender),
+                        ageBetween(member.birthDate, age)
+                )
+                .groupBy(place.id, place.category, place.name)
+                .orderBy(getSortOrderForPopular("popularity"))
+                .offset(0)
+                .limit(3)
+                .fetch();
+
+        return content;
+    }
+
+    private BooleanExpression ageBetween(DateTimePath<LocalDateTime> birthDate, int targetAge) {
+        int currentYear = LocalDateTime.now().getYear();
+        int startYear = currentYear - targetAge - 10;
+        int endYear = currentYear - targetAge + 1;
+        LocalDateTime startDate = LocalDateTime.of(startYear, 1, 1, 0, 0);
+        LocalDateTime endDate = LocalDateTime.of(endYear, 12, 31, 23, 59);
+        return birthDate.between(startDate, endDate);
+    }
+
+
 }

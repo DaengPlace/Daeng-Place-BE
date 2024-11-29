@@ -3,6 +3,7 @@ package com.mycom.backenddaengplace.place.controller;
 
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
 import com.mycom.backenddaengplace.place.dto.request.SearchCriteria;
+import com.mycom.backenddaengplace.place.dto.response.AgeGenderPlaceResponse;
 import com.mycom.backenddaengplace.place.dto.response.PlaceDetailResponse;
 import com.mycom.backenddaengplace.place.dto.response.PlaceListResponse;
 import com.mycom.backenddaengplace.place.dto.response.PopularPlaceResponse;
@@ -60,5 +61,12 @@ public class PlaceController {
         if (!validSortTypes.contains(sort)) {
             throw new InvalidParameterException("정렬 기준이 유효하지 않습니다.");
         }
+    }
+
+    @GetMapping("/gender-popular/{memberId}")
+    public ResponseEntity<ApiResponse<AgeGenderPlaceResponse>> getGenderAgePopularPlace(@PathVariable Long memberId) {
+
+        AgeGenderPlaceResponse response = placeService.getPopularPlacesByGenderAndAge(memberId);
+        return ResponseEntity.ok(ApiResponse.success("OK", response));
     }
 }
