@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class UserReviewResponse {
+public class MemberReviewResponse {
     private Long reviewId;
     private String nickname;
     private String placeName;
@@ -19,8 +19,8 @@ public class UserReviewResponse {
     private LocalDateTime createdAt;
     private String profileImageUrl;
 
-    public static UserReviewResponse from(Review review) {
-        return UserReviewResponse.builder()
+    public static MemberReviewResponse from(Review review) {
+        return MemberReviewResponse.builder()
                 .reviewId(review.getId())
                 .nickname(review.getMember().getNickname())
                 .placeName(review.getPlace().getName())

@@ -3,7 +3,7 @@ package com.mycom.backenddaengplace.review.controller;
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
 import com.mycom.backenddaengplace.review.dto.request.ReviewRequest;
 import com.mycom.backenddaengplace.review.dto.response.ReviewResponse;
-import com.mycom.backenddaengplace.review.dto.response.UserReviewResponse;
+import com.mycom.backenddaengplace.review.dto.response.MemberReviewResponse;
 import com.mycom.backenddaengplace.review.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -52,8 +52,8 @@ public class ReviewController {
     }
 
     @GetMapping("/{memberId}")
-    public ResponseEntity<ApiResponse<List<UserReviewResponse>>> getUserReview(@PathVariable Long memberId) {
-        List<UserReviewResponse> reviews = reviewService.getUserReview(memberId);
+    public ResponseEntity<ApiResponse<List<MemberReviewResponse>>> getUserReview(@PathVariable Long memberId) {
+        List<MemberReviewResponse> reviews = reviewService.getUserReview(memberId);
 
         return ResponseEntity.ok(ApiResponse.success("사용자의 리뷰 목록을 성공적으로 조회했습니다.", reviews));
     }
