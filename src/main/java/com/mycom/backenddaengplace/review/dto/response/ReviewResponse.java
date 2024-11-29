@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Builder
@@ -16,6 +18,7 @@ public class ReviewResponse {
     private String content;
     private String traitTag;
     private LocalDateTime createdAt;
+    private List<String> imageUrls;  // 추가
 
     public static ReviewResponse from(Review review) {
         return ReviewResponse.builder()
@@ -26,6 +29,7 @@ public class ReviewResponse {
                 .content(review.getContent())
                 .traitTag(review.getTraitTag())
                 .createdAt(review.getCreatedAt())
+                .imageUrls(new ArrayList<>())  // S3 설정 전까지 빈 리스트 반환
                 .build();
     }
 }

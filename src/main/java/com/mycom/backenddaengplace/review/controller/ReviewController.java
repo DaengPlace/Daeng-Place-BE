@@ -2,6 +2,7 @@ package com.mycom.backenddaengplace.review.controller;
 
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
 import com.mycom.backenddaengplace.review.dto.request.ReviewRequest;
+import com.mycom.backenddaengplace.review.dto.response.PopularReviewResponse;
 import com.mycom.backenddaengplace.review.dto.response.ReviewResponse;
 import com.mycom.backenddaengplace.review.dto.response.MemberReviewResponse;
 import com.mycom.backenddaengplace.review.service.ReviewService;
@@ -62,6 +63,15 @@ public class ReviewController {
     public ResponseEntity<ApiResponse<String>> deleteReview(@PathVariable Long memberId, @PathVariable Long reviewId) {
         reviewService.deleteReview(memberId, reviewId);
         return ResponseEntity.ok(ApiResponse.success("리뷰가 성공적으로 삭제되었습니다."));
+    }
+
+    @GetMapping("/popular")
+    public ResponseEntity<ApiResponse<List<PopularReviewResponse>>> getPopularReviews() {
+        List<PopularReviewResponse> reviews = reviewService.getPopularReviews();
+        return ResponseEntity.ok(ApiResponse.success(
+                "인기 리뷰 조회에 성공했습니다.",
+                reviews
+        ));
     }
 
 }
