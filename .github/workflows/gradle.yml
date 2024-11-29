@@ -34,7 +34,7 @@ jobs:
               SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
               SPRING_DATASOURCE_USERNAME: sa
               SPRING_DATASOURCE_PASSWORD: password
-              SPRING_MAIL_EMAIL: ${{ secrets.EMAIL }}
+              SPRING_MAIL_USERNAME: ${{ secrets.EMAIL }}
               SPRING_MAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
 
       - name: Backend CI Slack Notification (Success)
