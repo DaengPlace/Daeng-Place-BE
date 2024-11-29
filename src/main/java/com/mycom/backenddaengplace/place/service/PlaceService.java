@@ -1,5 +1,9 @@
 package com.mycom.backenddaengplace.place.service;
 
+import com.mycom.backenddaengplace.member.enums.Gender;
+import com.mycom.backenddaengplace.member.exception.MemberNotFoundException;
+import com.mycom.backenddaengplace.member.repository.MemberRepository;
+import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.place.domain.Address;
 import com.mycom.backenddaengplace.place.domain.OperationHour;
 import com.mycom.backenddaengplace.place.domain.Place;
@@ -20,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 import java.util.*;
@@ -32,6 +37,7 @@ public class PlaceService {
     private final OperationHourRepository operationHourRepository;
     private final ReviewRepository reviewRepository;
     private final PlaceQueryRepository placeQueryRepository;
+    private final MemberRepository memberRepository;
 
     @Transactional
     public PlaceDetailResponse getPlaceDetail(Long placeId) {
@@ -98,5 +104,18 @@ public class PlaceService {
 
     public Page<PopularPlaceResponse> getPopularPlaces(String sort, Category category, Pageable pageable) {
         return placeQueryRepository.findPopularPlaces(sort, category, pageable);
+    }
+
+    public List<PopularPlaceResponse> getPopularPlacesByGenderAndAge(Long memberId) {
+
+        // 로그인된 사용자 정보로 성별 및 연령대 조회
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
+        Gender gender = member.getGender();
+        int age = LocalDate.now().getYear() - member.getBirthDate().getYear();
+        int ageGroup = (age / 10) * 10;
+
+        // 인기 장소 조회
+        return placeQueryRepository.getPopularPlacesByGenderAndAge(gender, ageGroup);
+
     }
 }

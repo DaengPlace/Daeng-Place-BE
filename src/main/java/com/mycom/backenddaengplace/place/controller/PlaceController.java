@@ -61,4 +61,11 @@ public class PlaceController {
             throw new InvalidParameterException("정렬 기준이 유효하지 않습니다.");
         }
     }
+
+    @GetMapping("/gender-popular/{memberId}")
+    public ResponseEntity<ApiResponse<List<PopularPlaceResponse>>> getGenderAgePopularPlace(@PathVariable Long memberId) {
+
+        List<PopularPlaceResponse> response = placeService.getPopularPlacesByGenderAndAge(memberId);
+        return ResponseEntity.ok(ApiResponse.success("OK", response));
+    }
 }
