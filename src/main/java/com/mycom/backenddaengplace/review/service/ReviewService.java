@@ -12,6 +12,7 @@ import com.mycom.backenddaengplace.review.dto.response.ReviewResponse;
 import com.mycom.backenddaengplace.review.dto.response.MemberReviewResponse;
 import com.mycom.backenddaengplace.review.exception.ReviewAlreadyExistsException;
 import com.mycom.backenddaengplace.review.exception.ReviewNotFoundException;
+import com.mycom.backenddaengplace.review.exception.ReviewNotOwnedException;
 import com.mycom.backenddaengplace.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -91,5 +92,20 @@ public class ReviewService {
         return reviews.stream()
                 .map(MemberReviewResponse::from)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void deleteReview(Long memberId, Long reviewId) {
+        if (!memberRepository.existsById(memberId)) {
+            throw new MemberNotFoundException(memberId);
+        }
+
+        Review review = reviewRepository.findByIdAndMemberId(reviewId, memberId);
+        if (review == null) {
+            throw new ReviewNotOwnedException(memberId, reviewId);
+        }
+
+        reviewRepository.delete(review);
+
     }
 }
