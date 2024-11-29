@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class EmailCheckRequest {
+public class BaseEmailRequest {
 
     @NotEmpty(message = "이메일은 입력해주세요.")
     @Email(message = "이메일 형식에 맞게 입력해주세요.")
