@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Setter
 @Table(name = "pet")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Pet extends BaseEntity {
