@@ -8,6 +8,7 @@ import com.mycom.backenddaengplace.place.domain.Address;
 import com.mycom.backenddaengplace.place.domain.OperationHour;
 import com.mycom.backenddaengplace.place.domain.Place;
 import com.mycom.backenddaengplace.place.dto.request.SearchCriteria;
+import com.mycom.backenddaengplace.place.dto.response.AgeGenderPlaceResponse;
 import com.mycom.backenddaengplace.place.dto.response.PlaceDetailResponse;
 import com.mycom.backenddaengplace.place.dto.response.PlaceListResponse;
 import com.mycom.backenddaengplace.place.dto.response.PopularPlaceResponse;
@@ -21,6 +22,7 @@ import com.mycom.backenddaengplace.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -106,7 +108,7 @@ public class PlaceService {
         return placeQueryRepository.findPopularPlaces(sort, category, pageable);
     }
 
-    public List<PopularPlaceResponse> getPopularPlacesByGenderAndAge(Long memberId) {
+    public AgeGenderPlaceResponse getPopularPlacesByGenderAndAge(Long memberId) {
 
         // 로그인된 사용자 정보로 성별 및 연령대 조회
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
@@ -115,7 +117,18 @@ public class PlaceService {
         int ageGroup = (age / 10) * 10;
 
         // 인기 장소 조회
-        return placeQueryRepository.getPopularPlacesByGenderAndAge(gender, ageGroup);
-
+        List<PopularPlaceResponse> places =  placeQueryRepository.getPopularPlacesByGenderAndAge(gender, ageGroup);
+        AgeGenderPlaceResponse response = new AgeGenderPlaceResponse();
+        response.setAge(ageGroup + "대");
+        response.setGender(convertGenderToKorean(gender));
+        response.setPopularPlaces(places);
+        return response;
+    }
+    private String convertGenderToKorean(Gender gender) {
+        return switch (gender) {
+            case MALE -> "남성";
+            case FEMALE -> "여성";
+            default -> "기타";
+        };
     }
 }

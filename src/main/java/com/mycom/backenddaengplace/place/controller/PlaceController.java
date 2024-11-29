@@ -3,6 +3,7 @@ package com.mycom.backenddaengplace.place.controller;
 
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
 import com.mycom.backenddaengplace.place.dto.request.SearchCriteria;
+import com.mycom.backenddaengplace.place.dto.response.AgeGenderPlaceResponse;
 import com.mycom.backenddaengplace.place.dto.response.PlaceDetailResponse;
 import com.mycom.backenddaengplace.place.dto.response.PlaceListResponse;
 import com.mycom.backenddaengplace.place.dto.response.PopularPlaceResponse;
@@ -63,9 +64,9 @@ public class PlaceController {
     }
 
     @GetMapping("/gender-popular/{memberId}")
-    public ResponseEntity<ApiResponse<List<PopularPlaceResponse>>> getGenderAgePopularPlace(@PathVariable Long memberId) {
+    public ResponseEntity<ApiResponse<AgeGenderPlaceResponse>> getGenderAgePopularPlace(@PathVariable Long memberId) {
 
-        List<PopularPlaceResponse> response = placeService.getPopularPlacesByGenderAndAge(memberId);
+        AgeGenderPlaceResponse response = placeService.getPopularPlacesByGenderAndAge(memberId);
         return ResponseEntity.ok(ApiResponse.success("OK", response));
     }
 }
