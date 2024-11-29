@@ -2,17 +2,24 @@ package com.mycom.backenddaengplace.member.controller;
 
 
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
-import com.mycom.backenddaengplace.member.dto.request.EmailCheckRequest;
+import com.mycom.backenddaengplace.member.dto.request.BaseEmailRequest;
+import com.mycom.backenddaengplace.member.dto.request.EmailCodeCheckRequest;
 import com.mycom.backenddaengplace.member.dto.request.MemberRegisterRequest;
 import com.mycom.backenddaengplace.member.dto.request.MemberReviseRequest;
-import com.mycom.backenddaengplace.member.dto.response.EmailCheckResponse;
+import com.mycom.backenddaengplace.member.dto.response.EmailCodeCheckResponse;
+import com.mycom.backenddaengplace.member.dto.response.EmailDuplicateCheckResponse;
 import com.mycom.backenddaengplace.member.dto.response.BaseMemberResponse;
+import com.mycom.backenddaengplace.member.dto.response.EmailSendCodeResponse;
+import com.mycom.backenddaengplace.member.service.EmailService;
 import com.mycom.backenddaengplace.member.service.MemberService;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.UnsupportedEncodingException;
 
 @RestController
 @RequestMapping("/members")
@@ -21,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
 
     private final MemberService memberService;
+    private final EmailService emailService;
 
     @GetMapping("/profile/{memberId}")
     public ResponseEntity<ApiResponse<BaseMemberResponse>> getMember(@PathVariable("memberId") Long memberId) {
@@ -50,13 +58,26 @@ public class MemberController {
         return ResponseEntity.ok(ApiResponse.success("회원 등록이 완료되었습니다.", response));
     }
 
-    @GetMapping("/check-email")
-    public ResponseEntity<ApiResponse<EmailCheckResponse>> checkMemberEmail(
-            @Valid @RequestBody EmailCheckRequest request
+    @GetMapping("/email-duplicate-check")
+    public ResponseEntity<ApiResponse<EmailDuplicateCheckResponse>> checkDuplicateEmail(
+            @Valid @RequestBody BaseEmailRequest request
     ) {
-        EmailCheckResponse response = memberService.checkEmail(request);
+        EmailDuplicateCheckResponse response = memberService.checkDuplicateEmail(request);
         return ResponseEntity.ok(ApiResponse.success("이메일 중복 체크가 완료되었습니다.", response));
     }
 
+    @PostMapping("/email-send-code")
+    public ResponseEntity<ApiResponse<EmailSendCodeResponse>> sendEmailCode(
+            @Valid @RequestBody BaseEmailRequest request) throws MessagingException, UnsupportedEncodingException {
+        EmailSendCodeResponse response = emailService.sendEmailCode(request.getEmail());
+        return ResponseEntity.ok(ApiResponse.success("인증 번호를 전송하였습니다.", response));
+    }
+
+    @PostMapping("/email-code-check")
+    public ResponseEntity<ApiResponse<EmailCodeCheckResponse>> emailCodeCheck(
+            @Valid @RequestBody EmailCodeCheckRequest request) {
+        EmailCodeCheckResponse response = emailService.checkEmailCode(request.getEmail(), request.getCode());
+        return ResponseEntity.ok(ApiResponse.success("이메일 인증 성공하였습니다..", response));
+    }
 
 }
