@@ -1,6 +1,7 @@
 package com.mycom.backenddaengplace.review.dto.response;
 
 
+import com.mycom.backenddaengplace.place.enums.Category;
 import com.mycom.backenddaengplace.review.domain.Review;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,6 +24,7 @@ public class PopularReviewResponse {
     private String memberName;
     private Long placeId;
     private String placeName;
+    private Category category;
 
     public static PopularReviewResponse from(Review review) {
         return PopularReviewResponse.builder()
@@ -37,6 +39,7 @@ public class PopularReviewResponse {
                 .memberName(review.getMember().getName())
                 .placeId(review.getPlace().getId())
                 .placeName(review.getPlace().getName())
+                .category(review.getPlace().getCategory())
                 .build();
     }
 }

@@ -27,7 +27,7 @@ public class ReviewQueryRepository {
                 .leftJoin(review.member, member).fetchJoin()
                 .leftJoin(review.place, place).fetchJoin()
                 .leftJoin(review.reviewLikes, reviewLike)
-                .groupBy(review.id, member.id, place.id)
+                .groupBy(review.id, member.id, place.id, place.category)
                 .orderBy(reviewLike.count().desc())
                 .fetch();
     }
