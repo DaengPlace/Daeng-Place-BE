@@ -9,6 +9,7 @@ import com.mycom.backenddaengplace.place.repository.PlaceRepository;
 import com.mycom.backenddaengplace.review.domain.Review;
 import com.mycom.backenddaengplace.review.dto.request.ReviewRequest;
 import com.mycom.backenddaengplace.review.dto.response.ReviewResponse;
+import com.mycom.backenddaengplace.review.dto.response.UserReviewResponse;
 import com.mycom.backenddaengplace.review.exception.ReviewAlreadyExistsException;
 import com.mycom.backenddaengplace.review.exception.ReviewNotFoundException;
 import com.mycom.backenddaengplace.review.repository.ReviewRepository;
@@ -81,4 +82,14 @@ public class ReviewService {
         return ReviewResponse.from(review);
     }
 
+    public List<UserReviewResponse> getUserReview(Long memberId) {
+        if (!memberRepository.existsById(memberId)) {
+            throw new MemberNotFoundException(memberId);
+        }
+
+        List<Review> reviews = reviewRepository.findByMemberId(memberId);
+        return reviews.stream()
+                .map(UserReviewResponse::from)
+                .collect(Collectors.toList());
+    }
 }

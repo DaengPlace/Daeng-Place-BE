@@ -3,6 +3,7 @@ package com.mycom.backenddaengplace.review.controller;
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
 import com.mycom.backenddaengplace.review.dto.request.ReviewRequest;
 import com.mycom.backenddaengplace.review.dto.response.ReviewResponse;
+import com.mycom.backenddaengplace.review.dto.response.UserReviewResponse;
 import com.mycom.backenddaengplace.review.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/places")
+@RequestMapping("/review")
 @RequiredArgsConstructor
 public class ReviewController {
 
@@ -48,5 +49,12 @@ public class ReviewController {
         return ResponseEntity.ok(
                 ApiResponse.success("리뷰 상세 정보를 성공적으로 조회했습니다.", review)
         );
+    }
+
+    @GetMapping("/{memberId}")
+    public ResponseEntity<ApiResponse<List<UserReviewResponse>>> getUserReview(@PathVariable Long memberId) {
+        List<UserReviewResponse> reviews = reviewService.getUserReview(memberId);
+
+        return ResponseEntity.ok(ApiResponse.success("사용자의 리뷰 목록을 성공적으로 조회했습니다.", reviews));
     }
 }
