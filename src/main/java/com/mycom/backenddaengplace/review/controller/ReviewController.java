@@ -20,7 +20,7 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @PostMapping("/{placeId}/review")
+    @PostMapping("/{placeId}")
     public ResponseEntity<ApiResponse<ReviewResponse>> createReview(
             @PathVariable Long placeId,
             @Valid @RequestBody ReviewRequest request) {
@@ -32,14 +32,14 @@ public class ReviewController {
                 .body(ApiResponse.success("리뷰가 성공적으로 등록되었습니다.", response));
     }
 
-    @GetMapping("/{placeId}/reviews")
+    @GetMapping("/places/{placeId}")
     public ResponseEntity<ApiResponse<List<ReviewResponse>>> getReviews(@PathVariable Long placeId) {
         List<ReviewResponse> reviews = reviewService.getReviews(placeId);
 
         return ResponseEntity.ok(ApiResponse.success("리뷰 목록을 성공적으로 조회했습니다.", reviews));
     }
 
-    @GetMapping("/{placeId}/reviews/{reviewId}")
+    @GetMapping("/{placeId}/and/{reviewId}")
     public ResponseEntity<ApiResponse<ReviewResponse>> getReviewDetail(
             @PathVariable Long placeId,
             @PathVariable Long reviewId) {
@@ -51,7 +51,7 @@ public class ReviewController {
         );
     }
 
-    @GetMapping("/{memberId}")
+    @GetMapping("/members/{memberId}")
     public ResponseEntity<ApiResponse<List<MemberReviewResponse>>> getUserReview(@PathVariable Long memberId) {
         List<MemberReviewResponse> reviews = reviewService.getUserReview(memberId);
 
