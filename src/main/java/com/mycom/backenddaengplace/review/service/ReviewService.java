@@ -8,11 +8,13 @@ import com.mycom.backenddaengplace.place.exception.PlaceNotFoundException;
 import com.mycom.backenddaengplace.place.repository.PlaceRepository;
 import com.mycom.backenddaengplace.review.domain.Review;
 import com.mycom.backenddaengplace.review.dto.request.ReviewRequest;
+import com.mycom.backenddaengplace.review.dto.response.PopularReviewResponse;
 import com.mycom.backenddaengplace.review.dto.response.ReviewResponse;
 import com.mycom.backenddaengplace.review.dto.response.MemberReviewResponse;
 import com.mycom.backenddaengplace.review.exception.ReviewAlreadyExistsException;
 import com.mycom.backenddaengplace.review.exception.ReviewNotFoundException;
 import com.mycom.backenddaengplace.review.exception.ReviewNotOwnedException;
+import com.mycom.backenddaengplace.review.repository.ReviewQueryRepository;
 import com.mycom.backenddaengplace.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final PlaceRepository placeRepository;
     private final MemberRepository memberRepository;
+    private final ReviewQueryRepository reviewQueryRepository;
 
     @Transactional
     public ReviewResponse createReview(Long placeId, ReviewRequest request) {
@@ -107,5 +110,13 @@ public class ReviewService {
 
         reviewRepository.delete(review);
 
+    }
+
+
+    public List<PopularReviewResponse> getPopularReviews() {
+        List<Review> reviews = reviewQueryRepository.findPopularReviews();
+        return reviews.stream()
+                .map(PopularReviewResponse::from)
+                .collect(Collectors.toList());
     }
 }
