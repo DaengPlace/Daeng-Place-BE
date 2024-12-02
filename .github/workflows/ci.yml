@@ -73,7 +73,7 @@ jobs:
 
       - name: Notify CI Slack
         if: always()
-        uses: ./.github/workflows/slack-notify
+        uses: ./.github/actions/slack-notify
         with:
             status: ${{ job.status }}
             webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
