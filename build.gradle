@@ -66,5 +66,5 @@ dependencies {
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
+    environment 'SPRING_PROFILES_ACTIVE', 'test'
 }
