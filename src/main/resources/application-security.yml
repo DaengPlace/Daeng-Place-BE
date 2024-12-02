@@ -1,0 +1,33 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ""  # Kakao는 secret이 optional
+            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+            authorization-grant-type: authorization_code
+            scope: profile_nickname, profile_image
+            client-name: Kakao
+            provider: kakao
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}  # Google에서 발급받은 Client ID
+            client-secret: ${GOOGLE_CLIENT_SECRET}  # Google에서 발급받은 Client Secret
+            redirect-uri: http://localhost:8080/login/oauth2/code/google
+            authorization-grant-type: authorization_code
+            scope: profile, email
+            client-name: Google
+
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+  jwt:
+    secret: ${JWT_SECRET_KEY}  # Access 토큰 비밀 키
+    refresh-secret-key: ${JWT_REFRESH_SECRET_KEY}  # Refresh 토큰 비밀 키 (새로운 키 추가)
+    access-token-validity: 600000  # Access 토큰 유효기간 (예: 10분)
+    refresh-token-validity: 2592000000  # Refresh 토큰 유효기간
