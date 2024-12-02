@@ -29,13 +29,44 @@ jobs:
       - name: Build with Gradle Wrapper
         run: ./gradlew build
         env:
-              SPRING_PROFILES_ACTIVE: test
-              SPRING_DATASOURCE_URL: jdbc:h2:mem:testdb
-              SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
-              SPRING_DATASOURCE_USERNAME: sa
-              SPRING_DATASOURCE_PASSWORD: password
-              SPRING_MAIL_USERNAME: ${{ secrets.EMAIL }}
-              SPRING_MAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          SPRING_PROFILES_ACTIVE: test
+          SPRING_DATASOURCE_URL: jdbc:h2:mem:testdb
+          SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
+          SPRING_DATASOURCE_USERNAME: sa
+          SPRING_DATASOURCE_PASSWORD: password
+
+          SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: true
+          SPRING_JPA_PROPERTIES_HIBERNATE_SHOW_SQL: true
+          SPRING_JPA_OPEN_IN_VIEW: false
+
+          # OAuth2 Client Information (use GitHub Secrets)
+          SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KAKAO_CLIENT_ID: ${{ secrets.KAKAO_CLIENT_ID }}
+          SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
+          SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KAKAO_REDIRECT_URI: http://localhost:8080/login/oauth2/code/kakao
+          SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KAKAO_AUTHORIZATION_GRANT_TYPE: authorization_code
+          SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KAKAO_SCOPE: profile_nickname, profile_image
+          SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KAKAO_CLIENT_NAME: Kakao
+          SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KAKAO_AUTHORIZATION_URI: https://kauth.kakao.com/oauth/authorize
+          SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KAKAO_TOKEN_URI: https://kauth.kakao.com/oauth/token
+          SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KAKAO_USER_INFO_URI: https://kapi.kakao.com/v2/user/me
+          SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KAKAO_USER_NAME_ATTRIBUTE: id
+
+          SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_REDIRECT_URI: http://localhost:8080/login/oauth2/code/google
+          SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_AUTHORIZATION_GRANT_TYPE: authorization_code
+          SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_SCOPE: https://www.googleapis.com/auth/userinfo.profile, https://www.googleapis.com/auth/userinfo.email
+          SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_NAME: Google
+
+          # JWT Configuration
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          JWT_REFRESH_SECRET_KEY: ${{ secrets.JWT_REFRESH_SECRET_KEY }}
+          JWT_ACCESS_TOKEN_VALIDITY: 600000  # 10분
+          JWT_REFRESH_TOKEN_VALIDITY: 2592000000  # 30일
+
+          # Logging Configuration
+          LOGGING_LEVEL_ROOT: info
+          LOGGING_LEVEL_COM_MYCOM: debug
 
       - name: Backend CI Slack Notification (Success)
         if: success()
@@ -96,4 +127,3 @@ jobs:
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
