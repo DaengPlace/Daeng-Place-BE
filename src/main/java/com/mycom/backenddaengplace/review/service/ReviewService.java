@@ -12,6 +12,7 @@ import com.mycom.backenddaengplace.review.dto.response.PopularReviewResponse;
 import com.mycom.backenddaengplace.review.dto.response.ReviewResponse;
 import com.mycom.backenddaengplace.review.dto.response.MemberReviewResponse;
 import com.mycom.backenddaengplace.review.exception.ReviewAlreadyExistsException;
+import com.mycom.backenddaengplace.review.exception.ReviewException;
 import com.mycom.backenddaengplace.review.exception.ReviewNotFoundException;
 import com.mycom.backenddaengplace.review.exception.ReviewNotOwnedException;
 import com.mycom.backenddaengplace.review.repository.ReviewQueryRepository;
@@ -118,5 +119,23 @@ public class ReviewService {
         return reviews.stream()
                 .map(PopularReviewResponse::from)
                 .collect(Collectors.toList());
+    }
+
+    public MemberReviewResponse getReview(Long reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> ReviewException.notFound(reviewId));
+
+        return MemberReviewResponse.from(review);
+    }
+
+    @Transactional
+    public void updateReview(Long memberId, Long reviewId, ReviewRequest request) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ReviewNotFoundException(reviewId, null));
+
+        if (!review.getMember().getId().equals(memberId)) {
+            throw new ReviewNotOwnedException(memberId, reviewId);
+        }
+        review.update(request.getContent(), request.getRating(), request.getTraitTag());
     }
 }
