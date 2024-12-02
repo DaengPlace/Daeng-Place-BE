@@ -1,0 +1,43 @@
+name: 'Slack Notification'
+description: 'Send notification to Slack'
+inputs:
+  status:
+    required: true
+  webhook-url:
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      run: |
+        if [ "${{ inputs.status }}" = "success" ]; then
+          message="*Success:* ✅ Backend CI Success ✅"
+          title="Success"
+          image_url="https://thumbs.dreamstime.com/b/success-red-stamp-text-white-44312500.jpg"
+        else
+          message="*Failure:* ❗️ Backend CI Failed ❗️"
+          title="Failure"
+          image_url="https://w7.pngwing.com/pngs/68/227/png-transparent-rubber-stamp-blue-world-dive-more-gmbh-architectural-engineering-office-praxis-fur-energetische-heilkunste-und-kinesiologie-others-text-rectangle-signage-thumbnail.png"
+        fi
+        
+        curl -X POST -H 'Content-type: application/json' \
+          --data "{
+            \"blocks\": [
+              {
+                \"type\": \"section\",
+                \"text\": {
+                  \"type\": \"mrkdwn\",
+                  \"text\": \"$message\n*Repository:* ${{ github.repository }}\n*Ref:* ${{ github.ref }}\n*Event:* ${{ github.event_name }}\n*Commit:* ${{ github.sha }}\n*Triggered by:* ${{ github.actor }}\n*Workflow:* ${{ github.workflow }}\"
+                }
+              },
+              {
+                \"type\": \"image\",
+                \"title\": {
+                  \"type\": \"plain_text\",
+                  \"text\": \"$title\"
+                },
+                \"image_url\": \"$image_url\",
+                \"alt_text\": \"$title\"
+              }
+            ]
+          }" ${{ inputs.webhook-url }}
