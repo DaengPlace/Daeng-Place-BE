@@ -25,14 +25,18 @@ public class Member extends BaseEntity {
     private String name;
     private String nickname;
     private LocalDateTime birthDate;
+
     @Enumerated(EnumType.STRING)
     private Gender gender;
-//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-//    private List<Pet> pets = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<Pet> pets = new ArrayList<>();
     private String state;
     private String city;
     private String profileImageUrl;
     private Boolean locationStatus;
+    private String provider;
+    private String providerId;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewLike> reviewLikes = new ArrayList<>();
@@ -44,6 +48,8 @@ public class Member extends BaseEntity {
             String nickname,
             LocalDateTime birthDate,
             Gender gender,
+            String provider,
+            String providerId,
             String state,
             String city,
             String profileImageUrl,
@@ -58,9 +64,18 @@ public class Member extends BaseEntity {
         this.state = state;
         this.city = city;
         this.profileImageUrl = profileImageUrl;
+        this.provider = provider;
+        this.providerId = providerId;
         this.locationStatus = locationStatus;
 
     }
 
+    public void update(String email, String nickname, String profileImageUrl, String provider, String providerId) {
+        if (email != null) this.email = email;
+        if (nickname != null) this.nickname = nickname;
+        if (profileImageUrl != null) this.profileImageUrl = profileImageUrl;
+        if (provider != null) this.provider = provider;
+        if (providerId != null) this.providerId = providerId;
+    }
 
 }
