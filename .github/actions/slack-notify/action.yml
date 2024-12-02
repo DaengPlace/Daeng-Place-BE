@@ -1,42 +1,55 @@
-name: Slack Notification
-on:
-  workflow_call:
-    inputs:
-      status:
-        required: true
-        type: string
-    secrets:
-      SLACK_WEBHOOK_URL:
-        required: true
+name: 'Slack Notification'
+description: 'Send notification to Slack'
+inputs:
+  status:
+    required: true
+  webhook-url:
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      run: |
+        status="${{ inputs.status }}"
+        if [ "$status" = "success" ]; then
+          title="Success"
+          message="*Success:* ✅ Backend CI Success ✅"
+          image_url="https://thumbs.dreamstime.com/b/success-red-stamp-text-white-44312500.jpg"
+        else
+          title="Failure" 
+          message="*Failure:* ❗️ Backend CI Failed ❗️"
+          image_url="https://w7.pngwing.com/pngs/68/227/png-transparent-rubber-stamp-blue-world-dive-more-gmbh-architectural-engineering-office-praxis-fur-energetische-heilkunste-und-kinesiologie-others-text-rectangle-signage-thumbnail.png"
+        fi
+        
+        echo "message=$message" >> $GITHUB_ENV
+        echo "title=$title" >> $GITHUB_ENV
+        echo "image_url=$image_url" >> $GITHUB_ENV
 
-jobs:
-  notify:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: 8398a7/action-slack@v3
-        with:
-          status: custom
-          fields: workflow,job,commit,repo,ref,author,took
-          custom_payload: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "${{ inputs.status == 'success' && '*Success:* ✅ Backend CI Success ✅\n\n' || '*Failure:* ❗️ Backend CI Failed ❗️\n\n' }}*Repository:* ${{ github.repository }}\n*Ref:* ${{ github.ref }}\n*Event:* ${{ github.event_name }}\n*Commit:* ${{ github.sha }}\n*Triggered by:* ${{ github.actor }}\n*Workflow:* ${{ github.workflow }}"
-                  }
-                },
-                {
-                  "type": "image",
-                  "title": {
-                    "type": "plain_text",
-                    "text": "${{ inputs.status == 'success' && 'Success' || 'Failure' }}"
-                  },
-                  "image_url": "${{ inputs.status == 'success' && 'https://thumbs.dreamstime.com/b/success-red-stamp-text-white-44312500.jpg' || 'https://w7.pngwing.com/pngs/68/227/png-transparent-rubber-stamp-blue-world-dive-more-gmbh-architectural-engineering-office-praxis-fur-energetische-heilkunste-und-kinesiologie-others-text-rectangle-signage-thumbnail.png' }}",
-                  "alt_text": "${{ inputs.status == 'success' && 'Success' || 'Failure' }}"
+    - uses: 8398a7/action-slack@v3
+      shell: bash
+      with:
+        status: custom
+        fields: workflow,job,commit,repo,ref,author,took
+        custom_payload: |
+          {
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn", 
+                  "text": "${{ env.message }}\n*Repository:* ${{ github.repository }}\n*Ref:* ${{ github.ref }}\n*Event:* ${{ github.event_name }}\n*Commit:* ${{ github.sha }}\n*Triggered by:* ${{ github.actor }}\n*Workflow:* ${{ github.workflow }}"
                 }
-              ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ inputs.webhook-url }}
+              },
+              {
+                "type": "image",
+                "title": {
+                  "type": "plain_text",
+                  "text": "${{ env.title }}"
+                },
+                "image_url": "${{ env.image_url }}",
+                "alt_text": "${{ env.title }}"
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ inputs.webhook-url }}
