@@ -10,46 +10,34 @@ runs:
   steps:
     - shell: bash
       run: |
-        status="${{ inputs.status }}"
-        if [ "$status" = "success" ]; then
-          title="Success"
+        if [ "${{ inputs.status }}" = "success" ]; then
           message="*Success:* ✅ Backend CI Success ✅"
+          title="Success"
           image_url="https://thumbs.dreamstime.com/b/success-red-stamp-text-white-44312500.jpg"
         else
-          title="Failure" 
           message="*Failure:* ❗️ Backend CI Failed ❗️"
+          title="Failure"
           image_url="https://w7.pngwing.com/pngs/68/227/png-transparent-rubber-stamp-blue-world-dive-more-gmbh-architectural-engineering-office-praxis-fur-energetische-heilkunste-und-kinesiologie-others-text-rectangle-signage-thumbnail.png"
         fi
         
-        echo "message=$message" >> $GITHUB_ENV
-        echo "title=$title" >> $GITHUB_ENV
-        echo "image_url=$image_url" >> $GITHUB_ENV
-
-    - uses: 8398a7/action-slack@v3
-      shell: bash
-      with:
-        status: custom
-        fields: workflow,job,commit,repo,ref,author,took
-        custom_payload: |
-          {
-            "blocks": [
+        curl -X POST -H 'Content-type: application/json' \
+          --data "{
+            \"blocks\": [
               {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn", 
-                  "text": "${{ env.message }}\n*Repository:* ${{ github.repository }}\n*Ref:* ${{ github.ref }}\n*Event:* ${{ github.event_name }}\n*Commit:* ${{ github.sha }}\n*Triggered by:* ${{ github.actor }}\n*Workflow:* ${{ github.workflow }}"
+                \"type\": \"section\",
+                \"text\": {
+                  \"type\": \"mrkdwn\",
+                  \"text\": \"$message\n*Repository:* ${{ github.repository }}\n*Ref:* ${{ github.ref }}\n*Event:* ${{ github.event_name }}\n*Commit:* ${{ github.sha }}\n*Triggered by:* ${{ github.actor }}\n*Workflow:* ${{ github.workflow }}\"
                 }
               },
               {
-                "type": "image",
-                "title": {
-                  "type": "plain_text",
-                  "text": "${{ env.title }}"
+                \"type\": \"image\",
+                \"title\": {
+                  \"type\": \"plain_text\",
+                  \"text\": \"$title\"
                 },
-                "image_url": "${{ env.image_url }}",
-                "alt_text": "${{ env.title }}"
+                \"image_url\": \"$image_url\",
+                \"alt_text\": \"$title\"
               }
             ]
-          }
-      env:
-        SLACK_WEBHOOK_URL: ${{ inputs.webhook-url }}
+          }" ${{ inputs.webhook-url }}
