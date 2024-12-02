@@ -1,0 +1,42 @@
+name: Slack Notification
+on:
+  workflow_call:
+    inputs:
+      status:
+        required: true
+        type: string
+    secrets:
+      SLACK_WEBHOOK_URL:
+        required: true
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          fields: workflow,job,commit,repo,ref,author,took
+          custom_payload: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "${{ inputs.status == 'success' && '*Success:* ✅ Backend CI Success ✅\n\n' || '*Failure:* ❗️ Backend CI Failed ❗️\n\n' }}*Repository:* ${{ github.repository }}\n*Ref:* ${{ github.ref }}\n*Event:* ${{ github.event_name }}\n*Commit:* ${{ github.sha }}\n*Triggered by:* ${{ github.actor }}\n*Workflow:* ${{ github.workflow }}"
+                  }
+                },
+                {
+                  "type": "image",
+                  "title": {
+                    "type": "plain_text",
+                    "text": "${{ inputs.status == 'success' && 'Success' || 'Failure' }}"
+                  },
+                  "image_url": "${{ inputs.status == 'success' && 'https://thumbs.dreamstime.com/b/success-red-stamp-text-white-44312500.jpg' || 'https://w7.pngwing.com/pngs/68/227/png-transparent-rubber-stamp-blue-world-dive-more-gmbh-architectural-engineering-office-praxis-fur-energetische-heilkunste-und-kinesiologie-others-text-rectangle-signage-thumbnail.png' }}",
+                  "alt_text": "${{ inputs.status == 'success' && 'Success' || 'Failure' }}"
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
