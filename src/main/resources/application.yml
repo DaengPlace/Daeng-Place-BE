@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: local, email, security
+    active: dev, email, security
   config:
     import:
       - application-email.yml
