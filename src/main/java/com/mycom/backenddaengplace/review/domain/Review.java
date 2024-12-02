@@ -64,4 +64,14 @@ public class Review extends BaseEntity {
         this.basicTagCounts = basicTagCounts;
 
     }
+
+    public void update(String newContent, Double newRating, String newTraitTag) {
+        if (newContent != null && !newContent.isBlank()) {
+            this.content = newContent;
+        }
+        if (newRating != null && newRating >= 0.0 && newRating <= 5.0) {
+            this.rating = newRating;
+        }
+        this.traitTag = newTraitTag;
+    }
 }

@@ -16,6 +16,7 @@ public class MemberReviewResponse {
     private Category category;
     private Double rating;
     private String content;
+    private String traitTag;
     private LocalDateTime createdAt;
     private String profileImageUrl;
 
@@ -27,6 +28,7 @@ public class MemberReviewResponse {
                 .category(review.getPlace().getCategory())
                 .rating(review.getRating())
                 .content(review.getContent())
+                .traitTag(review.getTraitTag())
                 .createdAt(review.getCreatedAt())
                 .profileImageUrl(review.getMember().getProfileImageUrl())
                 .build();

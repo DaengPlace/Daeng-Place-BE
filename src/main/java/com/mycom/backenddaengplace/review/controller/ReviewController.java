@@ -74,4 +74,16 @@ public class ReviewController {
         ));
     }
 
+    @GetMapping("/{reviewId}")
+    public ResponseEntity<ApiResponse<MemberReviewResponse>> getReview(@PathVariable Long reviewId) {
+        MemberReviewResponse review = reviewService.getReview(reviewId);
+        return ResponseEntity.ok(ApiResponse.success("리뷰 조회에 성공했습니다.", review));
+    }
+
+    @PatchMapping("/{memberId}/{reviewId}")
+    public ResponseEntity<ApiResponse<String>> updateReview(@PathVariable Long memberId, @PathVariable Long reviewId, @Valid @RequestBody ReviewRequest request) {
+        reviewService.updateReview(memberId, reviewId, request);
+        return ResponseEntity.ok(ApiResponse.success("리뷰가 성공적으로 수정되었습니다."));
+    }
+
 }

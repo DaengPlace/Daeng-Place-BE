@@ -16,6 +16,13 @@ public class ReviewException extends BaseException {
         );
     }
 
+    public static ReviewException notFound(Long reviewId){
+        return new ReviewException(
+                String.format("리뷰 ID [%d]를 찾을 수 없습니다.", reviewId),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
     public static ReviewException alreadyLiked(Long reviewId) {
         return new ReviewException(
                 String.format("이미 좋아요한 리뷰입니다. (리뷰 ID: %d)", reviewId),

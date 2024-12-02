@@ -1,23 +1,3 @@
-INSERT INTO member (
-    email,
-    name,
-    nickname,
-    profile_image_url,
-    gender,
-    birth_date,
-    location_status
-) VALUES
-      ('test1@example.com', '홍길동', '댕댕이',  'http://example.com/profile1.jpg', 'MALE', '1990-01-01', false),
-      ('test2@example.com', '김철수', '냥냥이',  'http://example.com/profile2.jpg', 'MALE', '1992-03-15', true),
-      ('test3@example.com', '이영희', '멍뭉이',  'http://example.com/profile3.jpg', 'FEMALE', '1995-07-22', false),
-      ('test4@example.com', '박민수', '도그맘',  'http://example.com/profile4.jpg', 'MALE', '1988-11-30', true),
-      ('test5@example.com', '정미영', '캣대디',  'http://example.com/profile5.jpg', 'FEMALE', '1993-05-18', false),
-      ('test6@example.com', '강지훈', '펫러버',  'http://example.com/profile6.jpg', 'MALE', '1991-09-25', true),
-      ('test7@example.com', '조수민', '포메맘',  'http://example.com/profile7.jpg', 'FEMALE', '1994-12-08', false),
-      ('test8@example.com', '윤승호', '댕댕이아빠',  'http://example.com/profile8.jpg', 'MALE', '1987-04-14', true),
-      ('test9@example.com', '임하늘', '펫스타그램',  'http://example.com/profile9.jpg', 'FEMALE', '1996-02-28', false),
-      ('test10@example.com', '신영준', '애견왕',  'http://example.com/profile10.jpg', 'MALE', '1989-08-11', true);
-
 INSERT INTO address (road_address, detail_address, zipcode)
 VALUES
     ('서울특별시 강남구 테헤란로 123', '4층', '06134'),
