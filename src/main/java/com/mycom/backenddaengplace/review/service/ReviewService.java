@@ -93,7 +93,7 @@ public class ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(reviewId, null));
 
-        if (!review.getMember().equals(member)) {
+        if (!review.getMember().getId().equals(member.getId())) {
             throw new ReviewNotOwnedException(member.getId(), reviewId);
         }
         review.update(request.getContent(), request.getRating(), request.getTraitTag());
