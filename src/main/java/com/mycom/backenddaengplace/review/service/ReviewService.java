@@ -10,9 +10,7 @@ import com.mycom.backenddaengplace.review.domain.Review;
 import com.mycom.backenddaengplace.review.dto.request.ReviewRequest;
 import com.mycom.backenddaengplace.review.dto.response.PopularReviewResponse;
 import com.mycom.backenddaengplace.review.dto.response.ReviewResponse;
-import com.mycom.backenddaengplace.review.dto.response.MemberReviewResponse;
 import com.mycom.backenddaengplace.review.exception.ReviewAlreadyExistsException;
-import com.mycom.backenddaengplace.review.exception.ReviewException;
 import com.mycom.backenddaengplace.review.exception.ReviewNotFoundException;
 import com.mycom.backenddaengplace.review.exception.ReviewNotOwnedException;
 import com.mycom.backenddaengplace.review.repository.ReviewQueryRepository;
@@ -25,31 +23,26 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class ReviewService {
-
     private final ReviewRepository reviewRepository;
     private final PlaceRepository placeRepository;
-    private final MemberRepository memberRepository;
     private final ReviewQueryRepository reviewQueryRepository;
+    private final MemberRepository memberRepository;
 
     @Transactional
-    public ReviewResponse createReview(Long placeId, ReviewRequest request) {
-        // 회원 조회
-        Member member = memberRepository.findById(request.getMemberId())
-                .orElseThrow(() -> new MemberNotFoundException(request.getMemberId()));
-
-        // 장소 조회
+    public ReviewResponse createReview(Long placeId, ReviewRequest request, Long memberId) {
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new PlaceNotFoundException(placeId));
 
-        // 리뷰 중복 검사
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberNotFoundException(memberId));
+
         if (reviewRepository.existsByMemberAndPlace(member, place)) {
-            throw new ReviewAlreadyExistsException(request.getMemberId(), placeId);
+            throw new ReviewAlreadyExistsException(member.getId(), placeId);
         }
 
-        // 리뷰 생성
         Review review = Review.builder()
                 .member(member)
                 .place(place)
@@ -58,83 +51,50 @@ public class ReviewService {
                 .traitTag(request.getTraitTag())
                 .build();
 
-        review = reviewRepository.save(review);
-
-        return ReviewResponse.from(review);
+        return ReviewResponse.from(reviewRepository.save(review));
     }
 
     public List<ReviewResponse> getReviews(Long placeId) {
         if (!placeRepository.existsById(placeId)) {
             throw new PlaceNotFoundException(placeId);
         }
-
-        List<Review> reviews = reviewRepository.findByPlaceId(placeId);
-        return reviews.stream()
+        return reviewRepository.findByPlaceId(placeId).stream()
                 .map(ReviewResponse::from)
                 .collect(Collectors.toList());
     }
 
     public ReviewResponse getReviewDetail(Long placeId, Long reviewId) {
-        // 장소 존재 여부 확인
         if (!placeRepository.existsById(placeId)) {
             throw new PlaceNotFoundException(placeId);
         }
-
-        // 리뷰 조회
-        Review review = reviewRepository.findByIdAndPlaceId(reviewId, placeId)
-                .orElseThrow(() -> new ReviewNotFoundException(reviewId, placeId));
-
-        return ReviewResponse.from(review);
-    }
-
-    public List<MemberReviewResponse> getUserReview(Long memberId) {
-        if (!memberRepository.existsById(memberId)) {
-            throw new MemberNotFoundException(memberId);
-        }
-
-        List<Review> reviews = reviewRepository.findByMemberId(memberId);
-        return reviews.stream()
-                .map(MemberReviewResponse::from)
-                .collect(Collectors.toList());
+        return ReviewResponse.from(reviewRepository.findByIdAndPlaceId(reviewId, placeId)
+                .orElseThrow(() -> new ReviewNotFoundException(reviewId, placeId)));
     }
 
     @Transactional
-    public void deleteReview(Long memberId, Long reviewId) {
-        if (!memberRepository.existsById(memberId)) {
-            throw new MemberNotFoundException(memberId);
-        }
+    public void deleteReview(Long reviewId, Member member) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ReviewNotFoundException(reviewId, null));
 
-        Review review = reviewRepository.findByIdAndMemberId(reviewId, memberId);
-        if (review == null) {
-            throw new ReviewNotOwnedException(memberId, reviewId);
+        if (!review.getMember().equals(member)) {
+            throw new ReviewNotOwnedException(member.getId(), reviewId);
         }
-
         reviewRepository.delete(review);
-
     }
 
-
     public List<PopularReviewResponse> getPopularReviews() {
-        List<Review> reviews = reviewQueryRepository.findPopularReviews();
-        return reviews.stream()
+        return reviewQueryRepository.findPopularReviews().stream()
                 .map(PopularReviewResponse::from)
                 .collect(Collectors.toList());
     }
 
-    public MemberReviewResponse getReview(Long reviewId) {
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> ReviewException.notFound(reviewId));
-
-        return MemberReviewResponse.from(review);
-    }
-
     @Transactional
-    public void updateReview(Long memberId, Long reviewId, ReviewRequest request) {
+    public void updateReview(Long reviewId, ReviewRequest request, Member member) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(reviewId, null));
 
-        if (!review.getMember().getId().equals(memberId)) {
-            throw new ReviewNotOwnedException(memberId, reviewId);
+        if (!review.getMember().equals(member)) {
+            throw new ReviewNotOwnedException(member.getId(), reviewId);
         }
         review.update(request.getContent(), request.getRating(), request.getTraitTag());
     }
