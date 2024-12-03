@@ -18,6 +18,7 @@ public class PlaceDto {
     private int pet_fee;
     private Double latitude;
     private Double longitude;
-//    private float rating;
+    private Double rating;
+    private Long review_count;
     private List<OperationHourDto> operationHours;
 }

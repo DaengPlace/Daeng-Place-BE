@@ -2,6 +2,7 @@ package com.mycom.backenddaengplace.place.controller;
 
 
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
+import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.place.dto.request.SearchCriteria;
 import com.mycom.backenddaengplace.place.dto.response.AgeGenderPlaceResponse;
 import com.mycom.backenddaengplace.place.dto.response.PlaceDetailResponse;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.InvalidParameterException;
@@ -63,10 +65,11 @@ public class PlaceController {
         }
     }
 
-    @GetMapping("/gender-popular/{memberId}")
-    public ResponseEntity<ApiResponse<AgeGenderPlaceResponse>> getGenderAgePopularPlace(@PathVariable Long memberId) {
+    @GetMapping("/gender-popular")
+    public ResponseEntity<ApiResponse<AgeGenderPlaceResponse>> getGenderAgePopularPlace(@AuthenticationPrincipal(expression = "member") Member member) {
+        System.out.println("member = " + member.getId());
 
-        AgeGenderPlaceResponse response = placeService.getPopularPlacesByGenderAndAge(memberId);
+        AgeGenderPlaceResponse response = placeService.getPopularPlacesByGenderAndAge(member.getId());
         return ResponseEntity.ok(ApiResponse.success("OK", response));
     }
 }

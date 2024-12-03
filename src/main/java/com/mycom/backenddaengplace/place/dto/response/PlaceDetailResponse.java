@@ -21,7 +21,7 @@ public class PlaceDetailResponse {
     private String weather_type;
     private int weight_limit;
     private int pet_fee;
-//    private float rating;  // 추가 예정
+    private Double rating;
     private long review_count;
     private List<Map<String, Object>> reviews;
 }
