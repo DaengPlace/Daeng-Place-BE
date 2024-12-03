@@ -1,11 +1,13 @@
 package com.mycom.backenddaengplace.member.controller;
 
 
+import com.mycom.backenddaengplace.auth.dto.CustomOAuth2User;
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
+import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.member.dto.request.BaseEmailRequest;
 import com.mycom.backenddaengplace.member.dto.request.EmailCodeCheckRequest;
 import com.mycom.backenddaengplace.member.dto.request.MemberRegisterRequest;
-import com.mycom.backenddaengplace.member.dto.request.MemberReviseRequest;
+import com.mycom.backenddaengplace.member.dto.request.MemberUpdateRequest;
 import com.mycom.backenddaengplace.member.dto.response.EmailCodeCheckResponse;
 import com.mycom.backenddaengplace.member.dto.response.EmailDuplicateCheckResponse;
 import com.mycom.backenddaengplace.member.dto.response.BaseMemberResponse;
@@ -17,6 +19,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
@@ -30,27 +33,35 @@ public class MemberController {
     private final MemberService memberService;
     private final EmailService emailService;
 
-    @GetMapping("/profile/{memberId}")
-    public ResponseEntity<ApiResponse<BaseMemberResponse>> getMember(@PathVariable("memberId") Long memberId) {
-        BaseMemberResponse response = memberService.getMember(memberId);
+    @GetMapping("/profile")
+    public ResponseEntity<ApiResponse<BaseMemberResponse>> getMember(
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
+    ) {
+        Member member = customOAuth2User.getMember();
+        BaseMemberResponse response = memberService.getMember(member);
         return ResponseEntity.ok(ApiResponse.success("회원 조회가 완료되었습니다.", response));
     }
 
-    @PostMapping("/profile/{memberId}")
-    public ResponseEntity<ApiResponse<BaseMemberResponse>> reviseMember(
-            @Valid @RequestBody MemberReviseRequest request, @PathVariable("memberId") Long memberId) {
-        BaseMemberResponse response = memberService.reviseMember(request, memberId);
+    @PostMapping("/profile")
+    public ResponseEntity<ApiResponse<BaseMemberResponse>> updateMember(
+            @Valid @RequestBody MemberUpdateRequest request,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
+    ) {
+        Member member = customOAuth2User.getMember();
+        BaseMemberResponse response = memberService.reviseMember(request, member);
         return ResponseEntity.ok(ApiResponse.success("회원 수정이 완료되었습니다.", response));
     }
 
-    @DeleteMapping("/profile/{memberId}")
+    @DeleteMapping("/profile")
     public ResponseEntity<ApiResponse<BaseMemberResponse>> deleteMember(
-            @PathVariable("memberId") Long memberId) {
-        BaseMemberResponse response = memberService.deleteMember(memberId);
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
+    ) {
+        Member member = customOAuth2User.getMember();
+        BaseMemberResponse response = memberService.deleteMember(member);
         return ResponseEntity.ok(ApiResponse.success("회원 삭제가 완료되었습니다.", response));
     }
 
-    @PostMapping("/profile")
+    @PostMapping("")
     public ResponseEntity<ApiResponse<BaseMemberResponse>> registerMember(
             @Valid @RequestBody MemberRegisterRequest request
     ) {

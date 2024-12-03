@@ -6,9 +6,8 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class FavoriteRegisterRequest {
+public class FavoriteRequest {
 
-    private Long memberId;
     private Long placeId;
 
 }

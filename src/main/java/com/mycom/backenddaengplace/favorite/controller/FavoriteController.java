@@ -1,19 +1,20 @@
 package com.mycom.backenddaengplace.favorite.controller;
 
 
+import com.mycom.backenddaengplace.auth.dto.CustomOAuth2User;
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
-import com.mycom.backenddaengplace.favorite.dto.request.FavoriteDeleteRequest;
-import com.mycom.backenddaengplace.favorite.dto.request.FavoriteRegisterRequest;
-import com.mycom.backenddaengplace.favorite.dto.request.FavoritesRequest;
+import com.mycom.backenddaengplace.favorite.dto.request.FavoriteRequest;
 import com.mycom.backenddaengplace.favorite.dto.response.FavoriteDeleteResponse;
 import com.mycom.backenddaengplace.favorite.dto.response.FavoriteRegisterResponse;
 import com.mycom.backenddaengplace.favorite.dto.response.FavoritesResponse;
 import com.mycom.backenddaengplace.favorite.service.FavoriteService;
+import com.mycom.backenddaengplace.member.domain.Member;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,30 +27,34 @@ public class FavoriteController {
 
     private final FavoriteService favoriteService;
 
-    @GetMapping("/{memberId}")
+    @GetMapping
     public ResponseEntity<ApiResponse<List<FavoritesResponse>>> getFavoritesByMember(
-            @PathVariable("memberId") Long memberId
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
     ) {
-        log.debug("즐겨찾기 리스트 요청: {}", memberId);
-        List<FavoritesResponse> response = favoriteService.getFavoritesByMember(memberId);
+        Member member = customOAuth2User.getMember();
+        List<FavoritesResponse> response = favoriteService.getFavoritesByMember(member);
         return ResponseEntity.ok(ApiResponse.success("즐겨찾기 리스트를 조회하였습니다.", response));
     }
 
     @PutMapping
     public ResponseEntity<ApiResponse<FavoriteRegisterResponse>> registerFavorite(
-            @Valid @RequestBody FavoriteRegisterRequest request
+            @Valid @RequestBody FavoriteRequest request,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
     ) {
+        Member member = customOAuth2User.getMember();
         log.debug("즐겨찾기 등록 요청: {}", request);
-        FavoriteRegisterResponse response = favoriteService.registerFavorite(request);
+        FavoriteRegisterResponse response = favoriteService.registerFavorite(request, member);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("즐겨찾기가 등록되었습니다.", response));
     }
 
     @DeleteMapping
     public ResponseEntity<ApiResponse<FavoriteDeleteResponse>> deleteFavorite(
-            @Valid @RequestBody FavoriteDeleteRequest request
+            @Valid @RequestBody FavoriteRequest request,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
     ) {
+        Member member = customOAuth2User.getMember();
         log.debug("즐겨찾기 삭제 요청: {}", request);
-        favoriteService.deleteFavorite(request);
+        favoriteService.deleteFavorite(request, member);
         return ResponseEntity.ok(ApiResponse.success("즐겨찾기가 삭제되었습니다."));
     }
 
