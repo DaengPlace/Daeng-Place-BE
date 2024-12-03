@@ -1,8 +1,7 @@
 package com.mycom.backenddaengplace.favorite.service;
 
 import com.mycom.backenddaengplace.favorite.domain.Favorite;
-import com.mycom.backenddaengplace.favorite.dto.request.FavoriteDeleteRequest;
-import com.mycom.backenddaengplace.favorite.dto.request.FavoriteRegisterRequest;
+import com.mycom.backenddaengplace.favorite.dto.request.FavoriteRequest;
 import com.mycom.backenddaengplace.favorite.dto.response.FavoriteRegisterResponse;
 import com.mycom.backenddaengplace.favorite.dto.response.FavoritesResponse;
 import com.mycom.backenddaengplace.favorite.exception.FavoriteAlreadyExistException;
@@ -32,18 +31,18 @@ public class FavoriteService {
     private final PlaceRepository placeRepository;
 
     @Transactional
-    public FavoriteRegisterResponse registerFavorite(FavoriteRegisterRequest request) {
-        Member member = findMemberById(request.getMemberId());
+    public FavoriteRegisterResponse registerFavorite(FavoriteRequest request, Member member) {
+        Member registerMember = findMemberById(member.getId());
         Place place = findPlaceById(request.getPlaceId());
 
-        return FavoriteRegisterResponse.from(handleRegisterFavorite(member, place));
+        return FavoriteRegisterResponse.from(handleRegisterFavorite(registerMember, place));
     }
 
     @Transactional
-    public void deleteFavorite(FavoriteDeleteRequest request) {
-        Member member = findMemberById(request.getMemberId());
+    public void deleteFavorite(FavoriteRequest request, Member member) {
+        Member deleteMember = findMemberById(member.getId());
         Place place = findPlaceById(request.getPlaceId());
-        handleDeleteFavorite(member, place);
+        handleDeleteFavorite(deleteMember, place);
 
     }
 
