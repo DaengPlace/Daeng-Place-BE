@@ -47,8 +47,8 @@ public class FavoriteService {
 
     }
 
-    public List<FavoritesResponse> getFavoritesByMember(Long memberId) {
-        Member member = findMemberById(memberId);
+    public List<FavoritesResponse> getFavoritesByMember(Member member) {
+//        Member member = findMemberById(memberId);
         return favoriteRepository.findFavoritesByMemberId(member.getId()).stream().map(FavoritesResponse::from).collect(Collectors.toList());
     }
 
