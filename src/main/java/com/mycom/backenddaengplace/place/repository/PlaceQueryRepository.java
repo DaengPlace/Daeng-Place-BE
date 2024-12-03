@@ -41,6 +41,7 @@ public class PlaceQueryRepository {
         QPlace place = QPlace.place;
         QOperationHour operationHour = QOperationHour.operationHour;
         QLocation location = QLocation.location;
+        QReview review = QReview.review;
 
         BooleanBuilder whereClause = new BooleanBuilder();
 
@@ -99,12 +100,19 @@ public class PlaceQueryRepository {
                         place.weightLimit.as("weight_limit"),
                         place.petFee.as("pet_fee"),
                         place.address.location.latitude.as("latitude"),
-                        place.address.location.longitude.as("longitude")
+                        place.address.location.longitude.as("longitude"),
+                        Expressions.numberTemplate(Double.class,
+                                "ROUND({0}, 1)", review.rating.avg()).as("rating"),
+                        review.count().as("review_count")
                 ))
                 .from(place)
                 .leftJoin(place.address)
                 .leftJoin(place.address.location, location)
+                .leftJoin(review).on(review.place.eq(place))
                 .where(whereClause)
+                .groupBy(place.id, place.name, place.category, place.address.roadAddress,
+                        place.isParking, place.weatherType, place.weightLimit, place.petFee,
+                        place.address.location.latitude, place.address.location.longitude)
                 .orderBy(orderSpecifier)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -177,6 +185,8 @@ public class PlaceQueryRepository {
 
         return switch (sortBy) {
             case "name" -> place.name.asc();
+            case "rating" -> QReview.review.rating.avg().desc();
+            case "review" -> QReview.review.count().desc();
             default -> place.name.asc();
         };
     }
