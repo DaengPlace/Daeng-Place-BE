@@ -22,7 +22,6 @@ import com.mycom.backenddaengplace.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,6 +67,7 @@ public class PlaceService {
         String roadAddress = address != null ? address.getRoadAddress() : null;
 
         long reviewCount = reviewRepository.countByPlaceId(placeId);
+        Double averageRating = reviewRepository.findAverageRatingByPlaceId(placeId);
         List<Review> latestReviews = reviewRepository.findTop3ByPlaceIdOrderByCreatedAtDesc(placeId);
 
         List<Map<String, Object>> reviews = latestReviews.stream()
@@ -93,7 +93,7 @@ public class PlaceService {
                 .weather_type(place.getWeatherType() != null ? place.getWeatherType().toString() : null)
                 .weight_limit(place.getWeightLimit() != null ? place.getWeightLimit() : 0)
                 .pet_fee(place.getPetFee() != null ? place.getPetFee() : 0)
-//                .rating(rating)
+                .rating(averageRating)
                 .review_count(reviewCount)
                 .reviews(reviews)
                 .build();
