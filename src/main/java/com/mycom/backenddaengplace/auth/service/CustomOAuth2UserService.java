@@ -28,20 +28,18 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        // 소셜 로그인으로 가져온 사용자 정보
         OAuth2User oAuth2User = super.loadUser(userRequest);
-
-        // 소셜 로그인 제공자 (google, kakao 등)
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         OAuth2Response oAuth2Response = getOAuth2Response(registrationId, oAuth2User);
 
         // Member 저장 또는 업데이트
         Member member = saveOrUpdateUser(oAuth2Response);
 
-        // UserDTO 생성 및 반환
+        // UserDTO 생성
         UserDTO userDTO = createUserDTO(member);
 
-        return new CustomOAuth2User(userDTO);
+        // CustomOAuth2User 생성 시 Member도 함께 전달
+        return new CustomOAuth2User(userDTO, member);
     }
 
     private OAuth2Response getOAuth2Response(String registrationId, OAuth2User oAuth2User) {
