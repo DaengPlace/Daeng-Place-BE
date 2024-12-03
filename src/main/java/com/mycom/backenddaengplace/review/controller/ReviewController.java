@@ -1,89 +1,72 @@
 package com.mycom.backenddaengplace.review.controller;
 
+import com.mycom.backenddaengplace.auth.dto.CustomOAuth2User;
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
+import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.review.dto.request.ReviewRequest;
 import com.mycom.backenddaengplace.review.dto.response.PopularReviewResponse;
 import com.mycom.backenddaengplace.review.dto.response.ReviewResponse;
-import com.mycom.backenddaengplace.review.dto.response.MemberReviewResponse;
 import com.mycom.backenddaengplace.review.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/reviews")
 @RequiredArgsConstructor
-public class ReviewController {
+public class    ReviewController {
 
     private final ReviewService reviewService;
 
     @PostMapping("/{placeId}")
     public ResponseEntity<ApiResponse<ReviewResponse>> createReview(
             @PathVariable Long placeId,
-            @Valid @RequestBody ReviewRequest request) {
-
-        ReviewResponse response = reviewService.createReview(placeId, request);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ApiResponse.success("리뷰가 성공적으로 등록되었습니다.", response));
+            @Valid @RequestBody ReviewRequest request,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+        Member member = customOAuth2User.getMember();
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("리뷰가 등록되었습니다.",
+                        reviewService.createReview(placeId, request, member.getId())));
     }
 
     @GetMapping("/places/{placeId}")
     public ResponseEntity<ApiResponse<List<ReviewResponse>>> getReviews(@PathVariable Long placeId) {
-        List<ReviewResponse> reviews = reviewService.getReviews(placeId);
-
-        return ResponseEntity.ok(ApiResponse.success("리뷰 목록을 성공적으로 조회했습니다.", reviews));
+        return ResponseEntity.ok(ApiResponse.success("리뷰 목록을 조회했습니다.",
+                reviewService.getReviews(placeId)));
     }
 
     @GetMapping("/{placeId}/and/{reviewId}")
     public ResponseEntity<ApiResponse<ReviewResponse>> getReviewDetail(
             @PathVariable Long placeId,
             @PathVariable Long reviewId) {
-
-        ReviewResponse review = reviewService.getReviewDetail(placeId, reviewId);
-
-        return ResponseEntity.ok(
-                ApiResponse.success("리뷰 상세 정보를 성공적으로 조회했습니다.", review)
-        );
+        return ResponseEntity.ok(ApiResponse.success("리뷰 상세 정보를 조회했습니다.",
+                reviewService.getReviewDetail(placeId, reviewId)));
     }
 
-    @GetMapping("/members/{memberId}")
-    public ResponseEntity<ApiResponse<List<MemberReviewResponse>>> getUserReview(@PathVariable Long memberId) {
-        List<MemberReviewResponse> reviews = reviewService.getUserReview(memberId);
-
-        return ResponseEntity.ok(ApiResponse.success("사용자의 리뷰 목록을 성공적으로 조회했습니다.", reviews));
-    }
-
-    @DeleteMapping("/{memberId}/{reviewId}")
-    public ResponseEntity<ApiResponse<String>> deleteReview(@PathVariable Long memberId, @PathVariable Long reviewId) {
-        reviewService.deleteReview(memberId, reviewId);
-        return ResponseEntity.ok(ApiResponse.success("리뷰가 성공적으로 삭제되었습니다."));
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity<ApiResponse<Void>> deleteReview(
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+        reviewService.deleteReview(reviewId, customOAuth2User.getMember());
+        return ResponseEntity.ok(ApiResponse.success("리뷰가 삭제되었습니다."));
     }
 
     @GetMapping("/popular")
     public ResponseEntity<ApiResponse<List<PopularReviewResponse>>> getPopularReviews() {
-        List<PopularReviewResponse> reviews = reviewService.getPopularReviews();
-        return ResponseEntity.ok(ApiResponse.success(
-                "인기 리뷰 조회에 성공했습니다.",
-                reviews
-        ));
+        return ResponseEntity.ok(ApiResponse.success("인기 리뷰를 조회했습니다.",
+                reviewService.getPopularReviews()));
     }
 
-    @GetMapping("/{reviewId}")
-    public ResponseEntity<ApiResponse<MemberReviewResponse>> getReview(@PathVariable Long reviewId) {
-        MemberReviewResponse review = reviewService.getReview(reviewId);
-        return ResponseEntity.ok(ApiResponse.success("리뷰 조회에 성공했습니다.", review));
+    @PatchMapping("/{reviewId}")
+    public ResponseEntity<ApiResponse<Void>> updateReview(
+            @PathVariable Long reviewId,
+            @Valid @RequestBody ReviewRequest request,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+        reviewService.updateReview(reviewId, request, customOAuth2User.getMember());
+        return ResponseEntity.ok(ApiResponse.success("리뷰가 수정되었습니다."));
     }
-
-    @PatchMapping("/{memberId}/{reviewId}")
-    public ResponseEntity<ApiResponse<String>> updateReview(@PathVariable Long memberId, @PathVariable Long reviewId, @Valid @RequestBody ReviewRequest request) {
-        reviewService.updateReview(memberId, reviewId, request);
-        return ResponseEntity.ok(ApiResponse.success("리뷰가 성공적으로 수정되었습니다."));
-    }
-
 }

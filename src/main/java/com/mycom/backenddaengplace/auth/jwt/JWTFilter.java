@@ -1,6 +1,9 @@
 package com.mycom.backenddaengplace.auth.jwt;
 
+import com.mycom.backenddaengplace.auth.dto.CustomOAuth2User;
 import com.mycom.backenddaengplace.auth.dto.CustomUserDetails;
+import com.mycom.backenddaengplace.auth.dto.UserDTO;
+import com.mycom.backenddaengplace.auth.repository.AuthMemberRepository;
 import com.mycom.backenddaengplace.member.domain.Member;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -25,85 +28,72 @@ import java.io.PrintWriter;
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
+    private final AuthMemberRepository authMemberRepository; // 추가
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        // 헤더에서 access키에 담긴 토큰을 꺼냄
-        // String accessToken = request.getHeader("access");
-        // String accessToken = request.getHeader("Authorization");
         String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION);
         log.info("{}{} {}{}Authorization: {}", System.lineSeparator(), request.getMethod(), request.getRequestURI(),
                 System.lineSeparator(), accessToken);
 
-        // 토큰이 없다면 다음 필터로 넘김
-        if (accessToken == null) {
+        if (accessToken == null || !accessToken.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 토큰 만료 여부 확인, 만료시 다음 필터로 넘기지 않음
+        accessToken = accessToken.substring(7); // "Bearer " 제거
+
         try {
             jwtUtil.isExpired(accessToken);
         } catch (ExpiredJwtException e) {
-
-            //response body
             PrintWriter writer = response.getWriter();
             writer.print("access token expired");
-
-            //response status code
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
-        // 토큰이 access인지 확인 (발급시 페이로드에 명시)
         String category = jwtUtil.getCategory(accessToken);
-
         if (!category.equals("access")) {
-
-            //response body
             PrintWriter writer = response.getWriter();
             writer.print("invalid access token");
-
-            //response status code
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
-// username, role 값을 획득
         String username = jwtUtil.getUsername(accessToken);
         String role = jwtUtil.getRole(accessToken);
 
-// Member 객체 생성 (빌더 패턴 사용)
-        Member member = Member.builder()
-                .provider(username)
-                .providerId(username)
-                .nickname(username)
-                .build();
+        // username에서 provider와 providerId 추출
+        String[] parts = username.split("_");
+        if (parts.length == 2) {
+            String provider = parts[0];
+            String providerId = parts[1];
 
+            // DB에서 Member 조회  String[] parts = username.split("_");
+            Member member = authMemberRepository.findByProviderAndProviderId(provider, providerId);
+            if (member != null) {
+                // UserDTO 생성
+                UserDTO userDTO = new UserDTO();
+                userDTO.setProvider(provider);
+                userDTO.setProviderId(providerId);
+                userDTO.setEmail(member.getEmail());
+                userDTO.setNickname(member.getNickname());
+                userDTO.setProfileImage(member.getProfileImageUrl());
 
-// CustomUserDetails 생성
-        /*
-         * TODO: 인증된 사용자 정보를 만드는 방법
-         *  1. User 클래스를 사용하는 방법
-         *  2. JPA 엔티티에 UserDetails 인터페이스를 구현한 클래스를 사용하는 방법
-         *  3. 커스텀 UserDetails 클래스를 만들어 사용하는 방법 (추천)
-         */
-        // User customUserDetails = new User(Member.getEmail(), Member.getPassword(), List.of(authEntity.getRole()));
-        CustomUserDetails customUserDetails = new CustomUserDetails(member);
+                // CustomOAuth2User 생성
+                CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO, member);
 
-// Authentication 객체 생성
-        Authentication authToken = new UsernamePasswordAuthenticationToken(
-                customUserDetails,
-                null,
-                customUserDetails.getAuthorities() // 기본 권한 ROLE_USER 반환
-        );
+                // Authentication 객체 생성 및 SecurityContext에 설정
+                Authentication authToken = new UsernamePasswordAuthenticationToken(
+                        customOAuth2User,
+                        null,
+                        customOAuth2User.getAuthorities()
+                );
 
-// SecurityContextHolder에 인증 정보 설정
-        // SecurityContext, PersistenceContext, XxxContext: Xxx
-        SecurityContextHolder.getContext().setAuthentication(authToken);
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        }
 
-// 다음 필터로 요청 전달
         filterChain.doFilter(request, response);
-
     }
 }

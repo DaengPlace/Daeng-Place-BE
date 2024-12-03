@@ -1,6 +1,7 @@
 package com.mycom.backenddaengplace.auth.dto;
 
 import com.mycom.backenddaengplace.member.domain.Member;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,10 +9,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
 
+@Getter
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
-    private final Member Member;
+    private final Member member;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -35,7 +37,7 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public String getUsername() {
         // 사용자 이름 대신 providerId를 고유 식별자로 반환
-        return Member.getProvider() + "_" + Member.getProviderId();
+        return member.getProvider() + "_" + member.getProviderId();
     }
 
     @Override
