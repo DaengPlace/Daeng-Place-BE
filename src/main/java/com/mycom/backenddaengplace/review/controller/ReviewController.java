@@ -4,6 +4,7 @@ import com.mycom.backenddaengplace.auth.dto.CustomOAuth2User;
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
 import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.review.dto.request.ReviewRequest;
+import com.mycom.backenddaengplace.review.dto.response.MemberReviewResponse;
 import com.mycom.backenddaengplace.review.dto.response.PopularReviewResponse;
 import com.mycom.backenddaengplace.review.dto.response.ReviewResponse;
 import com.mycom.backenddaengplace.review.service.ReviewService;
@@ -31,6 +32,14 @@ public class    ReviewController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("리뷰가 등록되었습니다.",
                         reviewService.createReview(placeId, request, member.getId())));
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<MemberReviewResponse>>> getUserReview(
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+        Member member = customOAuth2User.getMember();
+        return ResponseEntity.ok(ApiResponse.success("사용자의 리뷰 목록을 조회했습니다.",
+                reviewService.getUserReview(member.getId())));
     }
 
     @GetMapping("/places/{placeId}")

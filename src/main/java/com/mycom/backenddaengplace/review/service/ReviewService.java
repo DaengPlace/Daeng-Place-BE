@@ -8,6 +8,7 @@ import com.mycom.backenddaengplace.place.exception.PlaceNotFoundException;
 import com.mycom.backenddaengplace.place.repository.PlaceRepository;
 import com.mycom.backenddaengplace.review.domain.Review;
 import com.mycom.backenddaengplace.review.dto.request.ReviewRequest;
+import com.mycom.backenddaengplace.review.dto.response.MemberReviewResponse;
 import com.mycom.backenddaengplace.review.dto.response.PopularReviewResponse;
 import com.mycom.backenddaengplace.review.dto.response.ReviewResponse;
 import com.mycom.backenddaengplace.review.exception.ReviewAlreadyExistsException;
@@ -97,5 +98,16 @@ public class ReviewService {
             throw new ReviewNotOwnedException(member.getId(), reviewId);
         }
         review.update(request.getContent(), request.getRating(), request.getTraitTag());
+    }
+
+    public List<MemberReviewResponse> getUserReview(Long memberId) {
+        if (!memberRepository.existsById(memberId)) {
+            throw new MemberNotFoundException(memberId);
+        }
+
+        List<Review> reviews = reviewRepository.findByMemberId(memberId);
+        return reviews.stream()
+                .map(MemberReviewResponse::from)
+                .collect(Collectors.toList());
     }
 }
