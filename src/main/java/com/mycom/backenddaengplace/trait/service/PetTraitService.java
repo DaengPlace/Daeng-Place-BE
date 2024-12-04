@@ -1,15 +1,14 @@
 package com.mycom.backenddaengplace.trait.service;
 
-import com.mycom.backenddaengplace.member.domain.Member;
-import com.mycom.backenddaengplace.trait.domain.MemberTraitResponse;
-import com.mycom.backenddaengplace.trait.domain.MemberTraitResponseId;
-import com.mycom.backenddaengplace.trait.domain.TraitAnswer;
-import com.mycom.backenddaengplace.trait.domain.TraitQuestion;
+import com.mycom.backenddaengplace.pet.domain.Pet;
+import com.mycom.backenddaengplace.pet.exception.PetNotFoundException;
+import com.mycom.backenddaengplace.pet.repository.PetRepository;
+import com.mycom.backenddaengplace.trait.domain.*;
+import com.mycom.backenddaengplace.trait.dto.request.PetTraitResponseRequestList;
 import com.mycom.backenddaengplace.trait.dto.request.TraitResponseRequest;
-import com.mycom.backenddaengplace.trait.dto.request.MemberTraitResponseRequestList;
 import com.mycom.backenddaengplace.trait.exception.TraitAnswerNotFoundException;
 import com.mycom.backenddaengplace.trait.exception.TraitQuestionNotFoundException;
-import com.mycom.backenddaengplace.trait.repository.MemberTraitResponseRepository;
+import com.mycom.backenddaengplace.trait.repository.PetTraitResponseRepository;
 import com.mycom.backenddaengplace.trait.repository.TraitAnswerRepository;
 import com.mycom.backenddaengplace.trait.repository.TraitQuestionRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,14 +16,18 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class MemberTraitService {
+public class PetTraitService {
 
     private final TraitAnswerRepository traitAnswerRepository;
     private final TraitQuestionRepository traitQuestionRepository;
-    private final MemberTraitResponseRepository memberTraitResponseRepository;
+    private final PetTraitResponseRepository petTraitResponseRepository;
+    private final PetRepository petRepository;
 
-    public void saveMemberTraitResponse(MemberTraitResponseRequestList requestList, Member member) {
-        for (TraitResponseRequest request : requestList.getMemberTraitResponseRequestList()) {
+    public void savePetTraitResponse(PetTraitResponseRequestList requestList, Long petId) {
+        for (TraitResponseRequest request : requestList.getPetTraitResponseRequestList()) {
+
+            Pet pet = petRepository.findById(petId)
+                    .orElseThrow(() -> new PetNotFoundException(petId));
 
             TraitQuestion traitQuestion = traitQuestionRepository.findById(request.getTraitQuestionId())
                     .orElseThrow(() -> new TraitQuestionNotFoundException(request.getTraitQuestionId()));
@@ -33,20 +36,20 @@ public class MemberTraitService {
                     .orElseThrow(() -> new TraitAnswerNotFoundException(request.getTraitAnswerId()));
 
             // 복합키 생성
-            MemberTraitResponseId responseId = new MemberTraitResponseId(
-                    member.getId(),
+            PetTraitResponseId responseId = new PetTraitResponseId(
+                    petId,
                     request.getTraitAnswerId(),
                     request.getTraitQuestionId()
             );
 
-            MemberTraitResponse response = MemberTraitResponse.builder()
+            PetTraitResponse response = PetTraitResponse.builder()
                     .id(responseId)
-                    .member(member)
+                    .pet(pet)
                     .traitQuestion(traitQuestion)
                     .traitAnswer(traitAnswer)
                     .build();
 
-            memberTraitResponseRepository.save(response);
+            petTraitResponseRepository.save(response);
         }
     }
 
