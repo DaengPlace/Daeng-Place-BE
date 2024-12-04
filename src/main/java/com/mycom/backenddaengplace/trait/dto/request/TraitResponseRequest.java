@@ -5,8 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class MemberTraitResponseRequest {
-    private Long memberId;
+public class TraitResponseRequest {
     private Long traitQuestionId;
     private Long traitAnswerId;
 }

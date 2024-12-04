@@ -5,7 +5,7 @@ import com.mycom.backenddaengplace.trait.domain.MemberTraitResponse;
 import com.mycom.backenddaengplace.trait.domain.MemberTraitResponseId;
 import com.mycom.backenddaengplace.trait.domain.TraitAnswer;
 import com.mycom.backenddaengplace.trait.domain.TraitQuestion;
-import com.mycom.backenddaengplace.trait.dto.request.MemberTraitResponseRequest;
+import com.mycom.backenddaengplace.trait.dto.request.TraitResponseRequest;
 import com.mycom.backenddaengplace.trait.dto.request.MemberTraitResponseRequestList;
 import com.mycom.backenddaengplace.trait.exception.TraitAnswerNotFoundException;
 import com.mycom.backenddaengplace.trait.exception.TraitQuestionNotFoundException;
@@ -24,7 +24,7 @@ public class MemberTraitService {
     private final MemberTraitResponseRepository memberTraitResponseRepository;
 
     public void saveMemberTraitResponse(MemberTraitResponseRequestList requestList, Member member) {
-        for (MemberTraitResponseRequest request : requestList.getMemberTraitResponseRequestList()) {
+        for (TraitResponseRequest request : requestList.getMemberTraitResponseRequestList()) {
 
             TraitQuestion traitQuestion = traitQuestionRepository.findById(request.getTraitQuestionId())
                     .orElseThrow(() -> new TraitQuestionNotFoundException(request.getTraitQuestionId()));

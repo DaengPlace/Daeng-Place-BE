@@ -6,5 +6,5 @@ import java.util.List;
 
 @Data
 public class MemberTraitResponseRequestList {
-    private List<MemberTraitResponseRequest> memberTraitResponseRequestList;
+    private List<TraitResponseRequest> memberTraitResponseRequestList;
 }
