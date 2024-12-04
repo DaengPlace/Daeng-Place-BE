@@ -6,6 +6,7 @@ import lombok.*;
 @Entity
 @Table(name = "trait_answer")
 @Builder
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class TraitAnswer {

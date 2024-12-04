@@ -1,5 +1,6 @@
 package com.mycom.backenddaengplace.trait.domain;
 
+import com.mycom.backenddaengplace.trait.enums.QuestionTarget;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,6 +11,7 @@ import java.util.List;
 @Entity
 @Table(name = "trait_question")
 @Builder
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class TraitQuestion {
@@ -25,4 +27,7 @@ public class TraitQuestion {
     @Column(name = "content", nullable = false)
     private String content;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "target", nullable = false)
+    private QuestionTarget target;
 }
