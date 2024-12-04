@@ -3,6 +3,7 @@ package com.mycom.backenddaengplace.trait.domain;
 import com.mycom.backenddaengplace.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -29,4 +30,11 @@ public class MemberTraitResponse {
     @JoinColumn(name = "trait_question_id", nullable = false)
     private TraitQuestion traitQuestion;
 
+    @Builder
+    public MemberTraitResponse(MemberTraitResponseId id, Member member, TraitAnswer traitAnswer, TraitQuestion traitQuestion) {
+        this.id = id;
+        this.member = member;
+        this.traitAnswer = traitAnswer;
+        this.traitQuestion = traitQuestion;
+    }
 }
