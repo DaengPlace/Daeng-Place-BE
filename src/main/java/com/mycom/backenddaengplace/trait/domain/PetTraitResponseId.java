@@ -16,19 +16,22 @@ public class PetTraitResponseId implements Serializable {
 
     private Long petId;
     private Long traitAnswerId;
+    private Long traitQuestionId;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PetTraitResponseId that = (PetTraitResponseId) o;
-        return Objects.equals(petId, that.petId) &&
-                Objects.equals(traitAnswerId, that.traitAnswerId);
+        return petId.equals(that.petId) &&
+                traitAnswerId.equals(that.traitAnswerId) &&
+                traitQuestionId.equals(that.traitQuestionId);
+
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(petId, traitAnswerId);
+            return petId.hashCode() + traitAnswerId.hashCode() + traitQuestionId.hashCode();
     }
 
 
