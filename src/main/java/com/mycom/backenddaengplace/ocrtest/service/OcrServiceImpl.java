@@ -1,6 +1,6 @@
 package com.mycom.backenddaengplace.ocrtest.service;
 
-import com.mycom.ocrtest.repository.OcrResultRepository;
+import com.mycom.backenddaengplace.ocrtest.repository.OcrResultRepository;
 import org.apache.tomcat.util.json.JSONParser;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;

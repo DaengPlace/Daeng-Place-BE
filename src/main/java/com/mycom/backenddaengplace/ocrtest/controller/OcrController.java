@@ -1,6 +1,6 @@
 package com.mycom.backenddaengplace.ocrtest.controller;
 
-import com.mycom.ocrtest.service.OcrService;
+import com.mycom.backenddaengplace.ocrtest.service.OcrService;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
