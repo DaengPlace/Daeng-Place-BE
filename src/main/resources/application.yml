@@ -17,6 +17,10 @@ logging:
   level:
     root: INFO
     com.mycom: DEBUG
+ocr:
+  api:
+    url: ${OCR_API_URL}
+    secret-key: ${OCR_SECRET_KEY}
 
 file:
   upload-dir: src/main/resources/static/img
