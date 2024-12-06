@@ -32,8 +32,10 @@ public class Review extends BaseEntity {
     @Column(name = "review_tag_count")
     private List<BasicTagCount> basicTagCounts = new ArrayList<>();
 
-    @Column(name = "trait_tag_count")
-    private String traitTag;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "review_trait_tags",
+            joinColumns = @JoinColumn(name = "review_id"))
+    private List<String> traitTags;
 
     @Column(name = "content", nullable = false)
     private String content;
@@ -53,25 +55,27 @@ public class Review extends BaseEntity {
             Place place,
             String content,
             Double rating,
-            String traitTag,
+            List<String> traitTags,
             List<BasicTagCount> basicTagCounts
     ) {
         this.member = member;
         this.place = place;
         this.content = content;
         this.rating = rating;
-        this.traitTag = traitTag;
+        this.traitTags = traitTags;
         this.basicTagCounts = basicTagCounts;
 
     }
 
-    public void update(String newContent, Double newRating, String newTraitTag) {
+    public void update(String newContent, Double newRating, List<String> newTraitTags) {
         if (newContent != null && !newContent.isBlank()) {
             this.content = newContent;
         }
         if (newRating != null && newRating >= 0.0 && newRating <= 5.0) {
             this.rating = newRating;
         }
-        this.traitTag = newTraitTag;
+        if (newTraitTags != null) {
+            this.traitTags = newTraitTags;
+        }
     }
 }
