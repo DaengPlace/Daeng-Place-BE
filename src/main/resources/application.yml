@@ -1,35 +1,22 @@
 spring:
   profiles:
-    active: dev, security, email
-  config:
-    import:
-      - application-email.yml
+    active: dev,security,email
+
   jpa:
     properties:
       hibernate:
         format_sql: true
         show_sql: true
     open-in-view: false
+
   web:
     resources:
       add-mappings: false
-  mvc:
-    view:
-      prefix: /WEB-INF/views/
-      suffix: .html
-# Server Configuration
-server:
-  port: 8080
-# Logging
+
 logging:
   level:
     root: INFO
-    com.mycom.ocrtest: DEBUG
-# File Upload Directory
+    com.mycom: DEBUG
+
 file:
   upload-dir: src/main/resources/static/img
-# OCR API Configuration
-ocr:
-  api:
-    url: ${OCR_API_URL}
-    secret-key: ${OCR_SECRET_KEY}
