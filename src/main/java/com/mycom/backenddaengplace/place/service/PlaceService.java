@@ -49,20 +49,6 @@ public class PlaceService {
         // 오늘의 요일 계산
         String todayName = LocalDateTime.now().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.KOREAN);
 
-        // 오늘 요일의 OperationHour 조회
-        List<OperationHour> operationHours = operationHourRepository.findByPlaceId(placeId);
-        String startTime = null;
-        String endTime = null;
-        List<String> holidays = new ArrayList<>();
-        for (OperationHour hour : operationHours) {
-            if (hour.getIsDayOff()) {
-                holidays.add(hour.getDayOfWeek());
-            } else if (hour.getDayOfWeek().equalsIgnoreCase(todayName)) {
-                startTime = hour.getStartTime().toString();
-                endTime = hour.getEndTime().toString();
-            }
-        }
-
         Address address = place.getAddress();
         String roadAddress = address != null ? address.getRoadAddress() : null;
 
@@ -86,13 +72,14 @@ public class PlaceService {
                 .description(place.getDescription())
                 .category(place.getCategory().toString())
                 .location(roadAddress)
-                .start_time(startTime)
-                .close_time(endTime)
-                .holiday(String.join(", ", holidays))
                 .is_parking(place.getIsParking())
-                .weather_type(place.getWeatherType() != null ? place.getWeatherType().toString() : null)
+                .inside(place.getInside())
+                .outside(place.getOutside())
                 .weight_limit(place.getWeightLimit() != null ? place.getWeightLimit() : 0)
                 .pet_fee(place.getPetFee() != null ? place.getPetFee() : 0)
+                .homepage(place.getHomepage() != null ? place.getHomepage() : null)
+                .operationStatus(place.getOperationStatus())
+                .operationHour(place.getOperationHour() != null ? place.getOperationHour() : null)
                 .rating(averageRating)
                 .review_count(reviewCount)
                 .reviews(reviews)

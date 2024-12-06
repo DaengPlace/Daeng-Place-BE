@@ -2,6 +2,7 @@ package com.mycom.backenddaengplace.place.repository;
 
 import com.mycom.backenddaengplace.member.domain.QMember;
 import com.mycom.backenddaengplace.member.enums.Gender;
+import com.mycom.backenddaengplace.place.domain.Place;
 import com.mycom.backenddaengplace.place.domain.QLocation;
 import com.mycom.backenddaengplace.place.domain.QOperationHour;
 import com.mycom.backenddaengplace.place.domain.QPlace;
@@ -22,14 +23,16 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.TextStyle;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Locale;
 
 @RequiredArgsConstructor
 @Repository
@@ -45,6 +48,55 @@ public class PlaceQueryRepository {
 
         BooleanBuilder whereClause = new BooleanBuilder();
 
+        String todayName = LocalDateTime.now().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.KOREAN);
+        LocalTime now = LocalTime.now();
+        if (criteria.getIsOpen() != null && criteria.getIsOpen()) {
+            switch (todayName) {
+                case "월요일":
+                    whereClause.and(
+                            operationHour.mondayOpen.isNotNull()
+                                    .and(operationHour.mondayOpen.loe(now))
+                                    .and(operationHour.mondayClose.goe(now)));
+                    break;
+                case "화요일":
+                    whereClause.and(
+                            operationHour.tuesdayOpen.isNotNull()
+                                    .and(operationHour.tuesdayOpen.loe(now))
+                                    .and(operationHour.tuesdayClose.goe(now)));
+                    break;
+                case "수요일":
+                    whereClause.and(
+                            operationHour.wednesdayOpen.isNotNull()
+                                    .and(operationHour.wednesdayOpen.loe(now))
+                                    .and(operationHour.wednesdayClose.goe(now)));
+                    break;
+                case "목요일":
+                    whereClause.and(
+                            operationHour.thursdayOpen.isNotNull()
+                                    .and(operationHour.thursdayOpen.loe(now))
+                                    .and(operationHour.thursdayClose.goe(now)));
+                    break;
+                case "금요일":
+                    whereClause.and(
+                            operationHour.fridayOpen.isNotNull()
+                                    .and(operationHour.fridayOpen.loe(now))
+                                    .and(operationHour.fridayClose.goe(now)));
+                    break;
+                case "토요일":
+                    whereClause.and(
+                            operationHour.saturdayOpen.isNotNull()
+                                    .and(operationHour.saturdayOpen.loe(now))
+                                    .and(operationHour.saturdayClose.goe(now)));
+                    break;
+                case "일요일":
+                    whereClause.and(
+                            operationHour.sundayOpen.isNotNull()
+                                    .and(operationHour.sundayOpen.loe(now))
+                                    .and(operationHour.sundayClose.goe(now)));
+                    break;
+            }
+        }
+
         // 검색 조건 추가
         if (criteria.getSearch() != null) {
             whereClause.and(place.name.containsIgnoreCase(criteria.getSearch())); // 이름 검색
@@ -58,14 +110,20 @@ public class PlaceQueryRepository {
         if (criteria.getIsParking() != null) {
             whereClause.and(place.isParking.eq(criteria.getIsParking())); // 주차 여부 검색
         }
-        if (criteria.getWeatherType() != null) {
-            whereClause.and(place.weatherType.eq(criteria.getWeatherType())); // 날씨 유형 검색
+        if (criteria.getPetFee() != null) {
+            whereClause.and(place.petFee.eq(criteria.getPetFee())); // 동반 요금 여부 검색
         }
         if (criteria.getWeightLimit() != null) {
-            whereClause.and(place.weightLimit.loe(criteria.getWeightLimit())); // 무게 제한
+            whereClause.and(place.weightLimit.eq(criteria.getWeightLimit())); // 무게 제한 여부 검색
         }
-        if (criteria.getPetFee() != null) {
-            whereClause.and(place.petFee.loe(criteria.getPetFee())); // 애견 요금
+        if (criteria.getInside() != null) {
+            whereClause.and(place.inside.eq(criteria.getInside())); // 실내 여부 검색
+        }
+        if (criteria.getOutside() != null) {
+            whereClause.and(place.outside.eq(criteria.getOutside())); // 실외 여부 검색
+        }
+        if (criteria.getOperationStatus() != null) {
+            whereClause.and(place.operationStatus.eq(criteria.getOperationStatus())); // 운영 상태 검색
         }
 
         // 위치 기반 검색 (위도, 경도 추가)
@@ -93,10 +151,13 @@ public class PlaceQueryRepository {
                 .select(Projections.bean(PlaceDto.class,
                         place.id.as("placeId"),
                         place.name,
+                        place.phone.as("phone"),
+                        place.description.as("description"),
                         place.category,
                         place.address.roadAddress.as("location"),
                         place.isParking.as("is_parking"),
-                        place.weatherType.as("weather_type"),
+                        place.inside.as("inside"),
+                        place.outside.as("outside"),
                         place.weightLimit.as("weight_limit"),
                         place.petFee.as("pet_fee"),
                         place.address.location.latitude.as("latitude"),
@@ -111,33 +172,43 @@ public class PlaceQueryRepository {
                 .leftJoin(review).on(review.place.eq(place))
                 .where(whereClause)
                 .groupBy(place.id, place.name, place.category, place.address.roadAddress,
-                        place.isParking, place.weatherType, place.weightLimit, place.petFee,
+                        place.isParking, place.inside, place.outside, place.weightLimit, place.petFee,
                         place.address.location.latitude, place.address.location.longitude)
                 .orderBy(orderSpecifier)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
-
-        // 운영시간 조회
-        Map<Long, List<OperationHourDto>> operationHourMap = jpaQueryFactory
+        List<OperationHourDto> operationHourDtos = jpaQueryFactory
                 .select(Projections.bean(OperationHourDto.class,
                         operationHour.place.id.as("placeId"),
-                        operationHour.dayOfWeek,
-                        operationHour.startTime,
-                        operationHour.endTime,
-                        operationHour.isDayOff
+                        operationHour.mondayOpen,
+                        operationHour.mondayClose,
+                        operationHour.tuesdayOpen,
+                        operationHour.tuesdayClose,
+                        operationHour.wednesdayOpen,
+                        operationHour.wednesdayClose,
+                        operationHour.thursdayOpen,
+                        operationHour.thursdayClose,
+                        operationHour.fridayOpen,
+                        operationHour.fridayClose,
+                        operationHour.saturdayOpen,
+                        operationHour.saturdayClose,
+                        operationHour.sundayOpen,
+                        operationHour.sundayClose
                 ))
                 .from(operationHour)
-                .where(operationHour.place.id.in(
-                        places.stream().map(PlaceDto::getPlaceId).toList()
-                ))
-                .fetch()
-                .stream()
-                .collect(Collectors.groupingBy(OperationHourDto::getPlaceId));
+                .where(operationHour.place.id.eq(
+                                place.id
+                        )
+                ).fetch();
 
         // 운영시간 설정
         places.forEach(placeDto ->
-                placeDto.setOperationHours(operationHourMap.get(placeDto.getPlaceId()))
+                placeDto.setOperationHour(operationHourDtos.stream()
+                        .filter(operationHourDto -> operationHourDto.getPlaceId().equals(placeDto.getPlaceId()))
+                        .findFirst()
+                        .orElse(null)
+                )
         );
 
         // 마지막 페이지 여부
