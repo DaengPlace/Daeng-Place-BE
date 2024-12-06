@@ -23,6 +23,7 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
@@ -32,8 +33,6 @@ import java.time.LocalTime;
 import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Repository
@@ -51,24 +50,52 @@ public class PlaceQueryRepository {
 
         String todayName = LocalDateTime.now().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.KOREAN);
         LocalTime now = LocalTime.now();
-        Boolean isOpen = false;
-//        switch (todayName) {
-//            case "월요일": {
-//                if (place.operationHour.mondayOpen != null) {
-//                    if (place.operationHour.mondayOpen.loe(now)) {
-//
-//                    } else {
-//                        isOpen = false;
-//                    }
-//                } else {
-//                    isOpen = false;
-//                }
-//            }
-//            case "화요일": {
-//
-//            }
-//        }
-
+        if (criteria.getIsOpen() != null && criteria.getIsOpen()) {
+            switch (todayName) {
+                case "월요일":
+                    whereClause.and(
+                            operationHour.mondayOpen.isNotNull()
+                                    .and(operationHour.mondayOpen.loe(now))
+                                    .and(operationHour.mondayClose.goe(now)));
+                    break;
+                case "화요일":
+                    whereClause.and(
+                            operationHour.tuesdayOpen.isNotNull()
+                                    .and(operationHour.tuesdayOpen.loe(now))
+                                    .and(operationHour.tuesdayClose.goe(now)));
+                    break;
+                case "수요일":
+                    whereClause.and(
+                            operationHour.wednesdayOpen.isNotNull()
+                                    .and(operationHour.wednesdayOpen.loe(now))
+                                    .and(operationHour.wednesdayClose.goe(now)));
+                    break;
+                case "목요일":
+                    whereClause.and(
+                            operationHour.thursdayOpen.isNotNull()
+                                    .and(operationHour.thursdayOpen.loe(now))
+                                    .and(operationHour.thursdayClose.goe(now)));
+                    break;
+                case "금요일":
+                    whereClause.and(
+                            operationHour.fridayOpen.isNotNull()
+                                    .and(operationHour.fridayOpen.loe(now))
+                                    .and(operationHour.fridayClose.goe(now)));
+                    break;
+                case "토요일":
+                    whereClause.and(
+                            operationHour.saturdayOpen.isNotNull()
+                                    .and(operationHour.saturdayOpen.loe(now))
+                                    .and(operationHour.saturdayClose.goe(now)));
+                    break;
+                case "일요일":
+                    whereClause.and(
+                            operationHour.sundayOpen.isNotNull()
+                                    .and(operationHour.sundayOpen.loe(now))
+                                    .and(operationHour.sundayClose.goe(now)));
+                    break;
+            }
+        }
 
         // 검색 조건 추가
         if (criteria.getSearch() != null) {
@@ -96,7 +123,7 @@ public class PlaceQueryRepository {
             whereClause.and(place.outside.eq(criteria.getOutside())); // 실외 여부 검색
         }
         if (criteria.getOperationStatus() != null) {
-            whereClause.and(place.operationStatus.eq(criteria.getOperationStatus())); // 주차 여부 검색
+            whereClause.and(place.operationStatus.eq(criteria.getOperationStatus())); // 운영 상태 검색
         }
 
         // 위치 기반 검색 (위도, 경도 추가)
@@ -151,7 +178,7 @@ public class PlaceQueryRepository {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
-        OperationHourDto operationHourDto = jpaQueryFactory
+        List<OperationHourDto> operationHourDtos = jpaQueryFactory
                 .select(Projections.bean(OperationHourDto.class,
                         operationHour.place.id.as("placeId"),
                         operationHour.mondayOpen,
@@ -173,14 +200,16 @@ public class PlaceQueryRepository {
                 .where(operationHour.place.id.eq(
                                 place.id
                         )
-                ).fetchOne();
+                ).fetch();
+
         // 운영시간 설정
         places.forEach(placeDto ->
-                placeDto.setOperationHour(operationHourDto)
+                placeDto.setOperationHour(operationHourDtos.stream()
+                        .filter(operationHourDto -> operationHourDto.getPlaceId().equals(placeDto.getPlaceId()))
+                        .findFirst()
+                        .orElse(null)
+                )
         );
-//        places.forEach(placeDto ->
-//                placeDto.setOperationHours(operationHourMap.get(placeDto.getPlaceId()))
-//        );
 
         // 마지막 페이지 여부
         boolean isLast = places.size() < pageable.getPageSize();
