@@ -18,9 +18,9 @@ public class WebConfig implements WebMvcConfigurer {
          *              // (...)
          *              .anyRequest().authenticated()) // 그 외의 요청은 인증 필요
          */
-            registry.addInterceptor(authorizationInterceptor)
-                    .addPathPatterns("/**") // 모든 경로에 적용, '/' 제외 필요 없음
-                    .excludePathPatterns("/error", "/logout", "/api/login"); // 에러 페이지, 로그아웃, 로그인 API는 제외
+        registry.addInterceptor(authorizationInterceptor)
+                .addPathPatterns("/**") // 모든 경로에 적용, '/' 제외 필요 없음
+                .excludePathPatterns("/error", "/logout", "/api/login"); // 에러 페이지, 로그아웃, 로그인 API는 제외
     }
 
 }

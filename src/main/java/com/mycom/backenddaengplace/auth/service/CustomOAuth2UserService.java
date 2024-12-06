@@ -28,46 +28,54 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        OAuth2User oAuth2User = super.loadUser(userRequest);
-        String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        OAuth2Response oAuth2Response = getOAuth2Response(registrationId, oAuth2User);
+        OAuth2User oAuth2User = super.loadUser(userRequest); // 소셜 로그인 유저 데이터 가져오기
+        String registrationId = userRequest.getClientRegistration().getRegistrationId(); // 제공자 구분
+        OAuth2Response oAuth2Response = getOAuth2Response(registrationId, oAuth2User); // OAuth2Response로 매핑
 
-        // Member 저장 또는 업데이트
+        // **회원 정보 저장 또는 업데이트**
         Member member = saveOrUpdateUser(oAuth2Response);
 
-        // UserDTO 생성
+        // **UserDTO 생성**
         UserDTO userDTO = createUserDTO(member);
 
-        // CustomOAuth2User 생성 시 Member도 함께 전달
+        // **CustomOAuth2User 반환**
         return new CustomOAuth2User(userDTO, member);
     }
 
+    /**
+     * 제공자별 OAuth2Response 매핑 로직
+     */
     private OAuth2Response getOAuth2Response(String registrationId, OAuth2User oAuth2User) {
         if ("kakao".equals(registrationId)) {
             return new KakaoResponse(oAuth2User.getAttributes());
         } else if ("google".equals(registrationId)) {
             return new GoogleResponse(oAuth2User.getAttributes());
         } else {
+            log.error("Unsupported provider: {}", registrationId);
             throw new OAuth2AuthenticationException("Unsupported provider: " + registrationId);
         }
     }
 
+    /**
+     * 회원 정보를 저장하거나 업데이트
+     */
     private Member saveOrUpdateUser(OAuth2Response oAuth2Response) {
         String provider = oAuth2Response.getProvider();
         String providerId = oAuth2Response.getProviderId();
         String email = oAuth2Response.getEmail();
 
-        // 기본 이메일 처리
+        // **기본 이메일 처리**
         if (email == null || email.isEmpty()) {
             email = provider + "-" + providerId + "@noemail.com";
         }
 
         log.info("Social login request: provider={}, providerId={}, email={}", provider, providerId, email);
 
+        // **DB에서 회원 조회**
         Member member = authMemberRepository.findByProviderAndProviderId(provider, providerId);
 
         if (member == null) {
-            // 새 사용자 저장
+            // **새 사용자 저장**
             member = Member.builder()
                     .provider(provider)
                     .providerId(providerId)
@@ -76,21 +84,24 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .profileImageUrl(oAuth2Response.getProfileImage())
                     .build();
             authMemberRepository.save(member);
-            log.info("New user registered: {}", member); // 새 사용자 등록 로그
+            log.info("New user registered: {}", member);
         } else {
-            // 기존 사용자 업데이트
+            // **기존 사용자 업데이트**
             authMemberService.updateMember(member,
                     email,
                     oAuth2Response.getName(),
                     oAuth2Response.getProfileImage(),
                     provider,
                     providerId);
-            log.info("Existing user updated: {}", member); // 기존 사용자 업데이트 로그
+            log.info("Existing user updated: {}", member);
         }
 
         return member;
     }
 
+    /**
+     * UserDTO 객체 생성
+     */
     private UserDTO createUserDTO(Member member) {
         UserDTO userDTO = new UserDTO();
         userDTO.setProvider(member.getProvider());
