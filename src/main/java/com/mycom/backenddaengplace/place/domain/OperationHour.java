@@ -13,39 +13,88 @@ public class OperationHour {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="operation_hour_id")
+    @Column(name = "operation_hour_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id", nullable = false)
     private Place place;
 
-    @Column(name = "day_of_week", nullable = false)
-    private String dayOfWeek;
+    @Column(name = "monday_open")
+    private LocalTime mondayOpen;
 
-    @Column(name = "start_time")
-    private LocalTime startTime;
+    @Column(name = "monday_close")
+    private LocalTime mondayClose;
 
-    @Column(name = "end_time")
-    private LocalTime endTime;
+    @Column(name = "tuesday_open")
+    private LocalTime tuesdayOpen;
 
-    @Column(name = "is_day_off", nullable = false)
-    private Boolean isDayOff;
+    @Column(name = "tuesday_close")
+    private LocalTime tuesdayClose;
+
+    @Column(name = "wednesday_open")
+    private LocalTime wednesdayOpen;
+
+    @Column(name = "wednesday_close")
+    private LocalTime wednesdayClose;
+
+    @Column(name = "thursday_open")
+    private LocalTime thursdayOpen;
+
+    @Column(name = "thursday_close")
+    private LocalTime thursdayClose;
+
+    @Column(name = "friday_open")
+    private LocalTime fridayOpen;
+
+    @Column(name = "friday_close")
+    private LocalTime fridayClose;
+
+    @Column(name = "saturday_open")
+    private LocalTime saturdayOpen;
+
+    @Column(name = "saturday_close")
+    private LocalTime saturdayClose;
+
+    @Column(name = "sunday_open")
+    private LocalTime sundayOpen;
+
+    @Column(name = "sunday_close")
+    private LocalTime sundayClose;
 
     @Builder
     public OperationHour(
             Place place,
-            String dayOfWeek,
-            LocalTime startTime,
-            LocalTime endTime,
-            boolean isDayOff
-    ){
+            LocalTime mondayOpen,
+            LocalTime mondayClose,
+            LocalTime tuesdayOpen,
+            LocalTime tuesdayClose,
+            LocalTime wednesdayOpen,
+            LocalTime wednesdayClose,
+            LocalTime thursdayOpen,
+            LocalTime thursdayClose,
+            LocalTime fridayOpen,
+            LocalTime fridayClose,
+            LocalTime saturdayOpen,
+            LocalTime saturdayClose,
+            LocalTime sundayOpen,
+            LocalTime sundayClose
+    ) {
         this.place = place;
-        this.dayOfWeek = dayOfWeek;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.isDayOff = isDayOff;
-
+        this.mondayOpen = mondayOpen;
+        this.mondayClose = mondayClose;
+        this.tuesdayOpen = tuesdayOpen;
+        this.tuesdayClose = tuesdayClose;
+        this.wednesdayOpen = wednesdayOpen;
+        this.wednesdayClose = wednesdayClose;
+        this.thursdayOpen = thursdayOpen;
+        this.thursdayClose = thursdayClose;
+        this.fridayOpen = fridayOpen;
+        this.fridayClose = fridayClose;
+        this.saturdayOpen = saturdayOpen;
+        this.saturdayClose = saturdayClose;
+        this.sundayOpen = sundayOpen;
+        this.sundayClose = sundayClose;
     }
 
 }
