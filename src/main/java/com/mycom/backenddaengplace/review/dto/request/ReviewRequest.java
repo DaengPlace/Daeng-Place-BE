@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,5 +22,7 @@ public class ReviewRequest {
     @Size(max = 500, message = "리뷰 내용은 500자를 초과할 수 없습니다.")
     private String content;
 
-    private String traitTag;
+    @NotEmpty(message = "성향 태그는 필수입니다.")
+    @Size(min = 3, message = "성향 태그는 최소 3개 이상 선택해야 합니다.")
+    private List<String> traitTags;
 }
