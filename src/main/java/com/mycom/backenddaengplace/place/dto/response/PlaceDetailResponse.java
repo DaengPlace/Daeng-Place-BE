@@ -23,7 +23,8 @@ public class PlaceDetailResponse {
     private int pet_fee;
     private String homepage;
     private OperationStatus operationStatus;
-    private OperationHour operationHour;
+    private OperationHourDto operationHour;
+    private String hoilday;
     private Double rating;
     private long review_count;
     private List<Map<String, Object>> reviews;
