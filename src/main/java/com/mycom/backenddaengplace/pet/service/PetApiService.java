@@ -45,4 +45,19 @@ public class PetApiService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    public String getBreedById(Long breedId) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("x-api-key", dogApiKey);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<JsonNode> response = restTemplate.exchange(
+                DOG_API_URL + "/" + breedId,
+                HttpMethod.GET,
+                entity,
+                JsonNode.class
+        );
+
+        return response.getBody().get("name").asText();
+    }
 }

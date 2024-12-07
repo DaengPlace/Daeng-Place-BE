@@ -54,8 +54,12 @@ public class PetService {
     }
 
     private BreedType getBreedType(Long breedTypeId) {
-        return breedTypeRepository.findById(breedTypeId)
-                .orElseThrow(() -> new BreedNotFoundException(breedTypeId));
+        String breedName = petApiService.getBreedById(breedTypeId);
+        BreedType breedType = BreedType.builder()
+                .id(breedTypeId)
+                .breedType(breedName)
+                .build();
+        return breedTypeRepository.save(breedType);
     }
 
     public List<BreedTypeResponse> getAllBreedTypes() {
