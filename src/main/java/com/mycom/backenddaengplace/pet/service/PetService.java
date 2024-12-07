@@ -61,6 +61,18 @@ public class PetService {
         return breedTypeRepository.save(breedType);
     }
 
+    public List<BreedTypeResponse> searchBreedTypes(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return getAllBreedTypes();
+        }
+
+        List<BreedTypeResponse> allBreeds = getAllBreedTypes();
+        return allBreeds.stream()
+                .filter(breed -> breed.getBreedType().toLowerCase()
+                        .contains(keyword.toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
     public List<BreedTypeResponse> getAllBreedTypes() {
         return petApiService.getAllBreedTypes().stream()
                 .map(breedType -> BreedTypeResponse.builder()

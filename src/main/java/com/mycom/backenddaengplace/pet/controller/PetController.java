@@ -36,6 +36,13 @@ public class PetController {
         return ResponseEntity.ok(ApiResponse.success("견종 목록 조회 성공", response));
     }
 
+    @GetMapping("/breed-type/search")
+    public ResponseEntity<ApiResponse<List<BreedTypeResponse>>> searchBreedTypes(
+            @RequestParam String keyword) {
+        List<BreedTypeResponse> response = petService.searchBreedTypes(keyword);
+        return ResponseEntity.ok(ApiResponse.success("견종 검색 성공", response));
+    }
+
     @GetMapping("/{petId}")
     public ResponseEntity<ApiResponse<BasePetResponse>> getPet(@PathVariable Long petId) {
         BasePetResponse response = petService.getPet(petId);
