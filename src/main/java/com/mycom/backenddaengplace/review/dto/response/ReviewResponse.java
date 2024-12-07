@@ -16,7 +16,7 @@ public class ReviewResponse {
     private Long placeId;
     private Double rating;
     private String content;
-    private String traitTag;
+    private List<String> traitTags;
     private LocalDateTime createdAt;
     private List<String> imageUrls;  // 추가
 
@@ -27,7 +27,7 @@ public class ReviewResponse {
                 .placeId(review.getPlace().getId())
                 .rating(review.getRating())
                 .content(review.getContent())
-                .traitTag(review.getTraitTag())
+                .traitTags(review.getTraitTags())
                 .createdAt(review.getCreatedAt())
                 .imageUrls(new ArrayList<>())  // S3 설정 전까지 빈 리스트 반환
                 .build();

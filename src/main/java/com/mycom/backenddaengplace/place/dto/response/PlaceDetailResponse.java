@@ -1,5 +1,7 @@
 package com.mycom.backenddaengplace.place.dto.response;
 
+import com.mycom.backenddaengplace.place.domain.OperationHour;
+import com.mycom.backenddaengplace.place.enums.OperationStatus;
 import lombok.Builder;
 import lombok.Data;
 
@@ -14,13 +16,15 @@ public class PlaceDetailResponse {
     private String description;
     private String category;
     private String location;
-    private String start_time;
-    private String close_time;
-    private String holiday;
     private Boolean is_parking;
-    private String weather_type;
+    private Boolean inside;
+    private Boolean outside;
     private int weight_limit;
     private int pet_fee;
+    private String homepage;
+    private OperationStatus operationStatus;
+    private OperationHourDto operationHour;
+    private String hoilday;
     private Double rating;
     private long review_count;
     private List<Map<String, Object>> reviews;

@@ -8,10 +8,7 @@ import com.mycom.backenddaengplace.place.domain.Address;
 import com.mycom.backenddaengplace.place.domain.OperationHour;
 import com.mycom.backenddaengplace.place.domain.Place;
 import com.mycom.backenddaengplace.place.dto.request.SearchCriteria;
-import com.mycom.backenddaengplace.place.dto.response.AgeGenderPlaceResponse;
-import com.mycom.backenddaengplace.place.dto.response.PlaceDetailResponse;
-import com.mycom.backenddaengplace.place.dto.response.PlaceListResponse;
-import com.mycom.backenddaengplace.place.dto.response.PopularPlaceResponse;
+import com.mycom.backenddaengplace.place.dto.response.*;
 import com.mycom.backenddaengplace.place.enums.Category;
 import com.mycom.backenddaengplace.place.exception.PlaceNotFoundException;
 import com.mycom.backenddaengplace.place.repository.OperationHourRepository;
@@ -49,20 +46,6 @@ public class PlaceService {
         // 오늘의 요일 계산
         String todayName = LocalDateTime.now().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.KOREAN);
 
-        // 오늘 요일의 OperationHour 조회
-        List<OperationHour> operationHours = operationHourRepository.findByPlaceId(placeId);
-        String startTime = null;
-        String endTime = null;
-        List<String> holidays = new ArrayList<>();
-        for (OperationHour hour : operationHours) {
-            if (hour.getIsDayOff()) {
-                holidays.add(hour.getDayOfWeek());
-            } else if (hour.getDayOfWeek().equalsIgnoreCase(todayName)) {
-                startTime = hour.getStartTime().toString();
-                endTime = hour.getEndTime().toString();
-            }
-        }
-
         Address address = place.getAddress();
         String roadAddress = address != null ? address.getRoadAddress() : null;
 
@@ -73,6 +56,7 @@ public class PlaceService {
         List<Map<String, Object>> reviews = latestReviews.stream()
                 .map(review -> {
                     Map<String, Object> map = new HashMap<>();
+                    map.put("reviewId", review.getId());
                     map.put("rating", review.getRating());
                     map.put("content", review.getContent());
                     map.put("createdAt", review.getCreatedAt());
@@ -80,23 +64,61 @@ public class PlaceService {
                 })
                 .toList();
 
+        OperationHour operationHour = operationHourRepository.findByPlaceId(placeId);
+        String holiday = getHolidayInfo(operationHour);
+
+        // OperationHourDto 생성
+        OperationHourDto operationHourDto = new OperationHourDto();
+        operationHourDto.setPlaceId(placeId);
+        operationHourDto.setMondayOpen(operationHour.getMondayOpen());
+        operationHourDto.setMondayClose(operationHour.getMondayClose());
+        operationHourDto.setTuesdayOpen(operationHour.getTuesdayOpen());
+        operationHourDto.setTuesdayClose(operationHour.getTuesdayClose());
+        operationHourDto.setWednesdayOpen(operationHour.getWednesdayOpen());
+        operationHourDto.setWednesdayClose(operationHour.getWednesdayClose());
+        operationHourDto.setThursdayOpen(operationHour.getThursdayOpen());
+        operationHourDto.setThursdayClose(operationHour.getThursdayClose());
+        operationHourDto.setFridayOpen(operationHour.getFridayOpen());
+        operationHourDto.setFridayClose(operationHour.getFridayClose());
+        operationHourDto.setSaturdayOpen(operationHour.getSaturdayOpen());
+        operationHourDto.setSaturdayClose(operationHour.getSaturdayClose());
+        operationHourDto.setSundayOpen(operationHour.getSundayOpen());
+        operationHourDto.setSundayClose(operationHour.getSundayClose());
+
         return PlaceDetailResponse.builder()
                 .placeId(place.getId())
                 .name(place.getName())
                 .description(place.getDescription())
                 .category(place.getCategory().toString())
                 .location(roadAddress)
-                .start_time(startTime)
-                .close_time(endTime)
-                .holiday(String.join(", ", holidays))
                 .is_parking(place.getIsParking())
-                .weather_type(place.getWeatherType() != null ? place.getWeatherType().toString() : null)
+                .inside(place.getInside())
+                .outside(place.getOutside())
                 .weight_limit(place.getWeightLimit() != null ? place.getWeightLimit() : 0)
                 .pet_fee(place.getPetFee() != null ? place.getPetFee() : 0)
+                .homepage(place.getHomepage() != null ? place.getHomepage() : null)
+                .operationStatus(place.getOperationStatus())
+                .operationHour(operationHourDto)
+                .hoilday(holiday)
                 .rating(averageRating)
                 .review_count(reviewCount)
                 .reviews(reviews)
                 .build();
+    }
+
+    private String getHolidayInfo(OperationHour operationHour) {
+        List<String> holidays = new ArrayList<>();
+
+        if (operationHour.getMondayOpen() == null) holidays.add("월요일");
+        if (operationHour.getTuesdayOpen() == null) holidays.add("화요일");
+        if (operationHour.getWednesdayOpen() == null) holidays.add("수요일");
+        if (operationHour.getThursdayOpen() == null) holidays.add("목요일");
+        if (operationHour.getFridayOpen() == null) holidays.add("금요일");
+        if (operationHour.getSaturdayOpen() == null) holidays.add("토요일");
+        if (operationHour.getSundayOpen() == null) holidays.add("일요일");
+
+        // 휴무일 정보 리스트를 문자열로 반환
+        return String.join(", ", holidays);
     }
 
     public PlaceListResponse searchPlaces(SearchCriteria criteria, Pageable pageable) {

@@ -1,6 +1,5 @@
 package com.mycom.backenddaengplace.pet.domain;
 
-import com.mycom.backenddaengplace.common.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

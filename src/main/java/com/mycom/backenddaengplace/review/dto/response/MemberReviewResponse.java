@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -16,7 +17,7 @@ public class MemberReviewResponse {
     private Category category;
     private Double rating;
     private String content;
-    private String traitTag;
+    private List<String> traitTags;
     private LocalDateTime createdAt;
     private String profileImageUrl;
 
@@ -28,7 +29,7 @@ public class MemberReviewResponse {
                 .category(review.getPlace().getCategory())
                 .rating(review.getRating())
                 .content(review.getContent())
-                .traitTag(review.getTraitTag())
+                .traitTags(review.getTraitTags())
                 .createdAt(review.getCreatedAt())
                 .profileImageUrl(review.getMember().getProfileImageUrl())
                 .build();

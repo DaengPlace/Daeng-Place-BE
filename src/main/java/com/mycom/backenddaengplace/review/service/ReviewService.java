@@ -49,7 +49,7 @@ public class ReviewService {
                 .place(place)
                 .content(request.getContent())
                 .rating(request.getRating())
-                .traitTag(request.getTraitTag())
+                .traitTags(request.getTraitTags())
                 .build();
 
         return ReviewResponse.from(reviewRepository.save(review));
@@ -97,7 +97,7 @@ public class ReviewService {
         if (!review.getMember().getId().equals(member.getId())) {
             throw new ReviewNotOwnedException(member.getId(), reviewId);
         }
-        review.update(request.getContent(), request.getRating(), request.getTraitTag());
+        review.update(request.getContent(), request.getRating(), request.getTraitTags());
     }
 
     public List<MemberReviewResponse> getUserReview(Long memberId) {

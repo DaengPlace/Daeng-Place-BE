@@ -1,9 +1,7 @@
 spring:
   profiles:
-    active: dev, security, email
-  config:
-    import:
-      - application-email.yml
+    active: dev,security,email
+
   jpa:
     properties:
       hibernate:
@@ -14,3 +12,16 @@ spring:
   web:
     resources:
       add-mappings: false
+
+logging:
+  level:
+    root: INFO
+    com.mycom: DEBUG
+
+file:
+  upload-dir: src/main/resources/static/img
+
+ocr:
+  api:
+    url: ${OCR_API_URL}
+    secret-key: ${OCR_SECRET_KEY}

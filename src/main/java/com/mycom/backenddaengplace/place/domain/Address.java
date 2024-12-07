@@ -23,6 +23,12 @@ public class Address {
     @Column(name = "zipcode")
     private String zipcode;
 
+    @Column(name = "state")
+    private String state;
+
+    @Column(name = "city")
+    private String city;
+
     @OneToOne(mappedBy = "address")
     private Place place;
 
@@ -35,12 +41,8 @@ public class Address {
             String detailAddress,
             String zipcode
     ) {
-
         this.roadAddress = roadAddress;
         this.detailAddress = detailAddress;
         this.zipcode = zipcode;
-
     }
-
-
 }
