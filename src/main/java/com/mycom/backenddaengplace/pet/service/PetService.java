@@ -4,7 +4,6 @@ import com.mycom.backenddaengplace.pet.domain.BreedType;
 import com.mycom.backenddaengplace.pet.domain.Pet;
 import com.mycom.backenddaengplace.pet.dto.request.BasePetRequest;
 import com.mycom.backenddaengplace.pet.dto.response.*;
-import com.mycom.backenddaengplace.pet.exception.BreedNotFoundException;
 import com.mycom.backenddaengplace.pet.exception.InvalidBirthDateException;
 import com.mycom.backenddaengplace.pet.exception.PetNotFoundException;
 import com.mycom.backenddaengplace.pet.repository.BreedTypeRepository;
@@ -29,6 +28,7 @@ import java.util.stream.Collectors;
 public class PetService {
     private final PetRepository petRepository;
     private final BreedTypeRepository breedTypeRepository;
+    private final PetApiService petApiService;
 
     public BasePetResponse registerPet(BasePetRequest request) {
         log.debug("반려견 등록 시작");
@@ -53,15 +53,30 @@ public class PetService {
     }
 
     private BreedType getBreedType(Long breedTypeId) {
-        return breedTypeRepository.findById(breedTypeId)
-                .orElseThrow(() -> new BreedNotFoundException(breedTypeId));
+        String breedName = petApiService.getBreedById(breedTypeId);
+        BreedType breedType = BreedType.builder()
+                .id(breedTypeId)
+                .breedType(breedName)
+                .build();
+        return breedTypeRepository.save(breedType);
+    }
+
+    public List<BreedTypeResponse> searchBreedTypes(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return getAllBreedTypes();
+        }
+
+        List<BreedTypeResponse> allBreeds = getAllBreedTypes();
+        return allBreeds.stream()
+                .filter(breed -> breed.getBreedType().toLowerCase()
+                        .contains(keyword.toLowerCase()))
+                .collect(Collectors.toList());
     }
 
     public List<BreedTypeResponse> getAllBreedTypes() {
-        return breedTypeRepository.findAllSorted()
-                .stream()
+        return petApiService.getAllBreedTypes().stream()
                 .map(breedType -> BreedTypeResponse.builder()
-                        .breedTypeId(breedType.getId())
+                        .breedTypeId(breedType.getBreedTypeId())
                         .breedType(breedType.getBreedType())
                         .build())
                 .collect(Collectors.toList());

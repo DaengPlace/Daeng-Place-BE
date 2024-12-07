@@ -21,7 +21,7 @@ public class BasePetResponse {
         return BasePetResponse.builder()
                 .petId(pet.getId())
                 .name(pet.getName())
-                .breed(pet.getBreedType().toString())
+                .breed(pet.getBreedType().getBreedType())
                 .birthDate(pet.getBirthDate().toString())
                 .weight(pet.getWeight())
                 .gender(pet.getGender())
