@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 public class PetService {
     private final PetRepository petRepository;
     private final BreedTypeRepository breedTypeRepository;
+    private final PetApiService petApiService;
 
     public BasePetResponse registerPet(BasePetRequest request) {
         log.debug("반려견 등록 시작");
@@ -58,10 +59,9 @@ public class PetService {
     }
 
     public List<BreedTypeResponse> getAllBreedTypes() {
-        return breedTypeRepository.findAllSorted()
-                .stream()
+        return petApiService.getAllBreedTypes().stream()
                 .map(breedType -> BreedTypeResponse.builder()
-                        .breedTypeId(breedType.getId())
+                        .breedTypeId(breedType.getBreedTypeId())
                         .breedType(breedType.getBreedType())
                         .build())
                 .collect(Collectors.toList());
