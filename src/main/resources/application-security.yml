@@ -33,3 +33,7 @@ spring:
     refresh-secret-key: ${JWT_REFRESH_SECRET_KEY}
     access-token-validity: 600000
     refresh-token-validity: 2592000000
+
+dog:
+  api:
+    key: ${DOG_API_KEY}
