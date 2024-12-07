@@ -4,7 +4,6 @@ import com.mycom.backenddaengplace.pet.domain.BreedType;
 import com.mycom.backenddaengplace.pet.domain.Pet;
 import com.mycom.backenddaengplace.pet.dto.request.BasePetRequest;
 import com.mycom.backenddaengplace.pet.dto.response.*;
-import com.mycom.backenddaengplace.pet.exception.BreedNotFoundException;
 import com.mycom.backenddaengplace.pet.exception.InvalidBirthDateException;
 import com.mycom.backenddaengplace.pet.exception.PetNotFoundException;
 import com.mycom.backenddaengplace.pet.repository.BreedTypeRepository;
