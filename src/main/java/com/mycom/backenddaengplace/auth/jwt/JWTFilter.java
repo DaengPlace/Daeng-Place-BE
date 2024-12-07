@@ -114,6 +114,12 @@ public class JWTFilter extends OncePerRequestFilter {
         // **수정 없음**: 다음 필터로 진행
         filterChain.doFilter(request, response);
     }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return path.equals("/hc") || path.equals("/health");
+    }
 }
 
 
