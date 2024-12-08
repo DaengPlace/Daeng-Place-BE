@@ -19,4 +19,3 @@ spring:
           writetimeout: 5000
         debug: true
     auth-code-expiration-millis: 1800000  # 30 * 60 * 1000 == 30?
-

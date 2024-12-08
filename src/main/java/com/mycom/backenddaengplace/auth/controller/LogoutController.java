@@ -1,15 +1,20 @@
 package com.mycom.backenddaengplace.auth.controller;
 
 import com.mycom.backenddaengplace.auth.repository.RefreshRepository;
+import com.mycom.backenddaengplace.common.dto.ApiResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/logout")
+@Slf4j
 public class LogoutController {
 
     private final RefreshRepository refreshRepository;
@@ -18,39 +23,41 @@ public class LogoutController {
         this.refreshRepository = refreshRepository;
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
-        // Get refresh token from cookies
-        String refreshToken = null;
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("refresh")) {
-                    refreshToken = cookie.getValue();
-                }
-            }
-        }
+    @PostMapping
+    public ResponseEntity<ApiResponse<?>> logout(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = extractTokenFromCookies(request);
 
-        // If no refresh token, return bad request
         if (refreshToken == null) {
-            return new ResponseEntity<>("Refresh token not found in cookies", HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Refresh token not found in cookies", HttpStatus.BAD_REQUEST.value()));
         }
 
-        // Check if refresh token exists in DB
-        boolean isTokenValid = refreshRepository.existsByRefresh(refreshToken);
-        if (!isTokenValid) {
-            return new ResponseEntity<>("Invalid refresh token", HttpStatus.BAD_REQUEST);
+        if (!refreshRepository.existsByRefresh(refreshToken)) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Invalid refresh token", HttpStatus.BAD_REQUEST.value()));
         }
 
-        // Delete refresh token from DB
         refreshRepository.deleteByRefresh(refreshToken);
+        clearRefreshCookie(response);
 
-        // Clear refresh token from cookies
+        return ResponseEntity.ok(ApiResponse.success("Logged out successfully", null));
+    }
+
+    private void clearRefreshCookie(HttpServletResponse response) {
         Cookie cookie = new Cookie("refresh", null);
         cookie.setMaxAge(0);
         cookie.setPath("/");
         response.addCookie(cookie);
+    }
 
-        return new ResponseEntity<>("Logged out successfully", HttpStatus.OK);
+    private String extractTokenFromCookies(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("refresh".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }

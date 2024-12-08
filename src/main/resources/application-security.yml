@@ -9,7 +9,7 @@ spring:
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
             client-secret: ""
-            redirect-uri: ${OAUTH2_REDIRECT_URI}/kakao
+            redirect-uri: http://api.daengplace.com/login/oauth2/code/kakao
             authorization-grant-type: authorization_code
             scope: profile_nickname, profile_image
             client-name: Kakao
@@ -17,10 +17,11 @@ spring:
           google:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
-            redirect-uri: ${OAUTH2_REDIRECT_URI}/google
+            redirect-uri: http://api.daengplace.com/login/oauth2/code/google
             authorization-grant-type: authorization_code
             scope: profile, email
             client-name: Google
+
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
