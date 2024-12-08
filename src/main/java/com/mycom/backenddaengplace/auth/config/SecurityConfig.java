@@ -40,7 +40,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/oauth2/**", "/auth/**", "/reissue"
-                                ,"/health", "/hc","/reviews/**","/ocr/**").permitAll()
+                                ,"/health", "/hc","/reviews/**","/ocr/**","/places/**").permitAll()
                         .anyRequest().authenticated())
 
                 .oauth2Login(oauth2 -> oauth2
