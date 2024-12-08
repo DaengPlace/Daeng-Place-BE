@@ -26,20 +26,24 @@ public class    ReviewController {
     @PostMapping("/{placeId}")
     public ResponseEntity<ApiResponse<ReviewResponse>> createReview(
             @PathVariable Long placeId,
-            @Valid @RequestBody ReviewRequest request,
-            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
-        Member member = customOAuth2User.getMember();
+            @Valid @RequestBody ReviewRequest request
+//            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
+            ) {
+//        Member member = customOAuth2User.getMember();
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("리뷰가 등록되었습니다.",
-                        reviewService.createReview(placeId, request, member.getId())));
+                        reviewService.createReview(placeId, request, 3L)));
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<MemberReviewResponse>>> getUserReview(
-            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
-        Member member = customOAuth2User.getMember();
+    public ResponseEntity<ApiResponse<List<MemberReviewResponse>>> getUserReview()
+//            (@AuthenticationPrincipal CustomOAuth2User customOAuth2User)
+    {
+//        Member member = customOAuth2User.getMember();
+//        return ResponseEntity.ok(ApiResponse.success("사용자의 리뷰 목록을 조회했습니다.",
+//                reviewService.getUserReview(member.getId())));
         return ResponseEntity.ok(ApiResponse.success("사용자의 리뷰 목록을 조회했습니다.",
-                reviewService.getUserReview(member.getId())));
+                reviewService.getUserReview(3L)));
     }
 
     @GetMapping("/places/{placeId}")
@@ -58,9 +62,11 @@ public class    ReviewController {
 
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<ApiResponse<Void>> deleteReview(
-            @PathVariable Long reviewId,
-            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
-        reviewService.deleteReview(reviewId, customOAuth2User.getMember());
+            @PathVariable Long reviewId
+//            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
+    ) {
+//        Member member = customOAuth2User.getMember();
+        reviewService.deleteReview(reviewId, 3L);
         return ResponseEntity.ok(ApiResponse.success("리뷰가 삭제되었습니다."));
     }
 
@@ -73,9 +79,11 @@ public class    ReviewController {
     @PatchMapping("/{reviewId}")
     public ResponseEntity<ApiResponse<Void>> updateReview(
             @PathVariable Long reviewId,
-            @Valid @RequestBody ReviewRequest request,
-            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
-        reviewService.updateReview(reviewId, request, customOAuth2User.getMember());
+            @Valid @RequestBody ReviewRequest request
+//            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
+    ) {
+//        Member member = customOAuth2User.getMember();
+        reviewService.updateReview(reviewId, request,3L);
         return ResponseEntity.ok(ApiResponse.success("리뷰가 수정되었습니다."));
     }
 }

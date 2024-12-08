@@ -73,13 +73,14 @@ public class ReviewService {
     }
 
     @Transactional
-    public void deleteReview(Long reviewId, Member member) {
+    public void deleteReview(Long reviewId, Long memberId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(reviewId, null));
 
-        if (!review.getMember().getId().equals(member.getId())) {
-            throw new ReviewNotOwnedException(member.getId(), reviewId);
-        }
+//        if (!review.getMember().getId().equals(memberId)) {
+//            throw new ReviewNotOwnedException(memberId, reviewId);
+//        }
+
         reviewRepository.delete(review);
     }
 
@@ -90,13 +91,14 @@ public class ReviewService {
     }
 
     @Transactional
-    public void updateReview(Long reviewId, ReviewRequest request, Member member) {
+    public void updateReview(Long reviewId, ReviewRequest request, Long memberId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(reviewId, null));
 
-        if (!review.getMember().getId().equals(member.getId())) {
-            throw new ReviewNotOwnedException(member.getId(), reviewId);
-        }
+//        if (!review.getMember().getId().equals(memberId)) {
+//            throw new ReviewNotOwnedException(memberId, reviewId);
+//        }
+
         review.update(request.getContent(), request.getRating(), request.getTraitTags());
     }
 
