@@ -19,16 +19,21 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        log.info("Authorization interceptor URL: {} ", request.getRequestURL());
+        String uri = request.getRequestURI();
+        log.info("Authorization interceptor URL: {}", request.getRequestURL());
+
+        // /ocr/** 경로는 인증 생략
+        if (uri.startsWith("/ocr/")) {
+            log.info("Skipping interceptor for /ocr/**");
+            return true;
+        }
 
         String accessToken = request.getHeader("Authorization");
         if (Objects.isNull(accessToken)) {
-            throw new IllegalStateException("인증이 필요합니다.");
+            throw new IllegalStateException("Authentication required");
         }
 
-        // TODO: TokenController 의 validateAccessToken 메서드 로직을 여기에 추가해서 활용 가능
-        // (...)
-
+        // 추가적인 검증 로직...
         return true;
     }
 

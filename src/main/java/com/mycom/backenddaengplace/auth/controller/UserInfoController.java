@@ -1,5 +1,8 @@
 package com.mycom.backenddaengplace.auth.controller;
 
+import com.mycom.backenddaengplace.common.dto.ApiResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -9,14 +12,18 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mycom.backenddaengplace.auth.dto.CustomOAuth2User;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/user")
+@RequiredArgsConstructor
+@Slf4j
 public class UserInfoController {
 
-    @GetMapping("/userinfo")
-    public ResponseEntity<?> getUserInfo(@AuthenticationPrincipal CustomOAuth2User user) {
+    @GetMapping("/info")
+    public ResponseEntity<ApiResponse<?>> getUserInfo(@AuthenticationPrincipal CustomOAuth2User user) {
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("User not logged in", HttpStatus.UNAUTHORIZED.value()));
         }
-        return ResponseEntity.ok(user.getAttributes());
+
+        return ResponseEntity.ok(ApiResponse.success("User information retrieved", user.getAttributes()));
     }
 }
