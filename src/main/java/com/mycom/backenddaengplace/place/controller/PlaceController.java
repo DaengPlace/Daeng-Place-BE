@@ -39,9 +39,9 @@ public class PlaceController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<PlaceListResponse>> searchPlaces(
-            @ModelAttribute SearchCriteria criteria, Pageable pageable) {
+            @ModelAttribute SearchCriteria criteria) {
 
-        PlaceListResponse response = placeService.searchPlaces(criteria, pageable);
+        PlaceListResponse response = placeService.searchPlaces(criteria);
         return ResponseEntity.ok(ApiResponse.success("OK", response));
     }
 

@@ -9,5 +9,4 @@ import java.util.List;
 @Builder
 public class PlaceListResponse {
     List<PlaceDto> places;
-    boolean isLast;
 }

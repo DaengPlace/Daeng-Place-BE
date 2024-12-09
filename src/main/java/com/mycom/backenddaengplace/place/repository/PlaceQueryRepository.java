@@ -39,7 +39,7 @@ public class PlaceQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public PlaceListResponse searchPlaces(SearchCriteria criteria, Pageable pageable) {
+    public PlaceListResponse searchPlaces(SearchCriteria criteria) {
         QPlace place = QPlace.place;
         QOperationHour operationHour = QOperationHour.operationHour;
         QLocation location = QLocation.location;
@@ -174,8 +174,6 @@ public class PlaceQueryRepository {
                         place.isParking, place.inside, place.outside, place.weightLimit, place.petFee,
                         place.address.location.latitude, place.address.location.longitude)
                 .orderBy(orderSpecifier)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
                 .fetch();
         List<OperationHourDto> operationHourDtos = jpaQueryFactory
                 .select(Projections.bean(OperationHourDto.class,
@@ -210,12 +208,9 @@ public class PlaceQueryRepository {
                 )
         );
 
-        // 마지막 페이지 여부
-        boolean isLast = places.size() < pageable.getPageSize();
 
         return PlaceListResponse.builder()
                 .places(places)
-                .isLast(isLast)
                 .build();
     }
 
