@@ -61,8 +61,8 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
             response.setCharacterEncoding("UTF-8");
             String jsonResponse = String.format(
                     "{\"accessToken\": \"%s\", \"refreshToken\": \"%s\", \"nickname\": \"%s\", \"email\": \"%s\", \"providerId\": \"%s\", \"provider\": \"%s\"}",
-                    "accessToken-placeholder", // 실제 토큰
-                    "refreshToken-placeholder", // 실제 토큰
+                    accessToken, // 실제 토큰
+                    refreshToken, // 실제 토큰
                     customUserDetails.getUsername(), // 사용자 이름
                     customUserDetails.getUsername(), // 이메일
                     customUserDetails.getProviderId(), // 소셜 제공자 ID
