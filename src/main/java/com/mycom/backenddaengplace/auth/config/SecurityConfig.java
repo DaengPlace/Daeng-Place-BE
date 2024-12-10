@@ -43,7 +43,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/oauth2/**", "/auth/**", "/reissue"
+                        .requestMatchers("/", "/login", "/oauth2/**", "/auth/**", "/reissue"
                                 , "/health", "/hc", "/reviews/**", "/ocr/**", "/places/**",
                                 "/email/**"
                         ).permitAll()
