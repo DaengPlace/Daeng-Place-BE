@@ -31,6 +31,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                // CORS 설정을 람다 형식으로 추가
+                .cors(cors -> {
+                    CorsConfigurationSource source = corsConfigurationSource();
+                    cors.configurationSource(source);
+                })
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -47,12 +52,7 @@ public class SecurityConfig {
                         .successHandler(customSuccessHandler) // JSON 응답으로 수정
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class) // JWT 필터 추가
-                .addFilterBefore(customLogoutFilter, LogoutFilter.class)
-                // CORS 설정을 람다 형식으로 추가
-                .cors(cors -> {
-                    CorsConfigurationSource source = corsConfigurationSource();
-                    cors.configurationSource(source);
-                });
+                .addFilterBefore(customLogoutFilter, LogoutFilter.class);
 
         return http.build();
     }
