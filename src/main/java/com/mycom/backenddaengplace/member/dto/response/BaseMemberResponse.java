@@ -15,6 +15,8 @@ public class BaseMemberResponse {
     private String profileImageUrl;
     private Gender gender;
     private String birthDate;
+    private String state;
+    private String city;
     private Boolean locationStatus;
 
     public static BaseMemberResponse from(Member member) {
@@ -23,10 +25,11 @@ public class BaseMemberResponse {
                 .name(member.getName())
                 .nickname(member.getNickname())
                 .profileImageUrl(member.getProfileImageUrl())
+                .state(member.getState())
+                .city(member.getCity())
                 .gender(member.getGender())
                 .birthDate(member.getBirthDate().toString())
                 .locationStatus(member.getLocationStatus())
                 .build();
     }
-
 }

@@ -33,7 +33,7 @@ public class FavoriteController {
     ) {
         Member member = customOAuth2User.getMember();
         List<FavoritesResponse> response = favoriteService.getFavoritesByMember(member);
-        return ResponseEntity.ok(ApiResponse.success("즐겨찾기 리스트를 조회하였습니다.", response));
+        return ResponseEntity.ok(ApiResponse.success("나의 즐겨찾기 목록을 조회하였습니다.", response));
     }
 
     @PutMapping
