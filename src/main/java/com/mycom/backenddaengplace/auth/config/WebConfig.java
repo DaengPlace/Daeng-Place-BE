@@ -25,14 +25,4 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**") // 모든 경로에 적용, '/' 제외 필요 없음
                 .excludePathPatterns("/error", "/logout", "/api/login"); // 에러 페이지, 로그아웃, 로그인 API는 제외
     }
-
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000", "https://daengplace.vercel.app")
-                .allowedMethods("*")
-                .allowedHeaders("*")
-                .allowCredentials(true);
-    }
-
 }
