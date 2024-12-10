@@ -65,6 +65,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin("http://localhost:3000"); // 허용할 클라이언트 주소
         configuration.addAllowedOrigin("https://daengplace.vercel.app"); // 허용할 클라이언트 주소
+        configuration.addAllowedOrigin("https://api.daengplace.com");
         configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
         configuration.addAllowedHeader("*"); // 모든 헤더 허용
         configuration.setAllowCredentials(true); // 쿠키 허용
