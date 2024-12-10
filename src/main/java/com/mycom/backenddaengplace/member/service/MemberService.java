@@ -81,12 +81,6 @@ public class MemberService {
         }
     }
 
-    public EmailDuplicateCheckResponse checkDuplicateEmail(BaseEmailRequest request) {
-
-        boolean isValid = memberRepository.existsByEmail(request.getEmail());
-
-        return EmailDuplicateCheckResponse.from(!isValid);
-    }
 
     @Transactional
     public BaseMemberResponse deleteMember(Member member) {
