@@ -122,7 +122,6 @@ public class JWTFilter extends OncePerRequestFilter {
                 || path.equals("/health")
                 || path.startsWith("/oauth2")
                 || path.startsWith("/kakao/callback")
-                || path.startsWith("/login")
                 || path.startsWith("/auth");
     }
 }
