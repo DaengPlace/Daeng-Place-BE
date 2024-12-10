@@ -25,7 +25,6 @@ public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomSuccessHandler customSuccessHandler;
-
     private final JWTFilter jwtFilter;
     private final CustomLogoutFilter customLogoutFilter;
 
@@ -44,9 +43,9 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
 
                 .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfo ->
-                                userInfo.userService(customOAuth2UserService))
-                        .successHandler(customSuccessHandler))
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                        .successHandler(customSuccessHandler) // JSON 응답으로 수정
+                )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class) // JWT 필터 추가
                 .addFilterBefore(customLogoutFilter, LogoutFilter.class)
                 // CORS 설정을 람다 형식으로 추가

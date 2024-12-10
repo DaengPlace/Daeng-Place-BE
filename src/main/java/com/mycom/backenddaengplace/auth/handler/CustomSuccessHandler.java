@@ -60,17 +60,25 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             String jsonResponse = String.format(
-                    "{\"accessToken\": \"%s\", \"refreshToken\": \"%s\", \"nickname\": \"%s\", \"email\": \"%s\",\"providerId\": \"%s\",\"provider\": \"%s\"}",
-                    accessToken, refreshToken, member.get().getNickname(), member.get().getEmail(), member.get().getProviderId(), member.get().getProvider()
+                    "{\"accessToken\": \"%s\", \"refreshToken\": \"%s\", \"nickname\": \"%s\", \"email\": \"%s\", \"providerId\": \"%s\", \"provider\": \"%s\"}",
+                    "accessToken-placeholder", // 실제 토큰
+                    "refreshToken-placeholder", // 실제 토큰
+                    customUserDetails.getUsername(), // 사용자 이름
+                    customUserDetails.getUsername(), // 이메일
+                    customUserDetails.getProviderId(), // 소셜 제공자 ID
+                    customUserDetails.getProvider() // 소셜 제공자
             );
             response.getWriter().write(jsonResponse);
 
-
         } else {
-            log.info("No member found. Redirecting to /members for registration.");
-            response.sendRedirect("/members");
+            log.info("No member found. Please register.");
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("{\"error\": \"No member found. Please register.\"}");
         }
     }
+
 
     private void addRefreshEntity(String username, String refreshToken, Long expiredMs) {
         RefreshEntity refreshEntity = new RefreshEntity();
