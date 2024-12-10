@@ -18,6 +18,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -31,21 +33,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // CORS 설정을 람다 형식으로 추가
-                .cors(cors -> {
-                    CorsConfigurationSource source = corsConfigurationSource();
-                    cors.configurationSource(source);
-                })
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
+
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // CORS 설정을 람다 형식으로 추가
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/oauth2/**", "/auth/**", "/reissue"
-                                , "/health", "/hc", "/reviews/**", "/ocr/**", "/places/**",
-                                "/email/**"
+                        .requestMatchers("/login").denyAll() // /login 경로 접근을 비활성화
+                        .requestMatchers("/health", "/hc","/oauth2/**", "/auth/**", "/reissue"
+                                ,  "/reviews/**", "/ocr/**", "/places/**", "/email/**"
                         ).permitAll()
                         .anyRequest()
                         .authenticated())
@@ -63,14 +63,17 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:3000"); // 허용할 클라이언트 주소
-        configuration.addAllowedOrigin("https://daengplace.vercel.app"); // 허용할 클라이언트 주소
-        configuration.addAllowedOrigin("https://api.daengplace.com");
-        configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
-        configuration.addAllowedHeader("*"); // 모든 헤더 허용
-        configuration.setAllowCredentials(true); // 쿠키 허용
+        configuration.setAllowedOrigins(
+                List.of("http://localhost:3000", "https://daengplace.vercel.app","http://localhost:8080",
+                        "https://api.daengplace.com")); // 허용할 Origin
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setExposedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // 모든 경로에 대해 설정 적용
+        source.registerCorsConfiguration("/**", configuration);
         return source;
+
     }
 }
