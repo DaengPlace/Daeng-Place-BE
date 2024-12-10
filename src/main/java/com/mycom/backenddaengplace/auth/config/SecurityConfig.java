@@ -29,13 +29,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // CORS 설정을 람다 형식으로 추가
-                .cors(cors -> {
-                    CorsConfigurationSource source = corsConfigurationSource();
-                    cors.configurationSource(source);
-                })
-                .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .formLogin(AbstractHttpConfigurer::disable)
@@ -43,11 +38,8 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/oauth2/**", "/auth/**", "/reissue"
-                                , "/health", "/hc", "/reviews/**", "/ocr/**", "/places/**",
-                                "/email/**"
-                        ).permitAll()
-                        .anyRequest()
-                        .authenticated())
+                                ,"/health", "/hc","/reviews/**","/ocr/**","/places/**").permitAll()
+                        .anyRequest().authenticated())
 
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
