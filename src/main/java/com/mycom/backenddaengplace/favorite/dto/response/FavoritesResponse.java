@@ -1,27 +1,25 @@
 package com.mycom.backenddaengplace.favorite.dto.response;
 
 import com.mycom.backenddaengplace.favorite.domain.Favorite;
+import com.mycom.backenddaengplace.place.dto.response.PlaceDto;
 import com.mycom.backenddaengplace.review.domain.Review;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Builder
 public class FavoritesResponse {
 
-    private Long favoriteId;
     private Long memberId;
-    private Long placeId;
-    private LocalDateTime createdAt;
+    private List<PlaceDto> places;
 
-    public static FavoritesResponse from(Favorite favorite) {
+    public static FavoritesResponse from(Long memberId, List<PlaceDto> places) {
         return FavoritesResponse.builder()
-                .favoriteId(favorite.getId())
-                .memberId(favorite.getMember().getId())
-                .placeId(favorite.getPlace().getId())
-                .createdAt(favorite.getCreatedAt())
+                .memberId(memberId)
+                .places(places)
                 .build();
     }
 }

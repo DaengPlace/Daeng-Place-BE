@@ -28,11 +28,11 @@ public class FavoriteController {
     private final FavoriteService favoriteService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<FavoritesResponse>>> getFavoritesByMember(
+    public ResponseEntity<ApiResponse<FavoritesResponse>> getFavoritesByMember(
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User
     ) {
         Member member = customOAuth2User.getMember();
-        List<FavoritesResponse> response = favoriteService.getFavoritesByMember(member);
+        FavoritesResponse response = favoriteService.getFavoritesByMember(member.getId());
         return ResponseEntity.ok(ApiResponse.success("나의 즐겨찾기 목록을 조회하였습니다.", response));
     }
 
@@ -43,7 +43,7 @@ public class FavoriteController {
     ) {
         Member member = customOAuth2User.getMember();
         log.debug("즐겨찾기 등록 요청: {}", request);
-        FavoriteRegisterResponse response = favoriteService.registerFavorite(request, member);
+        FavoriteRegisterResponse response = favoriteService.registerFavorite(request, member.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("즐겨찾기가 등록되었습니다.", response));
     }
 
