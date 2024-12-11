@@ -7,12 +7,13 @@ import com.mycom.backenddaengplace.auth.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -38,23 +39,32 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
 
+                .exceptionHandling(handling -> handling
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized")
+                        )
+                )
+
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                        .successHandler(customSuccessHandler)
+                        .failureHandler(new SimpleUrlAuthenticationFailureHandler()) // 실패 시 리다이렉트 방지
+                )
+
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
                 // CORS 설정을 람다 형식으로 추가
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/health", "/hc","/oauth2/**", "/auth/**", "/reissue"
-                                ,  "/reviews/**", "/ocr/**", "/places/**", "/email/**"
+                        .requestMatchers("/","/health", "/hc","/oauth2/**", "/auth/**", "/reissue"
+                                ,  "/reviews/**", "/ocr/**", "/places/**", "/email/**", "/login"
                         ).permitAll()
-                        .requestMatchers("/login").denyAll() // /login 경로 접근을 비활성화
                         .anyRequest()
                         .authenticated())
 
-                .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                        .successHandler(customSuccessHandler) // JSON 응답으로 수정
-                )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class) // JWT 필터 추가
                 .addFilterBefore(customLogoutFilter, LogoutFilter.class);
 
