@@ -4,6 +4,7 @@ import com.mycom.backenddaengplace.common.domain.BaseEntity;
 import com.mycom.backenddaengplace.review.domain.Review;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,5 +26,12 @@ public class TraitTagCount extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id", nullable = false)
     private Review review;
+
+    @Builder
+    public TraitTagCount(TraitTag traitTag, Review review) {
+        this.id = new TraitTagCountId(traitTag.getId(), review.getId());
+        this.traitTag = traitTag;
+        this.review = review;
+    }
 
 }
