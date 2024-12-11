@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
+@Getter
 @Table(name = "location")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Location {
