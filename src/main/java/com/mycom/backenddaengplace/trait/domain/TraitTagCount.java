@@ -1,12 +1,9 @@
 package com.mycom.backenddaengplace.trait.domain;
 
 import com.mycom.backenddaengplace.common.domain.BaseEntity;
-import com.mycom.backenddaengplace.review.domain.BasicTag;
-import com.mycom.backenddaengplace.review.domain.BasicTagCountId;
 import com.mycom.backenddaengplace.review.domain.Review;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

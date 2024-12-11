@@ -2,11 +2,13 @@ package com.mycom.backenddaengplace.review.dto.response;
 
 import com.mycom.backenddaengplace.place.enums.Category;
 import com.mycom.backenddaengplace.review.domain.Review;
+import com.mycom.backenddaengplace.trait.dto.response.TraitTagCountResponse;
 import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -17,7 +19,7 @@ public class MemberReviewResponse {
     private Category category;
     private Double rating;
     private String content;
-    private List<String> traitTags;
+    private List<TraitTagCountResponse> traitTags;
     private LocalDateTime createdAt;
     private String profileImageUrl;
 
@@ -29,7 +31,9 @@ public class MemberReviewResponse {
                 .category(review.getPlace().getCategory())
                 .rating(review.getRating())
                 .content(review.getContent())
-                .traitTags(review.getTraitTags())
+                .traitTags(review.getTraitTag().stream()
+                        .map(TraitTagCountResponse::from)
+                        .collect(Collectors.toList()))
                 .createdAt(review.getCreatedAt())
                 .profileImageUrl(review.getMember().getProfileImageUrl())
                 .build();
