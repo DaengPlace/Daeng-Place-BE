@@ -6,6 +6,6 @@ import org.springframework.http.HttpStatus;
 public class EmailAuthenticationCodeMismatchException extends BaseException {
     public EmailAuthenticationCodeMismatchException() {
         super("이메일 인증코드가 일치하지 않습니다.",
-                HttpStatus.NOT_ACCEPTABLE);
+                HttpStatus.BAD_REQUEST);
     }
 }
