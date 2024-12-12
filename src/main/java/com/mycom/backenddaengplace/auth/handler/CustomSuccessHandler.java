@@ -6,7 +6,6 @@ import com.mycom.backenddaengplace.auth.jwt.JWTUtil;
 import com.mycom.backenddaengplace.auth.repository.RefreshRepository;
 import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.member.repository.MemberRepository;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -51,21 +50,24 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
             log.info("Existing member found: {}", member.get().getEmail());
 
             // Access와 Refresh 토큰 생성
-            String accessToken = jwtUtil.createJwt("access", customUserDetails.getUsername(), "ROLE_USER", 604800000L);
-            String refreshToken = jwtUtil.createJwt("refresh", customUserDetails.getUsername(), "ROLE_USER", 2592000000L); // Refresh 토큰
+            String accessToken = jwtUtil.createJwt("access", username, role, 60000000L);
+            String refreshToken = jwtUtil.createJwt("refresh", username, role, 2592000000L);
 
-            // Refresh 토큰을 쿠키에 저장
-            Cookie refreshCookie = createCookie("refresh", refreshToken);
-            response.addCookie(refreshCookie);
-            log.info("Adding refresh cookie: {}", refreshCookie.getValue());
-            log.info("Response Headers: {}", response.getHeaderNames());
-            log.info("Response Status: {}", response.getStatus());
+            // Refresh 토큰 저장
+            addRefreshEntity(username, refreshToken, 2592000000L);
 
-
-            // Access 토큰을 JSON 응답으로 반환
+            // JSON 반환
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
-            String jsonResponse = String.format("{\"accessToken\": \"%s\", \"redirect\": \"/main\"}", accessToken);
+            String jsonResponse = String.format(
+                    "{\"accessToken\": \"%s\", \"refreshToken\": \"%s\", \"nickname\": \"%s\", \"email\": \"%s\", \"providerId\": \"%s\", \"provider\": \"%s\"}",
+                    accessToken, // 실제 토큰
+                    refreshToken, // 실제 토큰
+                    customUserDetails.getUsername(), // 사용자 이름
+                    customUserDetails.getUsername(), // 이메일
+                    customUserDetails.getProviderId(), // 소셜 제공자 ID
+                    customUserDetails.getProvider() // 소셜 제공자
+            );
             response.getWriter().write(jsonResponse);
 
         } else {
@@ -73,18 +75,10 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"redirect\": \"/member/profile\"}");
+            response.getWriter().write("{\"error\": \"No member found. Please register.\"}");
         }
     }
 
-    private Cookie createCookie(String key, String value) {
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(30 * 24 * 60 * 60); // 30일 유효기간
-        cookie.setHttpOnly(true); // JavaScript 접근 차단
-        //cookie.setSecure(true); // HTTPS에서만 전송 (프로덕션 환경)
-        cookie.setPath("/"); // 모든 경로에서 사용 가능
-        return cookie;
-    }
 
     private void addRefreshEntity(String username, String refreshToken, Long expiredMs) {
         RefreshEntity refreshEntity = new RefreshEntity();
