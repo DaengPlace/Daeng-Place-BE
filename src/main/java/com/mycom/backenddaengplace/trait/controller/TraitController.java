@@ -5,6 +5,7 @@ import com.mycom.backenddaengplace.common.dto.ApiResponse;
 import com.mycom.backenddaengplace.trait.dto.request.MemberTraitResponseRequestList;
 import com.mycom.backenddaengplace.trait.dto.request.PetTraitResponseRequestList;
 import com.mycom.backenddaengplace.trait.dto.response.TraitQuestionResponse;
+import com.mycom.backenddaengplace.trait.dto.response.TraitResultResponse;
 import com.mycom.backenddaengplace.trait.enums.QuestionTarget;
 import com.mycom.backenddaengplace.trait.service.MemberTraitService;
 import com.mycom.backenddaengplace.trait.service.PetTraitService;
@@ -43,5 +44,11 @@ public class TraitController {
                                                                       @PathVariable Long petId) {
         petTraitService.savePetTraitResponse(request, petId);
         return ResponseEntity.ok(ApiResponse.success("성향 검사 결과를 등록했습니다."));
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<ApiResponse<TraitResultResponse>> getTraitResult(@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+        return ResponseEntity.ok(ApiResponse.success("성향 검사 결과를 조회했습니다.",
+                traitService.getTraitResult(customOAuth2User.getMember())));
     }
 }

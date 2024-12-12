@@ -16,6 +16,10 @@ import com.mycom.backenddaengplace.review.exception.ReviewNotFoundException;
 import com.mycom.backenddaengplace.review.exception.ReviewNotOwnedException;
 import com.mycom.backenddaengplace.review.repository.ReviewQueryRepository;
 import com.mycom.backenddaengplace.review.repository.ReviewRepository;
+import com.mycom.backenddaengplace.trait.domain.TraitTag;
+import com.mycom.backenddaengplace.trait.domain.TraitTagCount;
+import com.mycom.backenddaengplace.trait.repository.TraitTagCountRepository;
+import com.mycom.backenddaengplace.trait.repository.TraitTagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +35,8 @@ public class ReviewService {
     private final PlaceRepository placeRepository;
     private final ReviewQueryRepository reviewQueryRepository;
     private final MemberRepository memberRepository;
+    private final TraitTagRepository traitTagRepository;
+    private final TraitTagCountRepository traitTagCountRepository;
 
     @Transactional
     public ReviewResponse createReview(Long placeId, ReviewRequest request, Long memberId) {
@@ -49,12 +55,25 @@ public class ReviewService {
                 .place(place)
                 .content(request.getContent())
                 .rating(request.getRating())
-                .traitTags(request.getTraitTags())
                 .build();
+        reviewRepository.save(review);
 
-        return ReviewResponse.from(reviewRepository.save(review));
+        List<TraitTag> traitTags = traitTagRepository.findByContentIn(request.getTraitTags());
+
+        List<TraitTagCount> traitTagCounts = traitTags.stream()
+                .map(traitTag -> {
+                    return TraitTagCount.builder()
+                            .traitTag(traitTag)
+                            .review(review)
+                            .build();
+                })
+                .toList();
+        traitTagCountRepository.saveAll(traitTagCounts);
+
+        return null;
     }
 
+    @Transactional
     public List<ReviewResponse> getReviews(Long placeId) {
         if (!placeRepository.existsById(placeId)) {
             throw new PlaceNotFoundException(placeId);
@@ -73,13 +92,14 @@ public class ReviewService {
     }
 
     @Transactional
-    public void deleteReview(Long reviewId, Member member) {
+    public void deleteReview(Long reviewId, Long memberId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(reviewId, null));
 
-        if (!review.getMember().getId().equals(member.getId())) {
-            throw new ReviewNotOwnedException(member.getId(), reviewId);
+        if (!review.getMember().getId().equals(memberId)) {
+            throw new ReviewNotOwnedException(memberId, reviewId);
         }
+
         reviewRepository.delete(review);
     }
 
@@ -90,14 +110,37 @@ public class ReviewService {
     }
 
     @Transactional
-    public void updateReview(Long reviewId, ReviewRequest request, Member member) {
+    public void updateReview(Long reviewId, ReviewRequest request, Long memberId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(reviewId, null));
 
-        if (!review.getMember().getId().equals(member.getId())) {
-            throw new ReviewNotOwnedException(member.getId(), reviewId);
+
+        if (!review.getMember().getId().equals(memberId)) {
+            throw new ReviewNotOwnedException(memberId, reviewId);
         }
-        review.update(request.getContent(), request.getRating(), request.getTraitTags());
+
+        if (request.getContent() != null && !request.getContent().isBlank()) {
+            review.setContent(request.getContent());
+        }
+
+        if (request.getRating() != null && request.getRating() >= 0.0 && request.getRating() <= 5.0) {
+            review.setRating(request.getRating());
+        }
+
+        // 성향 태그 수정
+        traitTagCountRepository.deleteByReviewId(reviewId);
+        if (request.getTraitTags() != null && !request.getTraitTags().isEmpty()) {
+            List<TraitTag> traitTags = traitTagRepository.findByContentIn(request.getTraitTags());
+            List<TraitTagCount> traitTagCounts = traitTags.stream()
+                    .map(traitTag -> {
+                        return TraitTagCount.builder()
+                                .traitTag(traitTag)
+                                .review(review)
+                                .build();
+                    })
+                    .toList();
+            traitTagCountRepository.saveAll(traitTagCounts);
+        }
     }
 
     public List<MemberReviewResponse> getUserReview(Long memberId) {

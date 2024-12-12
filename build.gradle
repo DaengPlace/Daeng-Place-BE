@@ -57,7 +57,11 @@ dependencies {
     // Test Dependencies
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     testImplementation 'com.h2database:h2' // H2 데이터베이스 (테스트용)
+
+    //Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     //E-MAIL
     implementation "org.springframework.boot:spring-boot-starter-mail"

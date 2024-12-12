@@ -6,11 +6,8 @@ import com.mycom.backenddaengplace.place.domain.Place;
 import com.mycom.backenddaengplace.place.domain.QLocation;
 import com.mycom.backenddaengplace.place.domain.QOperationHour;
 import com.mycom.backenddaengplace.place.domain.QPlace;
-import com.mycom.backenddaengplace.place.dto.response.OperationHourDto;
+import com.mycom.backenddaengplace.place.dto.response.*;
 import com.mycom.backenddaengplace.place.dto.request.SearchCriteria;
-import com.mycom.backenddaengplace.place.dto.response.PlaceDto;
-import com.mycom.backenddaengplace.place.dto.response.PlaceListResponse;
-import com.mycom.backenddaengplace.place.dto.response.PopularPlaceResponse;
 import com.mycom.backenddaengplace.place.enums.Category;
 import com.mycom.backenddaengplace.review.domain.QReview;
 import com.querydsl.core.BooleanBuilder;
@@ -32,6 +29,7 @@ import java.time.LocalTime;
 import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Repository
@@ -39,7 +37,7 @@ public class PlaceQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public PlaceListResponse searchPlaces(SearchCriteria criteria, Pageable pageable) {
+    public PlaceListResponse searchPlaces(SearchCriteria criteria) {
         QPlace place = QPlace.place;
         QOperationHour operationHour = QOperationHour.operationHour;
         QLocation location = QLocation.location;
@@ -174,8 +172,6 @@ public class PlaceQueryRepository {
                         place.isParking, place.inside, place.outside, place.weightLimit, place.petFee,
                         place.address.location.latitude, place.address.location.longitude)
                 .orderBy(orderSpecifier)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
                 .fetch();
         List<OperationHourDto> operationHourDtos = jpaQueryFactory
                 .select(Projections.bean(OperationHourDto.class,
@@ -196,26 +192,57 @@ public class PlaceQueryRepository {
                         operationHour.sundayClose
                 ))
                 .from(operationHour)
-                .where(operationHour.place.id.eq(
-                                place.id
-                        )
-                ).fetch();
+                .where(operationHour.place.id.in(places.stream().map(PlaceDto::getPlaceId).collect(Collectors.toList())))
+                .fetch();
 
         // 운영시간 설정
-        places.forEach(placeDto ->
-                placeDto.setOperationHour(operationHourDtos.stream()
-                        .filter(operationHourDto -> operationHourDto.getPlaceId().equals(placeDto.getPlaceId()))
-                        .findFirst()
-                        .orElse(null)
-                )
-        );
+        for (PlaceDto placeDto : places) {
+            OperationHourDto operationHours = operationHourDtos.stream()
+                    .filter(op -> op.getPlaceId().equals(placeDto.getPlaceId()))
+                    .findFirst()
+                    .orElse(null);
 
-        // 마지막 페이지 여부
-        boolean isLast = places.size() < pageable.getPageSize();
+            if (operationHours != null) {
+                TodayOperationHourDto todayOperationHourDto = new TodayOperationHourDto();
+                todayOperationHourDto.setPlaceId(placeDto.getPlaceId());
+
+                // 오늘의 운영 시간만 설정
+                switch (todayName) {
+                    case "월요일":
+                        todayOperationHourDto.setTodayOpen(operationHours.getMondayOpen());
+                        todayOperationHourDto.setTodayClose(operationHours.getMondayClose());
+                        break;
+                    case "화요일":
+                        todayOperationHourDto.setTodayOpen(operationHours.getTuesdayOpen());
+                        todayOperationHourDto.setTodayClose(operationHours.getTuesdayClose());
+                        break;
+                    case "수요일":
+                        todayOperationHourDto.setTodayOpen(operationHours.getWednesdayOpen());
+                        todayOperationHourDto.setTodayClose(operationHours.getWednesdayClose());
+                        break;
+                    case "목요일":
+                        todayOperationHourDto.setTodayOpen(operationHours.getThursdayOpen());
+                        todayOperationHourDto.setTodayClose(operationHours.getThursdayClose());
+                        break;
+                    case "금요일":
+                        todayOperationHourDto.setTodayOpen(operationHours.getFridayOpen());
+                        todayOperationHourDto.setTodayClose(operationHours.getFridayClose());
+                        break;
+                    case "토요일":
+                        todayOperationHourDto.setTodayOpen(operationHours.getSaturdayOpen());
+                        todayOperationHourDto.setTodayClose(operationHours.getSaturdayClose());
+                        break;
+                    case "일요일":
+                        todayOperationHourDto.setTodayOpen(operationHours.getSundayOpen());
+                        todayOperationHourDto.setTodayClose(operationHours.getSundayClose());
+                        break;
+                }
+                placeDto.setOperationHour(todayOperationHourDto);
+            }
+        }
 
         return PlaceListResponse.builder()
                 .places(places)
-                .isLast(isLast)
                 .build();
     }
 

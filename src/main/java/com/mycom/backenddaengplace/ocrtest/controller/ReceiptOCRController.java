@@ -1,8 +1,8 @@
 package com.mycom.backenddaengplace.ocrtest.controller;
 
 import com.mycom.backenddaengplace.ocrtest.service.OcrService;
-import com.mycom.backenddaengplace.common.dto.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,20 +18,14 @@ public class ReceiptOCRController {
     public ReceiptOCRController(OcrService ocrService) {
         this.ocrService = ocrService;
     }
-
     @PostMapping("/process")
-    public ResponseEntity<ApiResponse<String>> processInferText(@RequestBody String jsonData) {
-        if (jsonData == null || jsonData.isEmpty()) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("Invalid input: JSON data is empty or null", "400"));
-        }
-
+    public ResponseEntity<String> processInferText(@RequestBody String jsonData) {
         try {
             String result = ocrService.removeVertices(jsonData);
-            return ResponseEntity.ok(ApiResponse.success("Receipt processing completed", result));
+            return ResponseEntity.ok(result);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("Error processing receipt: " + e.getMessage(), "500"));
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }
     }
 }

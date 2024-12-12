@@ -2,7 +2,9 @@ package com.mycom.backenddaengplace.pet.controller;
 
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
 import com.mycom.backenddaengplace.pet.dto.request.BasePetRequest;
+import com.mycom.backenddaengplace.pet.dto.request.BreedSearchRequest;
 import com.mycom.backenddaengplace.pet.dto.response.*;
+import com.mycom.backenddaengplace.pet.service.BreedService;
 import com.mycom.backenddaengplace.pet.service.PetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,14 +13,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/member/pets")
 @RequiredArgsConstructor
 @Slf4j
 public class PetController {
     private final PetService petService;
+    private final BreedService breedService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<BasePetResponse>> registerPet(
@@ -30,17 +31,19 @@ public class PetController {
                 .body(ApiResponse.success("반려견이 등록되었습니다.", response));
     }
 
-    @GetMapping("/breed-type")
-    public ResponseEntity<ApiResponse<List<BreedTypeResponse>>> getBreedTypes() {
-        List<BreedTypeResponse> response = petService.getAllBreedTypes();
-        return ResponseEntity.ok(ApiResponse.success("견종 목록 조회 성공", response));
-    }
+    @GetMapping("/breed-types")
+    public ResponseEntity<ApiResponse<BreedSearchResponse>> searchBreedTypes(
+            @RequestParam(required = false) String keyword) {
+        log.debug("견종 검색 요청. keyword: {}", keyword);
 
-    @GetMapping("/breed-type/search")
-    public ResponseEntity<ApiResponse<List<BreedTypeResponse>>> searchBreedTypes(
-            @RequestParam String keyword) {
-        List<BreedTypeResponse> response = petService.searchBreedTypes(keyword);
-        return ResponseEntity.ok(ApiResponse.success("견종 검색 성공", response));
+        BreedSearchResponse response = breedService.searchBreedTypes(
+                BreedSearchRequest.of(keyword)
+        );
+
+        return ResponseEntity.ok(ApiResponse.success(
+                String.format("견종 검색 완료 (총 %d건)", response.getTotalCount()),
+                response
+        ));
     }
 
     @GetMapping("/{petId}")

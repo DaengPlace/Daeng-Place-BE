@@ -27,7 +27,8 @@ public class    ReviewController {
     public ResponseEntity<ApiResponse<ReviewResponse>> createReview(
             @PathVariable Long placeId,
             @Valid @RequestBody ReviewRequest request,
-            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
+            ) {
         Member member = customOAuth2User.getMember();
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("리뷰가 등록되었습니다.",
@@ -36,7 +37,8 @@ public class    ReviewController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<MemberReviewResponse>>> getUserReview(
-            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
+    ) {
         Member member = customOAuth2User.getMember();
         return ResponseEntity.ok(ApiResponse.success("사용자의 리뷰 목록을 조회했습니다.",
                 reviewService.getUserReview(member.getId())));
@@ -59,8 +61,10 @@ public class    ReviewController {
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<ApiResponse<Void>> deleteReview(
             @PathVariable Long reviewId,
-            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
-        reviewService.deleteReview(reviewId, customOAuth2User.getMember());
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
+    ) {
+        Member member = customOAuth2User.getMember();
+        reviewService.deleteReview(reviewId, member.getId());
         return ResponseEntity.ok(ApiResponse.success("리뷰가 삭제되었습니다."));
     }
 
@@ -74,8 +78,10 @@ public class    ReviewController {
     public ResponseEntity<ApiResponse<Void>> updateReview(
             @PathVariable Long reviewId,
             @Valid @RequestBody ReviewRequest request,
-            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
-        reviewService.updateReview(reviewId, request, customOAuth2User.getMember());
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
+    ) {
+        Member member = customOAuth2User.getMember();
+        reviewService.updateReview(reviewId, request, member.getId());
         return ResponseEntity.ok(ApiResponse.success("리뷰가 수정되었습니다."));
     }
 }

@@ -121,8 +121,8 @@ public class PlaceService {
         return String.join(", ", holidays);
     }
 
-    public PlaceListResponse searchPlaces(SearchCriteria criteria, Pageable pageable) {
-        return placeQueryRepository.searchPlaces(criteria, pageable);
+    public PlaceListResponse searchPlaces(SearchCriteria criteria) {
+        return placeQueryRepository.searchPlaces(criteria);
     }
 
 

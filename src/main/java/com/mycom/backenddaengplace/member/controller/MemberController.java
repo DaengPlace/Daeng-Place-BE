@@ -69,26 +69,4 @@ public class MemberController {
         return ResponseEntity.ok(ApiResponse.success("회원 등록이 완료되었습니다.", response));
     }
 
-    @GetMapping("/email-duplicate-check")
-    public ResponseEntity<ApiResponse<EmailDuplicateCheckResponse>> checkDuplicateEmail(
-            @Valid @RequestBody BaseEmailRequest request
-    ) {
-        EmailDuplicateCheckResponse response = memberService.checkDuplicateEmail(request);
-        return ResponseEntity.ok(ApiResponse.success("이메일 중복 체크가 완료되었습니다.", response));
-    }
-
-    @PostMapping("/email-send-code")
-    public ResponseEntity<ApiResponse<EmailSendCodeResponse>> sendEmailCode(
-            @Valid @RequestBody BaseEmailRequest request) throws MessagingException, UnsupportedEncodingException {
-        EmailSendCodeResponse response = emailService.sendEmailCode(request.getEmail());
-        return ResponseEntity.ok(ApiResponse.success("인증 번호를 전송하였습니다.", response));
-    }
-
-    @PostMapping("/email-code-check")
-    public ResponseEntity<ApiResponse<EmailCodeCheckResponse>> emailCodeCheck(
-            @Valid @RequestBody EmailCodeCheckRequest request) {
-        EmailCodeCheckResponse response = emailService.checkEmailCode(request.getEmail(), request.getCode());
-        return ResponseEntity.ok(ApiResponse.success("이메일 인증 성공하였습니다..", response));
-    }
-
 }
