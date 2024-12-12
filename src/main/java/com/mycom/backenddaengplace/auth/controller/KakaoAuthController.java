@@ -9,6 +9,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -30,10 +31,14 @@ public class KakaoAuthController {
     private final RestTemplate restTemplate;
     private final MemberRepository memberRepository;
 
+    @Value("${KAKAO_CLIENT_ID}")
+    private String clientId;
+
+    @Value("${OAUTH2_REDIRECT_URI}/kakao/callback")
+    private String redirectUri;
+
     private static final String TOKEN_URI = "https://kauth.kakao.com/oauth/token";
     private static final String USER_INFO_URI = "https://kapi.kakao.com/v2/user/me";
-    private static final String CLIENT_ID = "YOUR_KAKAO_CLIENT_ID";
-    private static final String REDIRECT_URI = "https://api.daengplace.com/oauth2/kakao/callback";
 
     @PostMapping("/kakao")
     public ResponseEntity<ApiResponse<?>> handleKakaoLogin(@RequestParam("code") String authorizationCode, HttpServletResponse response) {
@@ -89,8 +94,8 @@ public class KakaoAuthController {
 
         MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
         requestBody.add("grant_type", "authorization_code");
-        requestBody.add("client_id", CLIENT_ID);
-        requestBody.add("redirect_uri", REDIRECT_URI);
+        requestBody.add("client_id", clientId);
+        requestBody.add("redirect_uri", redirectUri);
         requestBody.add("code", authorizationCode);
 
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);

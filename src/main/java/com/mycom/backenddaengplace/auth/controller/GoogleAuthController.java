@@ -9,6 +9,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -31,11 +32,17 @@ public class GoogleAuthController {
     private final RestTemplate restTemplate;
     private final MemberRepository memberRepository;
 
+    @Value("${GOOGLE_CLIENT_ID}")
+    private String clientId;
+
+    @Value("${GOOGLE_CLIENT_SECRET}")
+    private String clientSecret;
+
+    @Value("${OAUTH2_REDIRECT_URI}/google/callback")
+    private String redirectUri;
+
     private static final String TOKEN_URI = "https://oauth2.googleapis.com/token";
     private static final String USER_INFO_URI = "https://www.googleapis.com/oauth2/v2/userinfo";
-    private static final String CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID";
-    private static final String CLIENT_SECRET = "YOUR_GOOGLE_CLIENT_SECRET";
-    private static final String REDIRECT_URI = "https://api.daengplace.com/oauth2/google/callback";
 
     @GetMapping("/google")
     public ResponseEntity<ApiResponse<?>> handleGoogleLogin(@RequestParam("code") String authorizationCode, HttpServletResponse response) {
@@ -91,17 +98,14 @@ public class GoogleAuthController {
 
         MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
         requestBody.add("grant_type", "authorization_code");
-        requestBody.add("client_id", "YOUR_GOOGLE_CLIENT_ID");
-        requestBody.add("client_secret", "YOUR_GOOGLE_CLIENT_SECRET");
-        requestBody.add("redirect_uri", "https://api.daengplace/oauth2/google/callback");
+        requestBody.add("client_id", clientId);
+        requestBody.add("client_secret", clientSecret);
+        requestBody.add("redirect_uri", redirectUri);
         requestBody.add("code", authorizationCode);
 
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
 
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Map> response = restTemplate.postForEntity(
-                "https://oauth2.googleapis.com/token", requestEntity, Map.class
-        );
+        ResponseEntity<Map> response = restTemplate.postForEntity(TOKEN_URI, requestEntity, Map.class);
 
         if (response.getBody() == null || response.getBody().isEmpty()) {
             throw new IllegalStateException("Failed to retrieve access token from Google");
@@ -110,7 +114,6 @@ public class GoogleAuthController {
         return response.getBody();
     }
 
-
     private UserDTO getUserInfoFromGoogle(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
@@ -118,7 +121,7 @@ public class GoogleAuthController {
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
         ResponseEntity<Map> response = restTemplate.exchange(
-                "https://www.googleapis.com/oauth2/v2/userinfo",
+                USER_INFO_URI,
                 HttpMethod.GET,
                 requestEntity,
                 Map.class
@@ -138,7 +141,6 @@ public class GoogleAuthController {
                 userInfo.get("picture").toString()
         );
     }
-
 
     private Member saveNewMember(UserDTO userDTO) {
         Member member = Member.builder()
