@@ -110,9 +110,14 @@ public class ReviewService {
     }
 
     @Transactional
-    public void updateReview(Long reviewId, ReviewRequest request) {
+    public void updateReview(Long reviewId, ReviewRequest request, Long memberId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(reviewId, null));
+
+
+        if (!review.getMember().getId().equals(memberId)) {
+            throw new ReviewNotOwnedException(memberId, reviewId);
+        }
 
         if (request.getContent() != null && !request.getContent().isBlank()) {
             review.setContent(request.getContent());

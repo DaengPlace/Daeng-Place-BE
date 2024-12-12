@@ -80,7 +80,8 @@ public class    ReviewController {
             @Valid @RequestBody ReviewRequest request,
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User
     ) {
-        reviewService.updateReview(reviewId, request);
+        Member member = customOAuth2User.getMember();
+        reviewService.updateReview(reviewId, request, member.getId());
         return ResponseEntity.ok(ApiResponse.success("리뷰가 수정되었습니다."));
     }
 }
