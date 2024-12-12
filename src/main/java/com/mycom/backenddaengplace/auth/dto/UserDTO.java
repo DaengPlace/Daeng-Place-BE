@@ -1,8 +1,14 @@
 package com.mycom.backenddaengplace.auth.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class UserDTO {
     private String provider;
     private String providerId;
