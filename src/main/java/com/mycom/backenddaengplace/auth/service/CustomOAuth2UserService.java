@@ -2,10 +2,10 @@ package com.mycom.backenddaengplace.auth.service;
 
 import com.mycom.backenddaengplace.auth.dto.CustomOAuth2User;
 import com.mycom.backenddaengplace.auth.dto.UserDTO;
-import com.mycom.backenddaengplace.auth.repository.AuthMemberRepository;
 import com.mycom.backenddaengplace.auth.dto.response.GoogleResponse;
 import com.mycom.backenddaengplace.auth.dto.response.KakaoResponse;
 import com.mycom.backenddaengplace.auth.dto.response.OAuth2Response;
+import com.mycom.backenddaengplace.auth.repository.AuthMemberRepository;
 import com.mycom.backenddaengplace.member.domain.Member;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -63,7 +63,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String provider = oAuth2Response.getProvider();
         String providerId = oAuth2Response.getProviderId();
         String email = oAuth2Response.getEmail();
-        log.info("Searching for user with Provider: {}, Provider ID: {}", provider, providerId); // 로그 추가
+
         // **기본 이메일 처리**
         if (email == null || email.isEmpty()) {
             email = provider + "-" + providerId + "@noemail.com";
@@ -86,7 +86,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             authMemberRepository.save(member);
             log.info("New user registered: {}", member);
         } else {
-            log.info("Existing user found: {}", member); // 로그 추가
             // **기존 사용자 업데이트**
             authMemberService.updateMember(member,
                     email,

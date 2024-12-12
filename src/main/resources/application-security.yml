@@ -9,15 +9,15 @@ spring:
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
             client-secret: ""
-            redirect-uri: https://api.daengplace.com/oauth2/kakao/callback
+            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
             authorization-grant-type: authorization_code
-            scope: profile_nickname, account_email
+            scope: profile_nickname, profile_image
             client-name: Kakao
             provider: kakao
           google:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
-            redirect-uri: https://api.daengplace.com/oauth2/google/callback
+            redirect-uri: http://localhost:8080/login/oauth2/code/google
             authorization-grant-type: authorization_code
             scope: profile, email
             client-name: Google
@@ -34,3 +34,4 @@ spring:
     refresh-secret-key: ${JWT_REFRESH_SECRET_KEY}
     access-token-validity: 604800000
     refresh-token-validity: 2592000000
+
