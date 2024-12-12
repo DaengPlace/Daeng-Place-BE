@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>소셜 로그인</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f8f9fa;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .login-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .login-button {
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            width: 180px;
+            transition: opacity 0.2s;
+        }
+
+        .login-button:hover {
+            opacity: 0.9;
+        }
+
+        .kakao {
+            background-color: #FEE500;
+            color: #000000;
+        }
+
+        .google {
+            background-color: #4285f4;
+        }
+    </style>
+</head>
+<body>
+<h1>소셜 로그인</h1>
+<p class="subtitle">원하는 로그인 방식을 선택하세요:</p>
+<div class="login-container">
+    <a href="/oauth2/authorization/kakao" class="login-button kakao">
+        카카오로 로그인
+    </a>
+    <a href="/oauth2/authorization/google" class="login-button google">
+        구글로 로그인
+    </a>
+</div>
+</body>
+</html>

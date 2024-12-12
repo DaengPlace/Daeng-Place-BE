@@ -68,7 +68,6 @@ public class Member extends BaseEntity {
         this.provider = provider;
         this.providerId = providerId;
         this.locationStatus = locationStatus;
-
     }
 
     public void update(String email, String nickname, String profileImageUrl, String provider, String providerId) {
