@@ -11,4 +11,5 @@ import java.util.List;
 public interface BreedTypeRepository extends JpaRepository<BreedType, Long> {
     @Query("SELECT b FROM BreedType b ORDER BY b.breedType")
     List<BreedType> findAllSorted();
+    List<BreedType> findByBreedTypeContaining(String keyword);
 }
