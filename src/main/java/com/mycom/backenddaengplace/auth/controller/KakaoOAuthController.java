@@ -3,10 +3,7 @@ package com.mycom.backenddaengplace.auth.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mycom.backenddaengplace.auth.jwt.JWTUtil;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,32 +34,39 @@ public class KakaoOAuthController {
     @GetMapping("/callback")
     public ResponseEntity<?> handleKakaoCallback(@RequestParam String code) throws IOException {
         // 카카오로부터 액세스 토큰 요청
-        String tokenUrl = "https://kauth.kakao.com/oauth/token";
+        String tokenUrl = "https://kauth.kakao.com/oauth/token"; // 카카오 토큰 발급 URL
+
         MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
         parameters.add("grant_type", "authorization_code");
         parameters.add("client_id", kakaoClientId); // 환경 변수에서 가져온 값 사용
-        parameters.add("redirect_uri", "https://api.daengplace.com/login/oauth2/code/kakao");
+        parameters.add("redirect_uri", "https://api.daengplace.com/auth/kakao");
         parameters.add("code", code);
 
-        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(parameters, new HttpHeaders());
-        ResponseEntity<String> response = restTemplate.postForEntity(tokenUrl, requestEntity, String.class);
-        Map<String, Object> responseBody = new ObjectMapper().readValue(response.getBody(), Map.class);
+        HttpHeaders tokenHeaders = new HttpHeaders();
+        tokenHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED); // 필수 Content-Type 설정
+        HttpEntity<MultiValueMap<String, String>> accessTokenRequestEntity = new HttpEntity<>(parameters, tokenHeaders);
 
-        String accessToken = (String) responseBody.get("access_token");
+        ResponseEntity<String> tokenResponse = restTemplate.postForEntity(tokenUrl, accessTokenRequestEntity, String.class);
+        Map<String, Object> tokenResponseBody = new ObjectMapper().readValue(tokenResponse.getBody(), Map.class);
 
-        // 사용자 정보 요청
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
-        HttpEntity<Void> userInfoRequest = new HttpEntity<>(headers);
-        ResponseEntity<Map> userInfoResponse = restTemplate.exchange("https://kapi.kakao.com/v2/user/me", HttpMethod.GET, userInfoRequest, Map.class);
+        String accessToken = (String) tokenResponseBody.get("access_token");
+
+        // 2. 사용자 정보 요청
+        String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
+
+        HttpHeaders userInfoHeaders = new HttpHeaders();
+        userInfoHeaders.set("Authorization", "Bearer " + accessToken);
+        HttpEntity<Void> userInfoRequestEntity = new HttpEntity<>(userInfoHeaders);
+
+        ResponseEntity<Map> userInfoResponse = restTemplate.exchange(userInfoUrl, HttpMethod.GET, userInfoRequestEntity, Map.class);
 
         Map<String, Object> userInfo = userInfoResponse.getBody();
-        String username = (String) userInfo.get("id");
+        String username = userInfo.get("id").toString();
 
-        // JWT 토큰 생성
+        // 3. JWT 토큰 생성
         String jwtToken = jwtUtil.createJwt("access", username, "ROLE_USER", 600000L);
 
-        // 프론트엔드에 JWT 토큰 전달
+        // 4. 프론트엔드에 JWT 토큰 전달
         return ResponseEntity.ok(Map.of("accessToken", jwtToken));
     }
 }
