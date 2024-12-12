@@ -6,13 +6,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/oauth2/kakao")
 public class KakaoCallbackController {
 
     @GetMapping("/callback")
-    public ResponseEntity<String> handleGoogleCallback(@RequestParam("code") String authorizationCode) {
-        // 코드 처리 로직
-        return ResponseEntity.ok("Authorization Code: " + authorizationCode);
+    public ResponseEntity<Map<String, String>> handleKakaoCallback(@RequestParam("code") String authorizationCode) {
+        // JSON 형태로 반환
+        return ResponseEntity.ok(Map.of("authorizationCode", authorizationCode));
     }
 }
