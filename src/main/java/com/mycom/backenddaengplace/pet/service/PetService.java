@@ -29,7 +29,9 @@ public class PetService {
     public BasePetResponse registerPet(BasePetRequest request) {
         log.debug("반려견 등록 시작");
 
-        BreedType breedType = breedService.getBreedType(request.getBreedTypeId());  // BreedService 사용
+        // breed 문자열을 통해 BreedType 찾기
+        BreedType breedType = breedService.findBreedByName(request.getBreed())
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 견종입니다: " + request.getBreed())); // BreedService 사용
 
         LocalDateTime birthDate = parseBirthDate(request.getBirthDate());
 
@@ -53,7 +55,9 @@ public class PetService {
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new PetNotFoundException(petId));
 
-        BreedType breedType = breedService.getBreedType(request.getBreedTypeId());  // BreedService 사용
+        // breed 문자열을 통해 BreedType 찾기
+        BreedType breedType = breedService.findBreedByName(request.getBreed())
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 견종입니다: " + request.getBreed()));
         LocalDateTime birthDate = parseBirthDate(request.getBirthDate());
 
         pet.setBreedType(breedType);
