@@ -61,7 +61,7 @@ public class MemberController {
         return ResponseEntity.ok(ApiResponse.success("회원 삭제가 완료되었습니다.", response));
     }
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<ApiResponse<BaseMemberResponse>> registerMember(
             @Valid @RequestBody MemberRegisterRequest request
     ) {
