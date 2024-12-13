@@ -43,30 +43,31 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         String role = authorities.iterator().next().getAuthority();
 
+        // Access와 Refresh 토큰 생성 (모든 사용자에게 발급)
+        String accessToken = jwtUtil.createJwt("access", username, role, 60000000L);
+        String refreshToken = jwtUtil.createJwt("refresh", username, role, 2592000000L);
+
+        // Refresh 토큰 저장
+        addRefreshEntity(username, refreshToken, 2592000000L);
+
         // DB에서 회원 여부 확인
-        Optional<Member> member = memberRepository.findByProviderAndProviderId(provider, providerId);
+        Optional<Member> optionalMember = memberRepository.findByProviderAndProviderId(provider, providerId);
 
-        if (member.isPresent()) {
-            log.info("Existing member found: {}", member.get().getEmail());
+        if (optionalMember.isPresent()) {
+            Member member = optionalMember.get();
 
-            // Access와 Refresh 토큰 생성
-            String accessToken = jwtUtil.createJwt("access", username, role, 60000000L);
-            String refreshToken = jwtUtil.createJwt("refresh", username, role, 2592000000L);
+            log.info("Existing member found: {}", member.getEmail());
 
-            // Refresh 토큰 저장
-            addRefreshEntity(username, refreshToken, 2592000000L);
-
-            // 프론트엔드 리다이렉트 URL에 토큰 추가
-            String redirectUrl = String.format(
-                    "http://localhost:3000/main?accessToken=%s&refreshToken=%s",
-                    accessToken,
-                    refreshToken
-            );
-
-            // 클라이언트 리다이렉트
-            response.sendRedirect(redirectUrl);
+            if (isCompleteMember(member)) {
+                // 기존 회원: 메인 페이지로 리다이렉트
+                redirectWithTokens(response, accessToken, refreshToken, "/main");
+            } else {
+                // 첫 로그인 회원: 프론트엔드의 회원가입 경로(/signin)로 리다이렉트
+                redirectWithTokens(response, accessToken, refreshToken, "/signin");
+            }
 
         } else {
+            // 회원 정보가 없는 경우 (에러 처리)
             log.info("No member found. Please register.");
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
@@ -75,6 +76,23 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
         }
     }
 
+    private void redirectWithTokens(HttpServletResponse response, String accessToken, String refreshToken, String path) throws IOException {
+        // 리다이렉트 URL에 토큰 추가
+        String redirectUrl = String.format(
+                "http://localhost:3000%s?accessToken=%s&refreshToken=%s",
+                path,
+                accessToken,
+                refreshToken
+        );
+        response.sendRedirect(redirectUrl);
+    }
+
+    private boolean isCompleteMember(Member member) {
+        // 모든 필드가 채워져 있는지 확인
+        return member.getGender() != null &&
+                member.getState() != null &&
+                member.getCity() != null;
+    }
 
     private void addRefreshEntity(String username, String refreshToken, Long expiredMs) {
         RefreshEntity refreshEntity = new RefreshEntity();
