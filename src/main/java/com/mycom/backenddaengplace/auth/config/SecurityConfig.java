@@ -60,7 +60,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/","/health", "/hc","/oauth2/**", "/auth/**", "/login", "members/**"
-                                ,  "/email/**","/reviews/**", "/ocr/**", "/places/**","/reissue"
+                                ,  "/email/**","/reviews/**", "/ocr/**", "/places/**","/reissue", "/traits/**"
                         ).permitAll()
                         .anyRequest()
                         .authenticated())
