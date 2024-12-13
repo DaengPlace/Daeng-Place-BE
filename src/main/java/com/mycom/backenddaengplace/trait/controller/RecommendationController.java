@@ -1,7 +1,6 @@
 package com.mycom.backenddaengplace.trait.controller;
 
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
-import com.mycom.backenddaengplace.place.domain.Place;
 
 import com.mycom.backenddaengplace.place.dto.response.PopularPlaceResponse;
 import com.mycom.backenddaengplace.trait.service.RecommendationService;

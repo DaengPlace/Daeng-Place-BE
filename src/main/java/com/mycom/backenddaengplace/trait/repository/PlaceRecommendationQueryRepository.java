@@ -1,6 +1,5 @@
 package com.mycom.backenddaengplace.trait.repository;
 
-import com.mycom.backenddaengplace.place.domain.Place;
 import com.mycom.backenddaengplace.place.domain.QPlace;
 import com.mycom.backenddaengplace.place.dto.response.PopularPlaceResponse;
 import com.mycom.backenddaengplace.place.enums.Category;
