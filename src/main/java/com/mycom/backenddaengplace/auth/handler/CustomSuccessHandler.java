@@ -56,19 +56,15 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
             // Refresh 토큰 저장
             addRefreshEntity(username, refreshToken, 2592000000L);
 
-            // JSON 반환
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            String jsonResponse = String.format(
-                    "{\"accessToken\": \"%s\", \"refreshToken\": \"%s\", \"nickname\": \"%s\", \"email\": \"%s\", \"providerId\": \"%s\", \"provider\": \"%s\"}",
-                    accessToken, // 실제 토큰
-                    refreshToken, // 실제 토큰
-                    customUserDetails.getUsername(), // 사용자 이름
-                    customUserDetails.getUsername(), // 이메일
-                    customUserDetails.getProviderId(), // 소셜 제공자 ID
-                    customUserDetails.getProvider() // 소셜 제공자
+            // 프론트엔드 리다이렉트 URL에 토큰 추가
+            String redirectUrl = String.format(
+                    "http://localhost:3000/main?accessToken=%s&refreshToken=%s",
+                    accessToken,
+                    refreshToken
             );
-            response.getWriter().write(jsonResponse);
+
+            // 클라이언트 리다이렉트
+            response.sendRedirect(redirectUrl);
 
         } else {
             log.info("No member found. Please register.");
