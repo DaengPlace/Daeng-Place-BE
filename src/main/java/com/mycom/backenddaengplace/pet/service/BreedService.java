@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,5 +48,9 @@ public class BreedService {
     public BreedType getBreedType(Long breedTypeId) {
         return breedTypeRepository.findById(breedTypeId)
                 .orElseThrow(() -> new BreedNotFoundException(breedTypeId));
+    }
+
+    public Optional<BreedType> findBreedByName(String breedName) {
+        return breedTypeRepository.findByName(breedName);
     }
 }
