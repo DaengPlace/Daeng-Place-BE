@@ -1,4 +1,4 @@
-package com.mycom.backenddaengplace.member.config;
+package com.mycom.backenddaengplace.common.config;
 
 
 import org.springframework.beans.factory.annotation.Value;
