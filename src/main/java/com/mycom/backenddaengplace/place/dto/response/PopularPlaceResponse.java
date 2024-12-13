@@ -14,4 +14,5 @@ public class PopularPlaceResponse {
     private Long placeId;
     private String name;
     private Double rating;
+    private Double popularityScore;
 }

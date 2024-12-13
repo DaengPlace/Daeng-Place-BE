@@ -339,7 +339,7 @@ public class PlaceQueryRepository {
                 .groupBy(place.id, place.category, place.name)
                 .orderBy(getSortOrderForPopular("popularity"))
                 .offset(0)
-                .limit(3)
+                .limit(5)
                 .fetch();
 
         return content;
