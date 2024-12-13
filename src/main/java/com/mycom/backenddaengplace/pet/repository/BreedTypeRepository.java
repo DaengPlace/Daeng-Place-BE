@@ -13,5 +13,5 @@ public interface BreedTypeRepository extends JpaRepository<BreedType, Long> {
     @Query("SELECT b FROM BreedType b ORDER BY b.breedType")
     List<BreedType> findAllSorted();
     List<BreedType> findByBreedTypeContaining(String keyword);
-    Optional<BreedType> findByName(String name);
+    Optional<BreedType> findByBreedType(String breedType);
 }

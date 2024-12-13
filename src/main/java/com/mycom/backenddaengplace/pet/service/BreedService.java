@@ -51,6 +51,6 @@ public class BreedService {
     }
 
     public Optional<BreedType> findBreedByName(String breedName) {
-        return breedTypeRepository.findByName(breedName);
+        return breedTypeRepository.findByBreedType(breedName);
     }
 }
