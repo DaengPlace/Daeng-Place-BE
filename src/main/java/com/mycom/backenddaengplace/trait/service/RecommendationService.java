@@ -1,9 +1,12 @@
 package com.mycom.backenddaengplace.trait.service;
 
+import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.place.dto.response.PopularPlaceResponse;
 import com.mycom.backenddaengplace.place.enums.Category;
 import com.mycom.backenddaengplace.place.repository.PlaceQueryRepository;
+import com.mycom.backenddaengplace.trait.domain.MemberTraitResponse;
 import com.mycom.backenddaengplace.trait.domain.PetTraitResponse;
+import com.mycom.backenddaengplace.trait.repository.MemberTraitResponseRepository;
 import com.mycom.backenddaengplace.trait.repository.PetTraitResponseRepository;
 import com.mycom.backenddaengplace.trait.repository.PlaceRecommendationQueryRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -22,6 +26,7 @@ public class RecommendationService {
     private final PetTraitResponseRepository petTraitResponseRepository;
     private final PlaceQueryRepository placeQueryRepository;
     private final PlaceRecommendationQueryRepository recommendationQueryRepository;
+    private final MemberTraitResponseRepository memberTraitResponseRepository;
 
     public List<PopularPlaceResponse> recommendPlaces(Long petId) {
         // 1. 반려견의 성향 진단 결과 확인
@@ -38,6 +43,42 @@ public class RecommendationService {
 
         // 3. 카테고리에 해당하는 장소들 중 평점 높은 순으로 조회
         return recommendationQueryRepository.findRecommendedPlaces(recommendedCategories);
+    }
+
+    public List<PopularPlaceResponse> recommendPlacesByMember(Member member){
+
+        List<MemberTraitResponse> memberTraits = memberTraitResponseRepository.findByMemberId(member.getId());
+
+        int age = LocalDate.now().getYear() - member.getBirthDate().getYear();
+        int ageGroup = (age / 10) * 10;
+
+        // 성향 진단 없는 경우
+        if(memberTraits.isEmpty()){
+            return placeQueryRepository.getPopularPlacesByGenderAndAge(member.getGender(), ageGroup);
+        }
+
+        boolean isCostEffective = false;
+        boolean needsParking = false;
+        boolean uniquePlaces = false;
+        boolean cleanPlaces = false;
+
+        for (MemberTraitResponse traitResponse : memberTraits) {
+            Long answerId = traitResponse.getTraitAnswer().getId();
+
+            if (answerId == 1L) {
+                isCostEffective = true;
+            } else if (answerId == 3L) {
+                needsParking = true;
+            } else if (answerId == 5L) {
+                uniquePlaces = true;
+            } else if (answerId == 6L) {
+                cleanPlaces = true;
+            }
+        }
+
+        return recommendationQueryRepository.findRecommendedPlacesForMember(
+                isCostEffective, needsParking, uniquePlaces, cleanPlaces
+        );
     }
 
     private Set<Category> determineRecommendedCategories(List<PetTraitResponse> petTraits) {
