@@ -74,7 +74,7 @@ public class    ReviewController {
                 reviewService.getPopularReviews()));
     }
 
-    @PatchMapping("/{reviewId}")
+    @PutMapping("/{reviewId}")
     public ResponseEntity<ApiResponse<Void>> updateReview(
             @PathVariable Long reviewId,
             @Valid @RequestBody ReviewRequest request,
