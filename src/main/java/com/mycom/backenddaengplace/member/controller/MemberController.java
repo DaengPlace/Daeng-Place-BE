@@ -7,7 +7,6 @@ import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.member.dto.request.MemberRegisterRequest;
 import com.mycom.backenddaengplace.member.dto.request.MemberUpdateRequest;
 import com.mycom.backenddaengplace.member.dto.response.BaseMemberResponse;
-import com.mycom.backenddaengplace.member.service.EmailService;
 import com.mycom.backenddaengplace.member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
