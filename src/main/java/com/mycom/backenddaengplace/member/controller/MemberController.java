@@ -2,6 +2,7 @@ package com.mycom.backenddaengplace.member.controller;
 
 import com.mycom.backenddaengplace.auth.dto.CustomOAuth2User;
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
+import com.mycom.backenddaengplace.common.service.S3ImageService;
 import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.member.dto.request.MemberRegisterRequest;
 import com.mycom.backenddaengplace.member.dto.request.MemberUpdateRequest;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/members")
@@ -22,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
 
     private final MemberService memberService;
-    private final EmailService emailService;
+    private final S3ImageService s3ImageService;
 
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<BaseMemberResponse>> getMember(
@@ -63,5 +65,26 @@ public class MemberController {
 
         BaseMemberResponse response = memberService.registerMember(request);
         return ResponseEntity.ok(ApiResponse.success("회원 등록이 완료되었습니다.", response));
+    }
+
+    @PostMapping("/profile/image")
+    public ResponseEntity<ApiResponse<BaseMemberResponse>> updateProfileImage(
+            @RequestParam("file") MultipartFile file,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
+    ) {
+        Member member = customOAuth2User.getMember();
+
+        // 기존 이미지가 있다면 삭제
+        if (member.getProfileImageUrl() != null) {
+            s3ImageService.deleteImage(member.getProfileImageUrl());
+        }
+
+        // 새 이미지 업로드
+        String imageUrl = s3ImageService.uploadImage(file, S3ImageService.USER_PROFILE_DIR);
+
+        // 멤버 정보 업데이트
+        BaseMemberResponse response = memberService.updateProfileImage(member, imageUrl);
+
+        return ResponseEntity.ok(ApiResponse.success("프로필 이미지가 업데이트되었습니다.", response));
     }
 }
