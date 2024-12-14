@@ -45,17 +45,24 @@ public class    ReviewController {
     }
 
     @GetMapping("/places/{placeId}")
-    public ResponseEntity<ApiResponse<List<ReviewResponse>>> getReviews(@PathVariable Long placeId) {
+    public ResponseEntity<ApiResponse<List<ReviewResponse>>> getReviews(
+            @PathVariable Long placeId,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
+            ) {
+        Long currentMemberId = customOAuth2User != null ? customOAuth2User.getMember().getId() : null;
         return ResponseEntity.ok(ApiResponse.success("리뷰 목록을 조회했습니다.",
-                reviewService.getReviews(placeId)));
+                reviewService.getReviews(placeId, currentMemberId)));
     }
 
     @GetMapping("/{placeId}/and/{reviewId}")
     public ResponseEntity<ApiResponse<ReviewResponse>> getReviewDetail(
             @PathVariable Long placeId,
-            @PathVariable Long reviewId) {
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
+            ) {
+        Long currentMemberId = customOAuth2User != null ? customOAuth2User.getMember().getId() : null;
         return ResponseEntity.ok(ApiResponse.success("리뷰 상세 정보를 조회했습니다.",
-                reviewService.getReviewDetail(placeId, reviewId)));
+                reviewService.getReviewDetail(placeId, reviewId, currentMemberId)));
     }
 
     @DeleteMapping("/{reviewId}")

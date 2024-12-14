@@ -14,6 +14,7 @@ import com.mycom.backenddaengplace.review.dto.response.ReviewResponse;
 import com.mycom.backenddaengplace.review.exception.ReviewAlreadyExistsException;
 import com.mycom.backenddaengplace.review.exception.ReviewNotFoundException;
 import com.mycom.backenddaengplace.review.exception.ReviewNotOwnedException;
+import com.mycom.backenddaengplace.review.repository.ReviewLikeRepository;
 import com.mycom.backenddaengplace.review.repository.ReviewQueryRepository;
 import com.mycom.backenddaengplace.review.repository.ReviewRepository;
 import com.mycom.backenddaengplace.trait.domain.TraitTag;
@@ -37,6 +38,7 @@ public class ReviewService {
     private final MemberRepository memberRepository;
     private final TraitTagRepository traitTagRepository;
     private final TraitTagCountRepository traitTagCountRepository;
+    private final ReviewLikeRepository reviewLikeRepository;
 
     @Transactional
     public ReviewResponse createReview(Long placeId, ReviewRequest request, Long memberId) {
@@ -74,21 +76,31 @@ public class ReviewService {
     }
 
     @Transactional
-    public List<ReviewResponse> getReviews(Long placeId) {
+    public List<ReviewResponse> getReviews(Long placeId, Long currentMemberId) {
         if (!placeRepository.existsById(placeId)) {
             throw new PlaceNotFoundException(placeId);
         }
         return reviewRepository.findByPlaceId(placeId).stream()
-                .map(ReviewResponse::from)
+                .map(review -> {
+                    Long likeCount = reviewLikeRepository.countByReview(review);
+                    boolean isLiked = currentMemberId != null &&
+                            reviewLikeRepository.existsByReviewAndMemberId(review, currentMemberId);
+                    return ReviewResponse.from(review, likeCount, isLiked);
+                })
                 .collect(Collectors.toList());
     }
 
-    public ReviewResponse getReviewDetail(Long placeId, Long reviewId) {
+    public ReviewResponse getReviewDetail(Long placeId, Long reviewId, Long currentMemberId) {
         if (!placeRepository.existsById(placeId)) {
             throw new PlaceNotFoundException(placeId);
         }
-        return ReviewResponse.from(reviewRepository.findByIdAndPlaceId(reviewId, placeId)
-                .orElseThrow(() -> new ReviewNotFoundException(reviewId, placeId)));
+        Review review = reviewRepository.findByIdAndPlaceId(reviewId, placeId)
+                .orElseThrow(() -> new ReviewNotFoundException(reviewId, placeId));
+
+        Long likeCount = reviewLikeRepository.countByReview(review);
+        boolean isLiked = currentMemberId != null &&
+                reviewLikeRepository.existsByReviewAndMemberId(review, currentMemberId);
+        return ReviewResponse.from(review, likeCount, isLiked);
     }
 
     @Transactional
