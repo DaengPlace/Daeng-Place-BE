@@ -22,7 +22,7 @@ public class EmailController {
 
     private final EmailService emailService;
 
-    @GetMapping("/check-duplicate")
+    @PostMapping("/check-duplicate")
     public ResponseEntity<ApiResponse<EmailDuplicateCheckResponse>> checkDuplicateEmail(
             @Valid @RequestBody BaseEmailRequest request
     ) {
@@ -30,7 +30,7 @@ public class EmailController {
         return ResponseEntity.ok(ApiResponse.success("이메일 중복 체크가 완료되었습니다.", response));
     }
 
-    @GetMapping("/send-code")
+    @PostMapping("/send-code")
     public ResponseEntity<ApiResponse<EmailSendCodeResponse>> sendEmailCode(
             @Valid @RequestBody BaseEmailRequest request) throws MessagingException, UnsupportedEncodingException {
         EmailSendCodeResponse response = emailService.sendEmailCode(request.getEmail());
@@ -43,5 +43,4 @@ public class EmailController {
         EmailCodeCheckResponse response = emailService.checkEmailCode(request);
         return ResponseEntity.ok(ApiResponse.success("이메일 인증 성공하였습니다.", response));
     }
-
 }
