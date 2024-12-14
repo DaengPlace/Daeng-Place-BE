@@ -1,6 +1,5 @@
 package com.mycom.backenddaengplace.member.controller;
 
-
 import com.mycom.backenddaengplace.auth.dto.CustomOAuth2User;
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
 import com.mycom.backenddaengplace.member.domain.Member;
@@ -30,8 +29,8 @@ public class MemberController {
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User
     ) {
         Member member = customOAuth2User.getMember();
-        BaseMemberResponse response = memberService.getMember(member);
-        return ResponseEntity.ok(ApiResponse.success("회원 조회가 완료되었습니다.", response));
+        return ResponseEntity.ok(ApiResponse.success("회원 조회가 완료되었습니다.",
+                memberService.getMember(member.getId())));
     }
 
     @PostMapping("/profile")
@@ -55,10 +54,14 @@ public class MemberController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<BaseMemberResponse>> registerMember(
-            @Valid @RequestBody MemberRegisterRequest request
+            @Valid @RequestBody MemberRegisterRequest request,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
     ) {
+        Member member = customOAuth2User.getMember();
+        // OAuth로 로그인한 사용자의 이메일 정보를 request에 설정
+        request.setEmail(member.getEmail());
+
         BaseMemberResponse response = memberService.registerMember(request);
         return ResponseEntity.ok(ApiResponse.success("회원 등록이 완료되었습니다.", response));
     }
-
 }
