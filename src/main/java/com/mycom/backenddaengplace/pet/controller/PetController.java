@@ -1,9 +1,12 @@
 package com.mycom.backenddaengplace.pet.controller;
 
+import com.mycom.backenddaengplace.auth.dto.CustomOAuth2User;
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
 import com.mycom.backenddaengplace.pet.dto.request.BasePetRequest;
 import com.mycom.backenddaengplace.pet.dto.request.BreedSearchRequest;
-import com.mycom.backenddaengplace.pet.dto.response.*;
+import com.mycom.backenddaengplace.pet.dto.response.BasePetResponse;
+import com.mycom.backenddaengplace.pet.dto.response.BreedSearchResponse;
+import com.mycom.backenddaengplace.pet.dto.response.PetDeleteResponse;
 import com.mycom.backenddaengplace.pet.service.BreedService;
 import com.mycom.backenddaengplace.pet.service.PetService;
 import jakarta.validation.Valid;
@@ -11,7 +14,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/member/pets")
@@ -50,6 +56,14 @@ public class PetController {
     public ResponseEntity<ApiResponse<BasePetResponse>> getPet(@PathVariable Long petId) {
         BasePetResponse response = petService.getPet(petId);
         return ResponseEntity.ok(ApiResponse.success("반려견 조회 성공", response));
+    }
+
+    @GetMapping("")
+    public ResponseEntity<ApiResponse<List<BasePetResponse>>> getAllPets(
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
+    ) {
+        Long memberId = customOAuth2User.getMember().getId();
+        return ResponseEntity.ok(ApiResponse.success("반려견 목록 조회 성공", petService.getPets(memberId)));
     }
 
     @PostMapping("/{petId}")

@@ -3,7 +3,8 @@ package com.mycom.backenddaengplace.pet.service;
 import com.mycom.backenddaengplace.pet.domain.BreedType;
 import com.mycom.backenddaengplace.pet.domain.Pet;
 import com.mycom.backenddaengplace.pet.dto.request.BasePetRequest;
-import com.mycom.backenddaengplace.pet.dto.response.*;
+import com.mycom.backenddaengplace.pet.dto.response.BasePetResponse;
+import com.mycom.backenddaengplace.pet.dto.response.PetDeleteResponse;
 import com.mycom.backenddaengplace.pet.exception.InvalidBirthDateException;
 import com.mycom.backenddaengplace.pet.exception.PetNotFoundException;
 import com.mycom.backenddaengplace.pet.repository.PetRepository;
@@ -16,7 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 @Transactional
@@ -79,6 +80,10 @@ public class PetService {
         return BasePetResponse.from(pet);
     }
 
+    public List<BasePetResponse> getPets(Long memberId) {
+        return petRepository.findByMemberId(memberId).stream().map(BasePetResponse::from).toList();
+    }
+
     public PetDeleteResponse deletePet(Long petId) {
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new PetNotFoundException(petId));
@@ -93,11 +98,5 @@ public class PetService {
         } catch (DateTimeParseException e) {
             throw new InvalidBirthDateException();
         }
-    }
-
-    private String calculateAge(LocalDateTime birthDate) {
-        LocalDateTime now = LocalDateTime.now();
-        long months = ChronoUnit.MONTHS.between(birthDate, now);
-        return months + "개월";
     }
 }
