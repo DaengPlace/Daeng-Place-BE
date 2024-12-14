@@ -79,7 +79,7 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
     private void redirectWithTokens(HttpServletResponse response, String accessToken, String refreshToken, String path) throws IOException {
         // 리다이렉트 URL에 토큰 추가
         String redirectUrl = String.format(
-                "https://daengplace.vercel.app%s?accessToken=%s&refreshToken=%s",
+                "http://localhost:3000%s?accessToken=%s&refreshToken=%s",
                 path,
                 accessToken,
                 refreshToken
