@@ -21,7 +21,7 @@ public class PetController {
     private final PetService petService;
     private final BreedService breedService;
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<ApiResponse<BasePetResponse>> registerPet(
             @Valid @RequestBody BasePetRequest request) {
         log.debug("반려견 등록 요청: {}", request);
