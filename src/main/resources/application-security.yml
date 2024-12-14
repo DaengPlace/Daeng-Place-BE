@@ -35,3 +35,14 @@ spring:
     access-token-validity: 604800000
     refresh-token-validity: 2592000000
 
+cloud:
+  aws:
+    credentials:
+      accessKey: ${ACCESS_KEY}
+      secretKey: ${SECRET_KEY}
+    s3:
+      bucketName: ${BUCKET_NAME}
+    region:
+      static: ${REGION}
+    stack:
+      auto: false
