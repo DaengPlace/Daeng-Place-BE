@@ -1,5 +1,6 @@
 package com.mycom.backenddaengplace.review.dto.response;
 
+import com.mycom.backenddaengplace.review.domain.MediaFile;
 import com.mycom.backenddaengplace.review.domain.Review;
 import com.mycom.backenddaengplace.trait.dto.response.TraitTagCountResponse;
 import lombok.Builder;
@@ -20,14 +21,20 @@ public class ReviewResponse {
     private String content;
     private List<TraitTagCountResponse> traitTags;
     private LocalDateTime createdAt;
-    private List<String> imageUrls;  // 추가
-    private Long likeCount;  // 추가
-    private boolean isLiked;  // 추가
+    private List<String> imageUrls;
+    private Long likeCount;
+    private boolean isLiked;
 
     public static ReviewResponse from(Review review, Long likeCount, boolean isLiked) {
+        List<String> imageUrls = review.getMediaFiles() != null ?
+                review.getMediaFiles().stream()
+                        .map(MediaFile::getFilePath)
+                        .collect(Collectors.toList()) :
+                new ArrayList<>();
+
         return ReviewResponse.builder()
                 .reviewId(review.getId())
-                .memberNickname(review.getMember().getNickname())  // nickname으로 변경
+                .memberNickname(review.getMember().getNickname())
                 .placeId(review.getPlace().getId())
                 .rating(review.getRating())
                 .content(review.getContent())
@@ -35,7 +42,7 @@ public class ReviewResponse {
                         .map(TraitTagCountResponse::from)
                         .collect(Collectors.toList()))
                 .createdAt(review.getCreatedAt())
-                .imageUrls(new ArrayList<>())  // S3 설정 전까지 빈 리스트 반환
+                .imageUrls(imageUrls)
                 .likeCount(likeCount)
                 .isLiked(isLiked)
                 .build();

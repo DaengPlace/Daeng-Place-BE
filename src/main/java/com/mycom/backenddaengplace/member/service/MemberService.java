@@ -112,4 +112,15 @@ public class MemberService {
         memberRepository.delete(deletedMember);
         return BaseMemberResponse.from(deletedMember);
     }
+
+    @Transactional
+    public BaseMemberResponse updateProfileImage(Member member, String imageUrl) {
+        Member updatedMember = memberRepository.findById(member.getId())
+                .orElseThrow(() -> new MemberNotFoundException(member.getId()));
+
+        updatedMember.setProfileImageUrl(imageUrl);
+        memberRepository.save(updatedMember);
+
+        return BaseMemberResponse.from(updatedMember);
+    }
 }
