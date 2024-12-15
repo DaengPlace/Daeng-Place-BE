@@ -2,6 +2,7 @@ package com.mycom.backenddaengplace.pet.controller;
 
 import com.mycom.backenddaengplace.auth.dto.CustomOAuth2User;
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
+import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.pet.dto.request.BasePetRequest;
 import com.mycom.backenddaengplace.pet.dto.request.BreedSearchRequest;
 import com.mycom.backenddaengplace.pet.dto.response.BasePetResponse;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -29,9 +31,11 @@ public class PetController {
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<BasePetResponse>> registerPet(
-            @Valid @RequestBody BasePetRequest request) {
-        log.debug("반려견 등록 요청: {}", request);
-        BasePetResponse response = petService.registerPet(request);
+            @Valid @RequestBody BasePetRequest request,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
+    ) {
+        Member member = customOAuth2User.getMember();
+        BasePetResponse response = petService.registerPet(request, member.getId());
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success("반려견이 등록되었습니다.", response));
@@ -58,7 +62,7 @@ public class PetController {
         return ResponseEntity.ok(ApiResponse.success("반려견 조회 성공", response));
     }
 
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<ApiResponse<List<BasePetResponse>>> getAllPets(
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User
     ) {
@@ -66,19 +70,35 @@ public class PetController {
         return ResponseEntity.ok(ApiResponse.success("반려견 목록 조회 성공", petService.getPets(memberId)));
     }
 
-    @PostMapping("/{petId}")
+    @PutMapping("/{petId}")
     public ResponseEntity<ApiResponse<BasePetResponse>> revisePet(
-            @Valid @RequestBody BasePetRequest request, @PathVariable Long petId
+            @Valid @RequestBody BasePetRequest request,
+            @PathVariable Long petId,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User  // 인증 정보 추가
     ) {
-        BasePetResponse response = petService.revisePet(request, petId);
+        Member member = customOAuth2User.getMember();
+        BasePetResponse response = petService.revisePet(request, petId, member.getId());
         return ResponseEntity.ok(ApiResponse.success("반려견 수정 성공", response));
     }
 
     @DeleteMapping("/{petId}")
     public ResponseEntity<ApiResponse<PetDeleteResponse>> deletePet(
-            @PathVariable Long petId
+            @PathVariable Long petId,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User  // 인증 정보 추가
     ) {
-        PetDeleteResponse response = petService.deletePet(petId);
+        Member member = customOAuth2User.getMember();
+        PetDeleteResponse response = petService.deletePet(petId, member.getId());
         return ResponseEntity.ok(ApiResponse.success("반려견 삭제 성공", response));
+    }
+
+    @PostMapping("/{petId}/profile/image")  // URL 패턴도 member와 비슷하게
+    public ResponseEntity<ApiResponse<BasePetResponse>> updateProfileImage(
+            @PathVariable Long petId,
+            @RequestParam("file") MultipartFile file,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
+    ) {
+        Member member = customOAuth2User.getMember();
+        BasePetResponse response = petService.updateProfileImage(petId, file, member.getId());
+        return ResponseEntity.ok(ApiResponse.success("반려견 프로필 이미지가 업데이트되었습니다.", response));
     }
 }
