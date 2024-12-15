@@ -23,7 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class MemberController {
 
     private final MemberService memberService;
-    private final S3ImageService s3ImageService;
 
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<BaseMemberResponse>> getMember(
@@ -72,18 +71,7 @@ public class MemberController {
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User
     ) {
         Member member = customOAuth2User.getMember();
-
-        // 기존 이미지가 있다면 삭제
-        if (member.getProfileImageUrl() != null) {
-            s3ImageService.deleteImage(member.getProfileImageUrl());
-        }
-
-        // 새 이미지 업로드
-        String imageUrl = s3ImageService.uploadImage(file, S3ImageService.USER_PROFILE_DIR);
-
-        // 멤버 정보 업데이트
-        BaseMemberResponse response = memberService.updateProfileImage(member, imageUrl);
-
+        BaseMemberResponse response = memberService.updateProfileImage(member, file);
         return ResponseEntity.ok(ApiResponse.success("프로필 이미지가 업데이트되었습니다.", response));
     }
 }
