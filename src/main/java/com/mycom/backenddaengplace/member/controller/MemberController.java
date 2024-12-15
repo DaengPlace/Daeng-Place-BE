@@ -2,7 +2,6 @@ package com.mycom.backenddaengplace.member.controller;
 
 import com.mycom.backenddaengplace.auth.dto.CustomOAuth2User;
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
-import com.mycom.backenddaengplace.common.service.S3ImageService;
 import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.member.dto.request.MemberRegisterRequest;
 import com.mycom.backenddaengplace.member.dto.request.MemberUpdateRequest;
