@@ -26,6 +26,7 @@ public class PlaceDetailResponse {
     private OperationHourDto operationHour;
     private String hoilday;
     private Double rating;
+    private Boolean is_favorite;
     private long review_count;
     private List<Map<String, Object>> reviews;
 }

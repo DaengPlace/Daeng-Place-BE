@@ -24,5 +24,5 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     List<Favorite> findFavoritesByMemberId(Long memberId);
 
 
-
+    Boolean existsByPlaceIdAndMemberId(Long placeId, Long memberId);
 }
