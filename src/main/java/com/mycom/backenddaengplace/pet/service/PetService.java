@@ -93,7 +93,7 @@ public class PetService {
 
     private LocalDateTime parseBirthDate(String birthDate) {
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd");
             return LocalDate.parse(birthDate, formatter).atStartOfDay();
         } catch (DateTimeParseException e) {
             throw new InvalidBirthDateException();
