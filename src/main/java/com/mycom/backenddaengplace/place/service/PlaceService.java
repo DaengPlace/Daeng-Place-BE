@@ -1,5 +1,6 @@
 package com.mycom.backenddaengplace.place.service;
 
+import com.mycom.backenddaengplace.favorite.repository.FavoriteRepository;
 import com.mycom.backenddaengplace.member.enums.Gender;
 import com.mycom.backenddaengplace.member.exception.MemberNotFoundException;
 import com.mycom.backenddaengplace.member.repository.MemberRepository;
@@ -36,15 +37,13 @@ public class PlaceService {
     private final ReviewRepository reviewRepository;
     private final PlaceQueryRepository placeQueryRepository;
     private final MemberRepository memberRepository;
+    private final FavoriteRepository favoriteRepository;
 
     @Transactional
-    public PlaceDetailResponse getPlaceDetail(Long placeId) {
+    public PlaceDetailResponse getPlaceDetail(Long placeId, Long memberId) {
 
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new PlaceNotFoundException(placeId));
-
-        // 오늘의 요일 계산
-        String todayName = LocalDateTime.now().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.KOREAN);
 
         Address address = place.getAddress();
         String roadAddress = address != null ? address.getRoadAddress() : null;
@@ -66,6 +65,8 @@ public class PlaceService {
 
         OperationHour operationHour = operationHourRepository.findByPlaceId(placeId);
         String holiday = getHolidayInfo(operationHour);
+
+        Boolean isFavorite = favoriteRepository.existsByPlaceIdAndMemberId(placeId, memberId);
 
         // OperationHourDto 생성
         OperationHourDto operationHourDto = new OperationHourDto();
@@ -99,6 +100,7 @@ public class PlaceService {
                 .homepage(place.getHomepage() != null ? place.getHomepage() : null)
                 .operationStatus(place.getOperationStatus())
                 .operationHour(operationHourDto)
+                .is_favorite(isFavorite)
                 .hoilday(holiday)
                 .rating(averageRating)
                 .review_count(reviewCount)
@@ -121,8 +123,8 @@ public class PlaceService {
         return String.join(", ", holidays);
     }
 
-    public PlaceListResponse searchPlaces(SearchCriteria criteria) {
-        return placeQueryRepository.searchPlaces(criteria);
+    public PlaceListResponse searchPlaces(SearchCriteria criteria, Long memberId) {
+        return placeQueryRepository.searchPlaces(criteria, memberId);
     }
 
 

@@ -1,5 +1,6 @@
 package com.mycom.backenddaengplace.place.repository;
 
+import com.mycom.backenddaengplace.favorite.domain.QFavorite;
 import com.mycom.backenddaengplace.member.domain.QMember;
 import com.mycom.backenddaengplace.member.enums.Gender;
 import com.mycom.backenddaengplace.place.domain.QLocation;
@@ -36,11 +37,12 @@ public class PlaceQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public PlaceListResponse searchPlaces(SearchCriteria criteria) {
+    public PlaceListResponse searchPlaces(SearchCriteria criteria, Long memberId) {
         QPlace place = QPlace.place;
         QOperationHour operationHour = QOperationHour.operationHour;
         QLocation location = QLocation.location;
         QReview review = QReview.review;
+        QFavorite favorite = QFavorite.favorite;
 
         BooleanBuilder whereClause = new BooleanBuilder();
 
@@ -160,7 +162,14 @@ public class PlaceQueryRepository {
                         place.address.location.longitude.as("longitude"),
                         Expressions.numberTemplate(Double.class,
                                 "ROUND({0}, 1)", review.rating.avg()).as("rating"),
-                        review.count().as("review_count")
+                        review.count().as("review_count"),
+                        Expressions.asBoolean(
+                                JPAExpressions.selectOne()
+                                        .from(favorite)
+                                        .where(favorite.member.id.eq(memberId)
+                                                .and(favorite.place.id.eq(place.id)))
+                                        .exists()
+                        ).as("is_favorite")
                 ))
                 .from(place)
                 .leftJoin(place.address)
