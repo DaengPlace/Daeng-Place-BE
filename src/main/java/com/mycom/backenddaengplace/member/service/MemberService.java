@@ -78,9 +78,9 @@ public class MemberService {
     }
 
     @Transactional
-    public BaseMemberResponse reviseMember(MemberUpdateRequest request, Member member) {
-        Member updatedMember = memberRepository.findById(member.getId())
-                .orElseThrow(() -> new MemberNotFoundException(member.getId()));
+    public BaseMemberResponse reviseMember(MemberUpdateRequest request, Long memberId) {
+        Member updatedMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberNotFoundException(memberId));
 
         LocalDateTime birthDate = parseBirthDate(request.getBirthDate());
 
@@ -105,9 +105,9 @@ public class MemberService {
     }
 
     @Transactional
-    public BaseMemberResponse deleteMember(Member member) {
-        Member deletedMember = memberRepository.findById(member.getId())
-                .orElseThrow(() -> new MemberNotFoundException(member.getId()));
+    public BaseMemberResponse deleteMember(Long memberId) {
+        Member deletedMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberNotFoundException(memberId));
 
         memberRepository.delete(deletedMember);
         return BaseMemberResponse.from(deletedMember);
