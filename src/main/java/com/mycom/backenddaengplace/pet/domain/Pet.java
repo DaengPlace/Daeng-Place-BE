@@ -39,12 +39,13 @@ public class Pet extends BaseEntity {
     @Column(name = "weight", precision = 4, nullable = false)
     private Double weight;
 
-    @Column(name = "chip_id")
-    private String chipId;
+    @Column(name = "profile_image_url")  // 프로필 이미지 URL 필드 추가
+    private String profileImageUrl;
 
     @Builder
     public Pet(BreedType breedType, String name, LocalDateTime birthDate,
-               Boolean isNeutered, Double weight, Gender gender
+               Boolean isNeutered, Double weight, Gender gender, String profileImageUrl,
+               Member member
     ) {
         this.breedType = breedType;
         this.name = name;
@@ -52,6 +53,7 @@ public class Pet extends BaseEntity {
         this.gender = gender;
         this.weight = weight;
         this.isNeutered = isNeutered;
-
+        this.profileImageUrl = profileImageUrl;
+        this.member = member;
     }
 }

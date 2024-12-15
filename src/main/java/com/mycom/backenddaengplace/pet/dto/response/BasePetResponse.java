@@ -19,6 +19,7 @@ public class BasePetResponse {
     private Double weight;
     private Gender gender;
     private Boolean isNeutered;
+    private String profileImageUrl;
 
     public static BasePetResponse from(Pet pet) {
 
@@ -31,6 +32,7 @@ public class BasePetResponse {
                 .weight(pet.getWeight())
                 .gender(pet.getGender())
                 .isNeutered(pet.getIsNeutered())
+                .profileImageUrl(pet.getProfileImageUrl())
                 .build();
     }
 
