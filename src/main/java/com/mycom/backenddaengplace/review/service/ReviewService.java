@@ -1,11 +1,13 @@
 package com.mycom.backenddaengplace.review.service;
 
+import com.mycom.backenddaengplace.common.service.S3ImageService;
 import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.member.exception.MemberNotFoundException;
 import com.mycom.backenddaengplace.member.repository.MemberRepository;
 import com.mycom.backenddaengplace.place.domain.Place;
 import com.mycom.backenddaengplace.place.exception.PlaceNotFoundException;
 import com.mycom.backenddaengplace.place.repository.PlaceRepository;
+import com.mycom.backenddaengplace.review.domain.MediaFile;
 import com.mycom.backenddaengplace.review.domain.Review;
 import com.mycom.backenddaengplace.review.dto.request.ReviewRequest;
 import com.mycom.backenddaengplace.review.dto.response.MemberReviewResponse;
@@ -24,7 +26,9 @@ import com.mycom.backenddaengplace.trait.repository.TraitTagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +36,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ReviewService {
+
     private final ReviewRepository reviewRepository;
     private final PlaceRepository placeRepository;
     private final ReviewQueryRepository reviewQueryRepository;
@@ -39,9 +44,10 @@ public class ReviewService {
     private final TraitTagRepository traitTagRepository;
     private final TraitTagCountRepository traitTagCountRepository;
     private final ReviewLikeRepository reviewLikeRepository;
+    private final S3ImageService s3ImageService;
 
     @Transactional
-    public ReviewResponse createReview(Long placeId, ReviewRequest request, Long memberId) {
+    public ReviewResponse createReview(Long placeId, ReviewRequest request, List<MultipartFile> images, Long memberId) {
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new PlaceNotFoundException(placeId));
 
@@ -61,18 +67,37 @@ public class ReviewService {
         reviewRepository.save(review);
 
         List<TraitTag> traitTags = traitTagRepository.findByContentIn(request.getTraitTags());
-
         List<TraitTagCount> traitTagCounts = traitTags.stream()
-                .map(traitTag -> {
-                    return TraitTagCount.builder()
-                            .traitTag(traitTag)
-                            .review(review)
-                            .build();
-                })
+                .map(traitTag -> TraitTagCount.builder()
+                        .traitTag(traitTag)
+                        .review(review)
+                        .build())
                 .toList();
-        traitTagCountRepository.saveAll(traitTagCounts);
 
-        return null;
+        List<TraitTagCount> savedTraitTagCounts = traitTagCountRepository.saveAll(traitTagCounts);
+
+        review.setTraitTag(savedTraitTagCounts);
+
+        // 이미지 업로드 및 MediaFile 생성
+        List<MediaFile> mediaFiles = new ArrayList<>();
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile image : images) {
+                try {
+                    String imageUrl = s3ImageService.uploadImage(image, S3ImageService.REVIEW_DIR);
+                    MediaFile mediaFile = MediaFile.builder()
+                            .review(review)
+                            .filePath(imageUrl)
+                            .build();
+                    mediaFiles.add(mediaFile);
+                } catch (Exception e) {
+                    throw new RuntimeException("이미지 업로드에 실패했습니다.", e);
+                }
+            }
+            review.setMediaFiles(mediaFiles);
+        }
+
+        // 리뷰 응답 생성
+        return ReviewResponse.from(review, 0L, false);
     }
 
     @Transactional
