@@ -1,11 +1,9 @@
 package com.mycom.backenddaengplace.member.service;
 
 import com.mycom.backenddaengplace.member.domain.Member;
-import com.mycom.backenddaengplace.member.dto.request.BaseEmailRequest;
 import com.mycom.backenddaengplace.member.dto.request.MemberRegisterRequest;
 import com.mycom.backenddaengplace.member.dto.request.MemberUpdateRequest;
 import com.mycom.backenddaengplace.member.dto.response.BaseMemberResponse;
-import com.mycom.backenddaengplace.member.dto.response.EmailDuplicateCheckResponse;
 import com.mycom.backenddaengplace.member.exception.MemberNotFoundException;
 import com.mycom.backenddaengplace.member.repository.MemberRepository;
 import com.mycom.backenddaengplace.pet.exception.InvalidBirthDateException;
@@ -25,34 +23,42 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
-    public BaseMemberResponse getMember(Member member) {
-//        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
-
-        return BaseMemberResponse.from(member);
-    }
-
-    @Transactional
-    public BaseMemberResponse reviseMember(MemberUpdateRequest request, Member member) {
-
-        Member updatedMember = memberRepository.findById(member.getId()).orElseThrow(() -> new MemberNotFoundException(member.getId()));
-
-        LocalDateTime birthDate = parseBirthDate(request.getBirthDate());
-
-        updatedMember.setNickname(request.getNickname());
-        updatedMember.setGender(request.getGender());
-        updatedMember.setState(request.getState());
-        updatedMember.setCity(request.getCity());
-        updatedMember.setBirthDate(birthDate);
-        updatedMember.setProfileImageUrl(request.getProfileImageUrl());
-
-        memberRepository.save(updatedMember);
-
-        return BaseMemberResponse.from(updatedMember);
+    public BaseMemberResponse getMember(Long memberId) {
+        return BaseMemberResponse.from(memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberNotFoundException(memberId)));
     }
 
     @Transactional
     public BaseMemberResponse registerMember(MemberRegisterRequest request) {
+        // 카카오 이메일로 기존 회원 조회
+        Member existingMember = memberRepository.findByEmail(request.getEmail())
+                .orElse(null);
 
+        if (existingMember != null) {
+            // 기존 회원이 있다면 프로필 정보 업데이트
+            return updateExistingMember(existingMember, request);
+        } else {
+            // 신규 회원이라면 새로 생성
+            return createNewMember(request);
+        }
+    }
+
+    private BaseMemberResponse updateExistingMember(Member existingMember, MemberRegisterRequest request) {
+        LocalDateTime birthDate = parseBirthDate(request.getBirthDate());
+
+        existingMember.setName(request.getName());
+        existingMember.setNickname(request.getNickname());
+        existingMember.setBirthDate(birthDate);
+        existingMember.setGender(request.getGender());
+        existingMember.setState(request.getState());
+        existingMember.setCity(request.getCity());
+        existingMember.setProfileImageUrl(request.getProfileImageUrl());
+
+        Member savedMember = memberRepository.save(existingMember);
+        return BaseMemberResponse.from(savedMember);
+    }
+
+    private BaseMemberResponse createNewMember(MemberRegisterRequest request) {
         LocalDateTime birthDate = parseBirthDate(request.getBirthDate());
 
         Member member = Member.builder()
@@ -68,8 +74,25 @@ public class MemberService {
                 .build();
 
         Member savedMember = memberRepository.save(member);
-
         return BaseMemberResponse.from(savedMember);
+    }
+
+    @Transactional
+    public BaseMemberResponse reviseMember(MemberUpdateRequest request, Member member) {
+        Member updatedMember = memberRepository.findById(member.getId())
+                .orElseThrow(() -> new MemberNotFoundException(member.getId()));
+
+        LocalDateTime birthDate = parseBirthDate(request.getBirthDate());
+
+        updatedMember.setNickname(request.getNickname());
+        updatedMember.setGender(request.getGender());
+        updatedMember.setState(request.getState());
+        updatedMember.setCity(request.getCity());
+        updatedMember.setBirthDate(birthDate);
+        updatedMember.setProfileImageUrl(request.getProfileImageUrl());
+
+        memberRepository.save(updatedMember);
+        return BaseMemberResponse.from(updatedMember);
     }
 
     private LocalDateTime parseBirthDate(String birthDate) {
@@ -81,14 +104,23 @@ public class MemberService {
         }
     }
 
-
     @Transactional
     public BaseMemberResponse deleteMember(Member member) {
-
-        Member deletedMember = memberRepository.findById(member.getId()).orElseThrow(() -> new MemberNotFoundException(member.getId()));
+        Member deletedMember = memberRepository.findById(member.getId())
+                .orElseThrow(() -> new MemberNotFoundException(member.getId()));
 
         memberRepository.delete(deletedMember);
-
         return BaseMemberResponse.from(deletedMember);
+    }
+
+    @Transactional
+    public BaseMemberResponse updateProfileImage(Member member, String imageUrl) {
+        Member updatedMember = memberRepository.findById(member.getId())
+                .orElseThrow(() -> new MemberNotFoundException(member.getId()));
+
+        updatedMember.setProfileImageUrl(imageUrl);
+        memberRepository.save(updatedMember);
+
+        return BaseMemberResponse.from(updatedMember);
     }
 }
