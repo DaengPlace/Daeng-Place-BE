@@ -34,13 +34,13 @@ public class MemberController {
                 memberService.getMember(member.getId())));
     }
 
-    @PostMapping("/profile")
+    @PutMapping("/profile")
     public ResponseEntity<ApiResponse<BaseMemberResponse>> updateMember(
             @Valid @RequestBody MemberUpdateRequest request,
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User
     ) {
         Member member = customOAuth2User.getMember();
-        BaseMemberResponse response = memberService.reviseMember(request, member);
+        BaseMemberResponse response = memberService.reviseMember(request, member.getId());
         return ResponseEntity.ok(ApiResponse.success("회원 수정이 완료되었습니다.", response));
     }
 
@@ -49,7 +49,7 @@ public class MemberController {
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User
     ) {
         Member member = customOAuth2User.getMember();
-        BaseMemberResponse response = memberService.deleteMember(member);
+        BaseMemberResponse response = memberService.deleteMember(member.getId());
         return ResponseEntity.ok(ApiResponse.success("회원 삭제가 완료되었습니다.", response));
     }
 
