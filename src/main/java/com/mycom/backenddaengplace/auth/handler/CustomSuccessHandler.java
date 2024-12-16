@@ -6,6 +6,7 @@ import com.mycom.backenddaengplace.auth.jwt.JWTUtil;
 import com.mycom.backenddaengplace.auth.repository.RefreshRepository;
 import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.member.repository.MemberRepository;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -43,11 +44,11 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         String role = authorities.iterator().next().getAuthority();
 
-        // Access와 Refresh 토큰 생성 (모든 사용자에게 발급)
+        // Access와 Refresh 토큰 생성
         String accessToken = jwtUtil.createJwt("access", username, role, 60000000L);
         String refreshToken = jwtUtil.createJwt("refresh", username, role, 2592000000L);
 
-        // Refresh 토큰 저장
+        // Refresh 토큰을 저장
         addRefreshEntity(username, refreshToken, 2592000000L);
 
         // DB에서 회원 여부 확인
@@ -55,7 +56,6 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
 
         if (optionalMember.isPresent()) {
             Member member = optionalMember.get();
-
             log.info("Existing member found: {}", member.getEmail());
 
             if (isCompleteMember(member)) {
@@ -65,7 +65,6 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
                 // 첫 로그인 회원: 프론트엔드의 회원가입 경로(/signin)로 리다이렉트
                 redirectWithTokens(response, accessToken, refreshToken, "/signin");
             }
-
         } else {
             // 회원 정보가 없는 경우 (에러 처리)
             log.info("No member found. Please register.");
@@ -77,13 +76,16 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
     }
 
     private void redirectWithTokens(HttpServletResponse response, String accessToken, String refreshToken, String path) throws IOException {
-        // 리다이렉트 URL에 토큰 추가
-        String redirectUrl = String.format(
-                "https://daengplace.vercel.app%s?accessToken=%s&refreshToken=%s",
-                path,
-                accessToken,
-                refreshToken
-        );
+        // Refresh Token을 HttpOnly Secure 쿠키로 저장
+        Cookie refreshCookie = new Cookie("refresh", refreshToken);
+        refreshCookie.setHttpOnly(true); // JavaScript에서 접근 불가
+        refreshCookie.setSecure(true);   // HTTPS 환경에서만 전송
+        refreshCookie.setPath("/");      // 전체 경로에서 유효
+        refreshCookie.setMaxAge(2592000); // 만료 시간 설정 (30일)
+        response.addCookie(refreshCookie);
+
+        // 리다이렉트 URL에 Access Token만 추가
+        String redirectUrl = String.format("http://localhost:3000%s?accessToken=%s", path, accessToken);
         response.sendRedirect(redirectUrl);
     }
 
