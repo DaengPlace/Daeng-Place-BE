@@ -64,7 +64,7 @@ public class EmailService {
         body += "<h1>안녕하세요. 댕댕플레이스 입니다.</h1>";
         body += "<h3>요청하신 인증 번호입니다.</h3>";
         body += "<h1>" + code + "</h1>";
-        body += "<h3>인증 번호는 5분 뒤에 파기됩니다.</h3>";
+        body += "<h3>인증 번호는 3분 뒤에 파기됩니다.</h3>";
         body += "<h3>감사합니다.</h3>";
         message.setText(body, "UTF-8", "html");
         return message;
@@ -73,7 +73,7 @@ public class EmailService {
     // 메일 발송
     public EmailSendCodeResponse sendEmailCode(String sendEmail) throws MessagingException {
         String code = createCode();
-        redisEmailAuthentication.setEmailAuthenticationExpire(sendEmail, code, 5L);
+        redisEmailAuthentication.setEmailAuthenticationExpire(sendEmail, code, 3L);
         MimeMessage message = createMail(sendEmail, code);
         try {
             log.debug("Attempting to send email to: {}", sendEmail);
