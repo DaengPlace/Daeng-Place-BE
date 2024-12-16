@@ -1,4 +1,4 @@
-package com.mycom.backenddaengplace.ocrtest.entity;
+package com.mycom.backenddaengplace.ocrtest.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
