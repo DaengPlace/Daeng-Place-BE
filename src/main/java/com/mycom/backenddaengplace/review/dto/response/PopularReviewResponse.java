@@ -2,6 +2,7 @@ package com.mycom.backenddaengplace.review.dto.response;
 
 
 import com.mycom.backenddaengplace.place.enums.Category;
+import com.mycom.backenddaengplace.review.domain.MediaFile;
 import com.mycom.backenddaengplace.review.domain.Review;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,6 +10,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Builder
@@ -27,11 +29,17 @@ public class PopularReviewResponse {
     private Category category;
 
     public static PopularReviewResponse from(Review review) {
+        List<String> imageUrls = review.getMediaFiles() != null ?
+                review.getMediaFiles().stream()
+                        .map(MediaFile::getFilePath)
+                        .collect(Collectors.toList()) :
+                new ArrayList<>();
+
         return PopularReviewResponse.builder()
                 .reviewId(review.getId())
                 .content(review.getContent())
                 .rating(review.getRating().intValue())
-                .imageUrls(new ArrayList<>())  // S3 설정 전까지 빈 리스트 반환
+                .imageUrls(imageUrls)
                 .likeCount(review.getReviewLikes().size())
                 .isLiked(false)
                 .createdAt(review.getCreatedAt())
