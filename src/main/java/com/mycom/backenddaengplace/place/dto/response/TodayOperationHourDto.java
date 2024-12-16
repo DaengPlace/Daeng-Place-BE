@@ -1,6 +1,5 @@
 package com.mycom.backenddaengplace.place.dto.response;
 
-import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalTime;

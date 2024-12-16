@@ -1,6 +1,5 @@
 package com.mycom.backenddaengplace.place.dto.response;
 
-import com.mycom.backenddaengplace.member.enums.Gender;
 import lombok.Data;
 
 import java.util.List;

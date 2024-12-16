@@ -1,12 +1,9 @@
 package com.mycom.backenddaengplace.favorite.dto.response;
 
-import com.mycom.backenddaengplace.favorite.domain.Favorite;
 import com.mycom.backenddaengplace.place.dto.response.PlaceDto;
-import com.mycom.backenddaengplace.review.domain.Review;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter

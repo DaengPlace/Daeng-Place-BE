@@ -1,7 +1,6 @@
 package com.mycom.backenddaengplace.place.domain;
 
 import com.mycom.backenddaengplace.member.domain.Member;
-import com.mycom.backenddaengplace.review.domain.Review;
 import jakarta.persistence.*;
 import lombok.*;
 

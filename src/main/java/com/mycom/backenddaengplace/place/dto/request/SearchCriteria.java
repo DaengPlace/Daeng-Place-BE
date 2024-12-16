@@ -1,6 +1,5 @@
 package com.mycom.backenddaengplace.place.dto.request;
 
-import com.mycom.backenddaengplace.place.domain.OperationHour;
 import com.mycom.backenddaengplace.place.enums.Category;
 import com.mycom.backenddaengplace.place.enums.OperationStatus;
 import lombok.Builder;
