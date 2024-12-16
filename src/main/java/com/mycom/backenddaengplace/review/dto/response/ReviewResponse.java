@@ -32,9 +32,13 @@ public class ReviewResponse {
                         .collect(Collectors.toList()) :
                 new ArrayList<>();
 
+        String nickName;
+
+        nickName = (Boolean.TRUE.equals(review.getMember().getIsDeleted())) ? "삭제된 사용자" : review.getMember().getNickname();
+
         return ReviewResponse.builder()
                 .reviewId(review.getId())
-                .memberNickname(review.getMember().getNickname())
+                .memberNickname(nickName)
                 .placeId(review.getPlace().getId())
                 .rating(review.getRating())
                 .content(review.getContent())
