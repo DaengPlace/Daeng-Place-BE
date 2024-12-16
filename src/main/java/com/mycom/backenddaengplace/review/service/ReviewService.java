@@ -147,48 +147,45 @@ public class ReviewService {
     }
 
     @Transactional
-    public void updateReview(Long reviewId, ReviewRequest request,List<MultipartFile> images, Long memberId) {
+    public void updateReview(Long reviewId, ReviewRequest request, List<MultipartFile> images, Long memberId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(reviewId, null));
-
 
         if (!review.getMember().getId().equals(memberId)) {
             throw new ReviewNotOwnedException(memberId, reviewId);
         }
 
+        // 컨텐츠 업데이트
         if (request.getContent() != null && !request.getContent().isBlank()) {
             review.setContent(request.getContent());
         }
 
+        // 평점 업데이트
         if (request.getRating() != null && request.getRating() >= 0.0 && request.getRating() <= 5.0) {
             review.setRating(request.getRating());
         }
 
         // 성향 태그 수정
-        traitTagCountRepository.deleteByReviewId(reviewId);
-        if (request.getTraitTags() != null && !request.getTraitTags().isEmpty()) {
-            List<TraitTag> traitTags = traitTagRepository.findByContentIn(request.getTraitTags());
-            List<TraitTagCount> traitTagCounts = traitTags.stream()
-                    .map(traitTag -> {
-                        return TraitTagCount.builder()
-                                .traitTag(traitTag)
-                                .review(review)
-                                .build();
-                    })
-                    .toList();
-            traitTagCountRepository.saveAll(traitTagCounts);
+        updateTraitTags(review, request);
+
+        // 이미지 처리
+        if (request.getDeleteImageUrls() != null && !request.getDeleteImageUrls().isEmpty()) {
+            // 삭제 대상 이미지 처리
+            List<MediaFile> remainingFiles = new ArrayList<>();
+            for (MediaFile mediaFile : review.getMediaFiles()) {
+                if (request.getDeleteImageUrls().contains(mediaFile.getFilePath())) {
+                    // S3에서 이미지 삭제
+                    s3ImageService.deleteImage(mediaFile.getFilePath());
+                } else {
+                    remainingFiles.add(mediaFile);
+                }
+            }
+            review.getMediaFiles().clear();
+            review.getMediaFiles().addAll(remainingFiles);
         }
 
+        // 새로운 이미지 추가
         if (images != null && !images.isEmpty()) {
-            // 기존 이미지 S3에서 삭제
-            if (review.getMediaFiles() != null) {
-                for (MediaFile mediaFile : review.getMediaFiles()) {
-                    s3ImageService.deleteImage(mediaFile.getFilePath());
-                }
-                review.getMediaFiles().clear();  // 컬렉션 초기화
-            }
-
-            // 새 이미지 업로드
             for (MultipartFile image : images) {
                 try {
                     String imageUrl = s3ImageService.uploadImage(image, S3ImageService.REVIEW_DIR);
@@ -196,7 +193,7 @@ public class ReviewService {
                             .review(review)
                             .filePath(imageUrl)
                             .build();
-                    review.getMediaFiles().add(mediaFile);  // 컬렉션에 직접 추가
+                    review.getMediaFiles().add(mediaFile);
                 } catch (Exception e) {
                     throw new RuntimeException("이미지 업로드에 실패했습니다.", e);
                 }
@@ -213,5 +210,19 @@ public class ReviewService {
         return reviews.stream()
                 .map(MemberReviewResponse::from)
                 .collect(Collectors.toList());
+    }
+
+    private void updateTraitTags(Review review, ReviewRequest request) {
+        traitTagCountRepository.deleteByReviewId(review.getId());
+        if (request.getTraitTags() != null && !request.getTraitTags().isEmpty()) {
+            List<TraitTag> traitTags = traitTagRepository.findByContentIn(request.getTraitTags());
+            List<TraitTagCount> traitTagCounts = traitTags.stream()
+                    .map(traitTag -> TraitTagCount.builder()
+                            .traitTag(traitTag)
+                            .review(review)
+                            .build())
+                    .toList();
+            traitTagCountRepository.saveAll(traitTagCounts);
+        }
     }
 }

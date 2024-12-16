@@ -28,4 +28,5 @@ public class ReviewRequest {
     private List<String> traitTags;
 
     private List<MultipartFile> images;
+    private List<String> deleteImageUrls;
 }
