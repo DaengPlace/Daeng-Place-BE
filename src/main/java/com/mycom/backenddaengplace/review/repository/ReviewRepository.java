@@ -28,5 +28,4 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT r FROM Review r LEFT JOIN FETCH r.traitTag WHERE r.member.id = :memberId")
     List<Review> findByMemberId(@Param("memberId") Long memberId);
 
-    Review findByIdAndMemberId(Long reviewId, Long memberId);
 }
