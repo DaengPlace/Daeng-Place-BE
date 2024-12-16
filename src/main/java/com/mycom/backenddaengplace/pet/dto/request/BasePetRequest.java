@@ -22,7 +22,7 @@ public class BasePetRequest {
     private String breed;
 
     @NotBlank(message = "생년월일을 입력해주세요.")
-    @Pattern(regexp = "\\d{6}", message = "생년월일은 YYMMDD 형식으로 입력해주세요.")
+    @Pattern(regexp = "\\d{8}", message = "생년월일은 YYYYMMDD 형식으로 입력해주세요.")
     private String birthDate;
 
     @NotNull(message = "몸무게를 입력해주세요.")
