@@ -2,7 +2,6 @@ package com.mycom.backenddaengplace.review.controller;
 
 import com.mycom.backenddaengplace.auth.dto.CustomOAuth2User;
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
-import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.review.dto.response.ReviewLikeResponse;
 import com.mycom.backenddaengplace.review.service.ReviewLikeService;
 import lombok.RequiredArgsConstructor;

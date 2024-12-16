@@ -1,4 +1,4 @@
-package com.mycom.backenddaengplace.ocrtest.service;
+package com.mycom.backenddaengplace.ocr.service;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -8,8 +8,6 @@ public interface OcrService {
     String saveFile(MultipartFile file) throws IOException;
 
     String performOCR(String filePath) throws IOException;
-
-    String processJsonData(String jsonData);
 
     String removeVertices(String jsonData);
 }

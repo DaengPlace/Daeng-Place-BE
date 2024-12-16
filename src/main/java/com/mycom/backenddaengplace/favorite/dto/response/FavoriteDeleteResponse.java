@@ -4,8 +4,6 @@ import com.mycom.backenddaengplace.favorite.domain.Favorite;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
 @Builder
 public class FavoriteDeleteResponse {
