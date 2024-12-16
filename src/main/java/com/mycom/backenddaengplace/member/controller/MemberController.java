@@ -47,8 +47,8 @@ public class MemberController {
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User
     ) {
         Member member = customOAuth2User.getMember();
-        BaseMemberResponse response = memberService.deleteMember(member.getId());
-        return ResponseEntity.ok(ApiResponse.success("회원 삭제가 완료되었습니다.", response));
+        BaseMemberResponse response = memberService.logicalDeleteMember(member.getId());
+        return ResponseEntity.ok(ApiResponse.success("회원 논리적 삭제가 완료되었습니다.", response));
     }
 
     @PostMapping
