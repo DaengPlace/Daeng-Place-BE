@@ -15,6 +15,7 @@ import com.mycom.backenddaengplace.place.exception.PlaceNotFoundException;
 import com.mycom.backenddaengplace.place.repository.OperationHourRepository;
 import com.mycom.backenddaengplace.place.repository.PlaceQueryRepository;
 import com.mycom.backenddaengplace.place.repository.PlaceRepository;
+import com.mycom.backenddaengplace.review.domain.MediaFile;
 import com.mycom.backenddaengplace.review.domain.Review;
 import com.mycom.backenddaengplace.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +60,10 @@ public class PlaceService {
                     map.put("rating", review.getRating());
                     map.put("content", review.getContent());
                     map.put("createdAt", review.getCreatedAt());
+                    List<String> imagePaths = review.getMediaFiles().stream()
+                            .map(MediaFile::getFilePath)
+                            .toList();
+                    map.put("image", imagePaths);
                     return map;
                 })
                 .toList();
