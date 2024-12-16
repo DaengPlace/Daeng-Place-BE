@@ -147,7 +147,7 @@ public class ReviewService {
     }
 
     @Transactional
-    public void updateReview(Long reviewId, ReviewRequest request, Long memberId) {
+    public void updateReview(Long reviewId, ReviewRequest request,List<MultipartFile> images, Long memberId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(reviewId, null));
 
@@ -177,6 +177,30 @@ public class ReviewService {
                     })
                     .toList();
             traitTagCountRepository.saveAll(traitTagCounts);
+        }
+
+        if (images != null && !images.isEmpty()) {
+            // 기존 이미지 S3에서 삭제
+            if (review.getMediaFiles() != null) {
+                for (MediaFile mediaFile : review.getMediaFiles()) {
+                    s3ImageService.deleteImage(mediaFile.getFilePath());
+                }
+                review.getMediaFiles().clear();  // 컬렉션 초기화
+            }
+
+            // 새 이미지 업로드
+            for (MultipartFile image : images) {
+                try {
+                    String imageUrl = s3ImageService.uploadImage(image, S3ImageService.REVIEW_DIR);
+                    MediaFile mediaFile = MediaFile.builder()
+                            .review(review)
+                            .filePath(imageUrl)
+                            .build();
+                    review.getMediaFiles().add(mediaFile);  // 컬렉션에 직접 추가
+                } catch (Exception e) {
+                    throw new RuntimeException("이미지 업로드에 실패했습니다.", e);
+                }
+            }
         }
     }
 

@@ -10,7 +10,6 @@ import com.mycom.backenddaengplace.review.dto.response.MemberReviewResponse;
 import com.mycom.backenddaengplace.review.dto.response.PopularReviewResponse;
 import com.mycom.backenddaengplace.review.dto.response.ReviewResponse;
 import com.mycom.backenddaengplace.review.service.ReviewService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -96,11 +95,19 @@ public class ReviewController {
     @PutMapping("/{reviewId}")
     public ResponseEntity<ApiResponse<Void>> updateReview(
             @PathVariable Long reviewId,
-            @Valid @RequestBody ReviewRequest request,
+            @RequestParam("reviewData") String reviewString,
+            @RequestParam(value = "file", required = false) List<MultipartFile> files,
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User
     ) {
-        Member member = customOAuth2User.getMember();
-        reviewService.updateReview(reviewId, request, member.getId());
-        return ResponseEntity.ok(ApiResponse.success("리뷰가 수정되었습니다."));
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            ReviewRequest request = mapper.readValue(reviewString, ReviewRequest.class);
+
+            Member member = customOAuth2User.getMember();
+            reviewService.updateReview(reviewId, request, files, member.getId());
+            return ResponseEntity.ok(ApiResponse.success("리뷰가 수정되었습니다."));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("리뷰 데이터 파싱에 실패했습니다.", e);
+        }
     }
 }
