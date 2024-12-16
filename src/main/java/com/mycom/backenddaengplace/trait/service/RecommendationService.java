@@ -1,14 +1,18 @@
 package com.mycom.backenddaengplace.trait.service;
 
 import com.mycom.backenddaengplace.member.domain.Member;
+import com.mycom.backenddaengplace.pet.domain.Pet;
+import com.mycom.backenddaengplace.pet.repository.PetRepository;
 import com.mycom.backenddaengplace.place.dto.response.PopularPlaceResponse;
 import com.mycom.backenddaengplace.place.enums.Category;
 import com.mycom.backenddaengplace.place.repository.PlaceQueryRepository;
 import com.mycom.backenddaengplace.trait.domain.MemberTraitResponse;
 import com.mycom.backenddaengplace.trait.domain.PetTraitResponse;
+import com.mycom.backenddaengplace.trait.exception.UnauthorizedException;
 import com.mycom.backenddaengplace.trait.repository.MemberTraitResponseRepository;
 import com.mycom.backenddaengplace.trait.repository.PetTraitResponseRepository;
 import com.mycom.backenddaengplace.trait.repository.PlaceRecommendationQueryRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -27,9 +31,19 @@ public class RecommendationService {
     private final PlaceQueryRepository placeQueryRepository;
     private final PlaceRecommendationQueryRepository recommendationQueryRepository;
     private final MemberTraitResponseRepository memberTraitResponseRepository;
+    private final PetRepository petRepository;
 
-    public List<PopularPlaceResponse> recommendPlaces(Long petId) {
-        // 1. 반려견의 성향 진단 결과 확인
+    public List<PopularPlaceResponse> recommendPlaces(Long petId, Member member) {
+
+        // 1. 반려견 소유주 검증
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new EntityNotFoundException("해당하는 반려견을 찾을 수 없습니다."));
+
+        if (!pet.getMember().getId().equals(member.getId())) {
+            throw new UnauthorizedException("해당 반려견에 대한 접근 권한이 없습니다.");
+        }
+
+        // 2. 반려견의 성향 진단 결과 확인
         List<PetTraitResponse> petTraits = petTraitResponseRepository.findByPetId(petId);
 
         // 성향 진단이 없는 경우 -> 인기 시설 반환
@@ -38,10 +52,10 @@ public class RecommendationService {
                     .getContent();
         }
 
-        // 2. 성향에 기반한 카테고리 결정
+        // 3. 성향에 기반한 카테고리 결정
         Set<Category> recommendedCategories = determineRecommendedCategories(petTraits);
 
-        // 3. 카테고리에 해당하는 장소들 중 평점 높은 순으로 조회
+        // 4. 카테고리에 해당하는 장소들 중 평점 높은 순으로 조회
         return recommendationQueryRepository.findRecommendedPlaces(recommendedCategories);
     }
 

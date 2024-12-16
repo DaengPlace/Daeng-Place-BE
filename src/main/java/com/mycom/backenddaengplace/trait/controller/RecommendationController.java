@@ -24,8 +24,10 @@ public class RecommendationController {
     private final RecommendationService recommendationService;
 
     @GetMapping("/{petId}")
-    public ResponseEntity<ApiResponse<List<PopularPlaceResponse>>> getRecommendedPlaces(@PathVariable Long petId) {
-        List<PopularPlaceResponse> recommendations = recommendationService.recommendPlaces(petId);
+    public ResponseEntity<ApiResponse<List<PopularPlaceResponse>>> getRecommendedPlaces(
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
+            @PathVariable Long petId) {
+        List<PopularPlaceResponse> recommendations = recommendationService.recommendPlaces(petId,customOAuth2User.getMember());
         return ResponseEntity.ok(ApiResponse.success("장소 추천 목록을 조회했습니다.", recommendations));
     }
 
