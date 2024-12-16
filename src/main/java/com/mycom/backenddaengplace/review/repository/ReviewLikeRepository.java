@@ -19,4 +19,6 @@ public interface ReviewLikeRepository extends JpaRepository<ReviewLike, Long> {
     boolean existsByReviewAndMember(@Param("review") Review review, @Param("member") Member member);
 
     Optional<ReviewLike> findByReviewAndMember(Review review, Member member);
+
+    boolean existsByReviewAndMemberId(Review review, Long memberId);
 }

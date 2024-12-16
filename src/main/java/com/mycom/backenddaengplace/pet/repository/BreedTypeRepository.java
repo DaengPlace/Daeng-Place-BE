@@ -6,10 +6,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BreedTypeRepository extends JpaRepository<BreedType, Long> {
     @Query("SELECT b FROM BreedType b ORDER BY b.breedType")
     List<BreedType> findAllSorted();
     List<BreedType> findByBreedTypeContaining(String keyword);
+    Optional<BreedType> findByBreedType(String breedType);
 }

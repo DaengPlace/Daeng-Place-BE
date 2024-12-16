@@ -39,6 +39,9 @@ public class Member extends BaseEntity {
     private String provider;
     private String providerId;
 
+    private Boolean isDeleted;
+    private LocalDateTime deletedAt;
+
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewLike> reviewLikes = new ArrayList<>();
 

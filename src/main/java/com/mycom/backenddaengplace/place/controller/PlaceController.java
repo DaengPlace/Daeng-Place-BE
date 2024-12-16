@@ -1,6 +1,7 @@
 package com.mycom.backenddaengplace.place.controller;
 
 
+import com.mycom.backenddaengplace.auth.dto.CustomOAuth2User;
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
 import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.place.dto.request.SearchCriteria;
@@ -31,17 +32,22 @@ public class PlaceController {
     private final PlaceService placeService;
 
     @GetMapping("/{placeId}")
-    public ResponseEntity<ApiResponse<PlaceDetailResponse>> getPlaceDetail(@PathVariable Long placeId) {
+    public ResponseEntity<ApiResponse<PlaceDetailResponse>> getPlaceDetail(
+            @PathVariable Long placeId,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
 
-        PlaceDetailResponse response = placeService.getPlaceDetail(placeId);
+        Member member = customOAuth2User.getMember();
+        PlaceDetailResponse response = placeService.getPlaceDetail(placeId, member.getId());
         return ResponseEntity.ok(ApiResponse.success("OK", response));
     }
 
     @GetMapping
     public ResponseEntity<ApiResponse<PlaceListResponse>> searchPlaces(
-            @ModelAttribute SearchCriteria criteria) {
+            @ModelAttribute SearchCriteria criteria,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
 
-        PlaceListResponse response = placeService.searchPlaces(criteria);
+        Member member = customOAuth2User.getMember();
+        PlaceListResponse response = placeService.searchPlaces(criteria, member.getId());
         return ResponseEntity.ok(ApiResponse.success("OK", response));
     }
 
@@ -66,9 +72,10 @@ public class PlaceController {
     }
 
     @GetMapping("/gender-popular")
-    public ResponseEntity<ApiResponse<AgeGenderPlaceResponse>> getGenderAgePopularPlace(@AuthenticationPrincipal(expression = "member") Member member) {
-        System.out.println("member = " + member.getId());
+    public ResponseEntity<ApiResponse<AgeGenderPlaceResponse>> getGenderAgePopularPlace(
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
 
+        Member member = customOAuth2User.getMember();
         AgeGenderPlaceResponse response = placeService.getPopularPlacesByGenderAndAge(member.getId());
         return ResponseEntity.ok(ApiResponse.success("OK", response));
     }

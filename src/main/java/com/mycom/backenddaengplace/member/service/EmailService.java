@@ -1,6 +1,6 @@
 package com.mycom.backenddaengplace.member.service;
 
-import com.mycom.backenddaengplace.member.auth.RedisEmailAuthentication;
+import com.mycom.backenddaengplace.auth.email.RedisEmailAuthentication;
 import com.mycom.backenddaengplace.member.dto.request.BaseEmailRequest;
 import com.mycom.backenddaengplace.member.dto.request.EmailCodeCheckRequest;
 import com.mycom.backenddaengplace.member.dto.response.EmailCodeCheckResponse;
@@ -12,6 +12,7 @@ import com.mycom.backenddaengplace.member.repository.MemberRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -23,6 +24,7 @@ import java.util.Random;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class EmailService {
 
     @Value("${spring.mail.username}")
@@ -62,7 +64,7 @@ public class EmailService {
         body += "<h1>안녕하세요. 댕댕플레이스 입니다.</h1>";
         body += "<h3>요청하신 인증 번호입니다.</h3>";
         body += "<h1>" + code + "</h1>";
-        body += "<h3>인증 번호는 5분 뒤에 파기됩니다.</h3>";
+        body += "<h3>인증 번호는 3분 뒤에 파기됩니다.</h3>";
         body += "<h3>감사합니다.</h3>";
         message.setText(body, "UTF-8", "html");
         return message;
@@ -70,15 +72,20 @@ public class EmailService {
 
     // 메일 발송
     public EmailSendCodeResponse sendEmailCode(String sendEmail) throws MessagingException {
-        String code = createCode(); // 랜덤 인증번호 생성
-        redisEmailAuthentication.setEmailAuthenticationExpire(sendEmail, code, 5L);
-        MimeMessage message = createMail(sendEmail, code); // 메일 생성
+        String code = createCode();
+        redisEmailAuthentication.setEmailAuthenticationExpire(sendEmail, code, 3L);
+        MimeMessage message = createMail(sendEmail, code);
         try {
-            javaMailSender.send(message); // 메일 발송
+            log.debug("Attempting to send email to: {}", sendEmail);
+            log.debug("Using sender email: {}", senderEmail);
+            log.debug("Generated code: {}", code);
+            javaMailSender.send(message);
+            log.debug("Email sent successfully");
         } catch (MailException e) {
-            throw new IllegalArgumentException("메일 발송 중 오류가 발생했습니다.");
+            log.error("Failed to send email", e);  // 구체적인 에러 로깅
+            throw new IllegalArgumentException("메일 발송 중 오류가 발생했습니다.: " + e.getMessage());
         }
-        return EmailSendCodeResponse.from(sendEmail, code); // 생성된 인증번호 반환
+        return EmailSendCodeResponse.from(sendEmail, code);
     }
 
     /* 인증번호 확인 */

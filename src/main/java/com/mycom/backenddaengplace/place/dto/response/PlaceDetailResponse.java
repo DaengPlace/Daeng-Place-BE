@@ -1,6 +1,5 @@
 package com.mycom.backenddaengplace.place.dto.response;
 
-import com.mycom.backenddaengplace.place.domain.OperationHour;
 import com.mycom.backenddaengplace.place.enums.OperationStatus;
 import lombok.Builder;
 import lombok.Data;
@@ -26,6 +25,7 @@ public class PlaceDetailResponse {
     private OperationHourDto operationHour;
     private String hoilday;
     private Double rating;
+    private Boolean is_favorite;
     private long review_count;
     private List<Map<String, Object>> reviews;
 }

@@ -1,6 +1,5 @@
-package com.mycom.backenddaengplace.ocrtest.service;
+package com.mycom.backenddaengplace.ocr.service;
 
-import com.mycom.backenddaengplace.ocrtest.repository.OcrResultRepository;
 import org.apache.tomcat.util.json.JSONParser;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -22,12 +21,6 @@ public class OcrServiceImpl implements OcrService {
 
     @Value("${ocr.api.secret-key}")
     private String ocrSecretKey;
-
-    private final OcrResultRepository repository;
-
-    public OcrServiceImpl(OcrResultRepository repository) {
-        this.repository = repository;
-    }
 
     @Override
     public String saveFile(MultipartFile file) throws IOException {
@@ -119,11 +112,6 @@ public class OcrServiceImpl implements OcrService {
     }
 
     @Override
-    public String processJsonData(String jsonData) {
-        return extractConcatenatedText(jsonData);
-    }
-
-    @Override
     public String removeVertices(String jsonData) {
         try {
             JSONParser parser = new JSONParser(jsonData);
@@ -148,30 +136,6 @@ public class OcrServiceImpl implements OcrService {
         } catch (Exception e) {
             e.printStackTrace();
             return jsonData;
-        }
-    }
-
-    private String extractConcatenatedText(String jsonData) {
-        try {
-            JSONParser parser = new JSONParser(jsonData);
-            JSONObject jsonObject = (JSONObject) parser.parse();
-            JSONArray images = (JSONArray) jsonObject.get("images");
-
-            StringBuilder concatenatedText = new StringBuilder();
-
-            for (Object imageObj : images) {
-                JSONObject image = (JSONObject) imageObj;
-                JSONArray fields = (JSONArray) image.get("fields");
-
-                for (Object fieldObj : fields) {
-                    JSONObject field = (JSONObject) fieldObj;
-                    concatenatedText.append(((String) field.get("inferText")).trim());
-                }
-            }
-            return concatenatedText.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "";
         }
     }
 }

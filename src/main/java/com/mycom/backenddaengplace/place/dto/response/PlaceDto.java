@@ -20,5 +20,6 @@ public class PlaceDto {
     private Double longitude;
     private Double rating;
     private Long review_count;
+    private Boolean is_favorite;
     private TodayOperationHourDto operationHour;
 }

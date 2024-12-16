@@ -66,6 +66,9 @@ dependencies {
     //E-MAIL
     implementation "org.springframework.boot:spring-boot-starter-mail"
 
+    // S3
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
     // Add json-simple for JSON processing
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
     implementation 'org.json:json:20230618'

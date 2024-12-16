@@ -1,22 +1,29 @@
 package com.mycom.backenddaengplace.pet.service;
 
+import com.mycom.backenddaengplace.common.service.S3ImageService;
+import com.mycom.backenddaengplace.member.domain.Member;
+import com.mycom.backenddaengplace.member.exception.MemberNotFoundException;
+import com.mycom.backenddaengplace.member.repository.MemberRepository;
 import com.mycom.backenddaengplace.pet.domain.BreedType;
 import com.mycom.backenddaengplace.pet.domain.Pet;
 import com.mycom.backenddaengplace.pet.dto.request.BasePetRequest;
-import com.mycom.backenddaengplace.pet.dto.response.*;
+import com.mycom.backenddaengplace.pet.dto.response.BasePetResponse;
+import com.mycom.backenddaengplace.pet.dto.response.PetDeleteResponse;
 import com.mycom.backenddaengplace.pet.exception.InvalidBirthDateException;
 import com.mycom.backenddaengplace.pet.exception.PetNotFoundException;
+import com.mycom.backenddaengplace.pet.exception.PetNotOwnedException;
 import com.mycom.backenddaengplace.pet.repository.PetRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 @Transactional
@@ -24,46 +31,51 @@ import java.time.temporal.ChronoUnit;
 @Slf4j
 public class PetService {
     private final PetRepository petRepository;
-    private final BreedService breedService;  // BreedService 주입
+    private final BreedService breedService;
+    private final MemberRepository memberRepository;
+    private final S3ImageService s3ImageService;
 
-    public BasePetResponse registerPet(BasePetRequest request) {
-        log.debug("반려견 등록 시작");
+    @Transactional
+    public BasePetResponse registerPet(BasePetRequest request, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberNotFoundException(memberId));
 
-        BreedType breedType = breedService.getBreedType(request.getBreedTypeId());  // BreedService 사용
-
-        LocalDateTime birthDate = parseBirthDate(request.getBirthDate());
+        BreedType breedType = breedService.findBreedByName(request.getBreed())
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 견종입니다: " + request.getBreed()));
 
         Pet pet = Pet.builder()
+                .member(member)  // member 설정 추가
                 .breedType(breedType)
                 .name(request.getName())
-                .birthDate(birthDate)
+                .birthDate(parseBirthDate(request.getBirthDate()))
                 .isNeutered(request.getIsNeutered())
                 .gender(request.getGender())
                 .weight(request.getWeight())
                 .build();
 
-        Pet savedPet = petRepository.save(pet);
-        log.info("반려견 등록 완료. petId: {}", savedPet.getId());
-
-        return BasePetResponse.from(pet);
+        return BasePetResponse.from(petRepository.save(pet));
     }
 
 
-    public BasePetResponse revisePet(BasePetRequest request, Long petId) {
+    @Transactional
+    public BasePetResponse revisePet(BasePetRequest request, Long petId, Long memberId) {
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new PetNotFoundException(petId));
 
-        BreedType breedType = breedService.getBreedType(request.getBreedTypeId());  // BreedService 사용
-        LocalDateTime birthDate = parseBirthDate(request.getBirthDate());
+        // 해당 펫의 소유자인지 확인
+        if (!pet.getMember().getId().equals(memberId)) {
+            throw new PetNotOwnedException(memberId, petId);
+        }
+
+        BreedType breedType = breedService.findBreedByName(request.getBreed())
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 견종입니다: " + request.getBreed()));
 
         pet.setBreedType(breedType);
         pet.setName(request.getName());
-        pet.setBirthDate(birthDate);
+        pet.setBirthDate(parseBirthDate(request.getBirthDate()));
         pet.setIsNeutered(request.getIsNeutered());
         pet.setGender(request.getGender());
         pet.setWeight(request.getWeight());
-
-        petRepository.save(pet);
 
         return BasePetResponse.from(pet);
     }
@@ -75,10 +87,21 @@ public class PetService {
         return BasePetResponse.from(pet);
     }
 
-    public PetDeleteResponse deletePet(Long petId) {
+    public List<BasePetResponse> getPets(Long memberId) {
+        return petRepository.findByMemberId(memberId).stream().map(BasePetResponse::from).toList();
+    }
+
+    @Transactional
+    public PetDeleteResponse deletePet(Long petId, Long memberId) {
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new PetNotFoundException(petId));
-        petRepository.deleteById(pet.getId());
+
+        // 해당 펫의 소유자인지 확인
+        if (!pet.getMember().getId().equals(memberId)) {
+            throw new PetNotOwnedException(memberId, petId);
+        }
+
+        petRepository.delete(pet);
         return new PetDeleteResponse(pet.getId(), LocalDateTime.now());
     }
 
@@ -91,9 +114,25 @@ public class PetService {
         }
     }
 
-    private String calculateAge(LocalDateTime birthDate) {
-        LocalDateTime now = LocalDateTime.now();
-        long months = ChronoUnit.MONTHS.between(birthDate, now);
-        return months + "개월";
+    @Transactional
+    public BasePetResponse updateProfileImage(Long petId, MultipartFile file, Long memberId) {
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new PetNotFoundException(petId));
+
+        // 해당 펫의 소유자인지 확인
+        if (!pet.getMember().getId().equals(memberId)) {
+            throw new PetNotOwnedException(memberId, petId);
+        }
+
+        // 기존 이미지가 있다면 삭제
+        if (pet.getProfileImageUrl() != null) {
+            s3ImageService.deleteImage(pet.getProfileImageUrl());
+        }
+
+        // 새 이미지 업로드 및 URL 저장
+        String imageUrl = s3ImageService.uploadImage(file, S3ImageService.PET_PROFILE_DIR);
+        pet.setProfileImageUrl(imageUrl);
+
+        return BasePetResponse.from(pet);
     }
 }

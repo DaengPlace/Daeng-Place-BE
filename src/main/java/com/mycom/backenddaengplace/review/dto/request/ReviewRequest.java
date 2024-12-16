@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -25,4 +26,6 @@ public class ReviewRequest {
     @NotEmpty(message = "성향 태그는 필수입니다.")
     @Size(min = 3, message = "성향 태그는 최소 3개 이상 선택해야 합니다.")
     private List<String> traitTags;
+
+    private List<MultipartFile> images;
 }

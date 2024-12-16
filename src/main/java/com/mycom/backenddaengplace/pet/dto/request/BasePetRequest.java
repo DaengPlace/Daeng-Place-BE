@@ -19,7 +19,7 @@ public class BasePetRequest {
     private String name;
 
     @NotNull(message = "견종을 선택해주세요.")
-    private Long breedTypeId;  // Long 타입이므로 @NotNull 사용
+    private String breed;
 
     @NotBlank(message = "생년월일을 입력해주세요.")
     @Pattern(regexp = "\\d{8}", message = "생년월일은 YYYYMMDD 형식으로 입력해주세요.")

@@ -5,6 +5,7 @@ import lombok.*;
 
 @Entity
 @Table(name = "media_file")
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MediaFile {
 

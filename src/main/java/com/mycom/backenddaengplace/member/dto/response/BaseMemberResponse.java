@@ -5,6 +5,8 @@ import com.mycom.backenddaengplace.member.enums.Gender;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 public class BaseMemberResponse {
@@ -17,6 +19,8 @@ public class BaseMemberResponse {
     private String birthDate;
     private String state;
     private String city;
+    private Boolean isDeleted;
+    private LocalDateTime deletedAt;
     private Boolean locationStatus;
 
     public static BaseMemberResponse from(Member member) {
@@ -29,6 +33,8 @@ public class BaseMemberResponse {
                 .city(member.getCity())
                 .gender(member.getGender())
                 .birthDate(member.getBirthDate().toString())
+                .isDeleted(member.getIsDeleted())
+                .deletedAt(member.getDeletedAt())
                 .locationStatus(member.getLocationStatus())
                 .build();
     }

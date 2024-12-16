@@ -1,4 +1,4 @@
-package com.mycom.backenddaengplace.member.auth;
+package com.mycom.backenddaengplace.auth.email;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.HashOperations;

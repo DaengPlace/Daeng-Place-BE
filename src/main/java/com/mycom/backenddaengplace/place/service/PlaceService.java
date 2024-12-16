@@ -1,5 +1,6 @@
 package com.mycom.backenddaengplace.place.service;
 
+import com.mycom.backenddaengplace.favorite.repository.FavoriteRepository;
 import com.mycom.backenddaengplace.member.enums.Gender;
 import com.mycom.backenddaengplace.member.exception.MemberNotFoundException;
 import com.mycom.backenddaengplace.member.repository.MemberRepository;
@@ -14,6 +15,7 @@ import com.mycom.backenddaengplace.place.exception.PlaceNotFoundException;
 import com.mycom.backenddaengplace.place.repository.OperationHourRepository;
 import com.mycom.backenddaengplace.place.repository.PlaceQueryRepository;
 import com.mycom.backenddaengplace.place.repository.PlaceRepository;
+import com.mycom.backenddaengplace.review.domain.MediaFile;
 import com.mycom.backenddaengplace.review.domain.Review;
 import com.mycom.backenddaengplace.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.TextStyle;
 import java.util.*;
 
 @Service
@@ -36,15 +36,13 @@ public class PlaceService {
     private final ReviewRepository reviewRepository;
     private final PlaceQueryRepository placeQueryRepository;
     private final MemberRepository memberRepository;
+    private final FavoriteRepository favoriteRepository;
 
     @Transactional
-    public PlaceDetailResponse getPlaceDetail(Long placeId) {
+    public PlaceDetailResponse getPlaceDetail(Long placeId, Long memberId) {
 
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new PlaceNotFoundException(placeId));
-
-        // 오늘의 요일 계산
-        String todayName = LocalDateTime.now().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.KOREAN);
 
         Address address = place.getAddress();
         String roadAddress = address != null ? address.getRoadAddress() : null;
@@ -60,12 +58,18 @@ public class PlaceService {
                     map.put("rating", review.getRating());
                     map.put("content", review.getContent());
                     map.put("createdAt", review.getCreatedAt());
+                    List<String> imagePaths = review.getMediaFiles().stream()
+                            .map(MediaFile::getFilePath)
+                            .toList();
+                    map.put("image", imagePaths);
                     return map;
                 })
                 .toList();
 
         OperationHour operationHour = operationHourRepository.findByPlaceId(placeId);
         String holiday = getHolidayInfo(operationHour);
+
+        Boolean isFavorite = favoriteRepository.existsByPlaceIdAndMemberId(placeId, memberId);
 
         // OperationHourDto 생성
         OperationHourDto operationHourDto = new OperationHourDto();
@@ -99,6 +103,7 @@ public class PlaceService {
                 .homepage(place.getHomepage() != null ? place.getHomepage() : null)
                 .operationStatus(place.getOperationStatus())
                 .operationHour(operationHourDto)
+                .is_favorite(isFavorite)
                 .hoilday(holiday)
                 .rating(averageRating)
                 .review_count(reviewCount)
@@ -121,8 +126,8 @@ public class PlaceService {
         return String.join(", ", holidays);
     }
 
-    public PlaceListResponse searchPlaces(SearchCriteria criteria) {
-        return placeQueryRepository.searchPlaces(criteria);
+    public PlaceListResponse searchPlaces(SearchCriteria criteria, Long memberId) {
+        return placeQueryRepository.searchPlaces(criteria, memberId);
     }
 
 

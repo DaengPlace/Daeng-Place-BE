@@ -1,5 +1,7 @@
 package com.mycom.backenddaengplace.review.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mycom.backenddaengplace.auth.dto.CustomOAuth2User;
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
 import com.mycom.backenddaengplace.member.domain.Member;
@@ -8,31 +10,40 @@ import com.mycom.backenddaengplace.review.dto.response.MemberReviewResponse;
 import com.mycom.backenddaengplace.review.dto.response.PopularReviewResponse;
 import com.mycom.backenddaengplace.review.dto.response.ReviewResponse;
 import com.mycom.backenddaengplace.review.service.ReviewService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/reviews")
 @RequiredArgsConstructor
-public class    ReviewController {
+public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @PostMapping("/{placeId}")
+    @PostMapping(value = "/{placeId}")
     public ResponseEntity<ApiResponse<ReviewResponse>> createReview(
             @PathVariable Long placeId,
-            @Valid @RequestBody ReviewRequest request,
+            @RequestParam("reviewData") String reviewString,
+            @RequestParam(value = "file", required = false) List<MultipartFile> files,
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User
-            ) {
-        Member member = customOAuth2User.getMember();
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("리뷰가 등록되었습니다.",
-                        reviewService.createReview(placeId, request, member.getId())));
+    ) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            ReviewRequest request = mapper.readValue(reviewString, ReviewRequest.class);
+
+            Member member = customOAuth2User.getMember();
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success("리뷰가 등록되었습니다.",
+                            reviewService.createReview(placeId, request, files, member.getId())));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("리뷰 데이터 파싱에 실패했습니다.", e);
+        }
     }
 
     @GetMapping
@@ -45,17 +56,24 @@ public class    ReviewController {
     }
 
     @GetMapping("/places/{placeId}")
-    public ResponseEntity<ApiResponse<List<ReviewResponse>>> getReviews(@PathVariable Long placeId) {
+    public ResponseEntity<ApiResponse<List<ReviewResponse>>> getReviews(
+            @PathVariable Long placeId,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
+            ) {
+        Long currentMemberId = customOAuth2User != null ? customOAuth2User.getMember().getId() : null;
         return ResponseEntity.ok(ApiResponse.success("리뷰 목록을 조회했습니다.",
-                reviewService.getReviews(placeId)));
+                reviewService.getReviews(placeId, currentMemberId)));
     }
 
     @GetMapping("/{placeId}/and/{reviewId}")
     public ResponseEntity<ApiResponse<ReviewResponse>> getReviewDetail(
             @PathVariable Long placeId,
-            @PathVariable Long reviewId) {
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
+            ) {
+        Long currentMemberId = customOAuth2User != null ? customOAuth2User.getMember().getId() : null;
         return ResponseEntity.ok(ApiResponse.success("리뷰 상세 정보를 조회했습니다.",
-                reviewService.getReviewDetail(placeId, reviewId)));
+                reviewService.getReviewDetail(placeId, reviewId, currentMemberId)));
     }
 
     @DeleteMapping("/{reviewId}")
@@ -74,14 +92,22 @@ public class    ReviewController {
                 reviewService.getPopularReviews()));
     }
 
-    @PatchMapping("/{reviewId}")
+    @PutMapping("/{reviewId}")
     public ResponseEntity<ApiResponse<Void>> updateReview(
             @PathVariable Long reviewId,
-            @Valid @RequestBody ReviewRequest request,
+            @RequestParam("reviewData") String reviewString,
+            @RequestParam(value = "file", required = false) List<MultipartFile> files,
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User
     ) {
-        Member member = customOAuth2User.getMember();
-        reviewService.updateReview(reviewId, request, member.getId());
-        return ResponseEntity.ok(ApiResponse.success("리뷰가 수정되었습니다."));
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            ReviewRequest request = mapper.readValue(reviewString, ReviewRequest.class);
+
+            Member member = customOAuth2User.getMember();
+            reviewService.updateReview(reviewId, request, files, member.getId());
+            return ResponseEntity.ok(ApiResponse.success("리뷰가 수정되었습니다."));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("리뷰 데이터 파싱에 실패했습니다.", e);
+        }
     }
 }
