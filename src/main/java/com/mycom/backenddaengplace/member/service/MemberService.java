@@ -108,11 +108,14 @@ public class MemberService {
     }
 
     @Transactional
-    public BaseMemberResponse deleteMember(Long memberId) {
+    public BaseMemberResponse logicalDeleteMember(Long memberId) {
         Member deletedMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberNotFoundException(memberId));
 
-        memberRepository.delete(deletedMember);
+        deletedMember.setIsDeleted(true);
+        deletedMember.setDeletedAt(LocalDateTime.now());
+        memberRepository.save(deletedMember);
+
         return BaseMemberResponse.from(deletedMember);
     }
 
