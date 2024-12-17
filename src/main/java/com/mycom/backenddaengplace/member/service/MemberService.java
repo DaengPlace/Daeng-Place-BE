@@ -10,6 +10,7 @@ import com.mycom.backenddaengplace.member.exception.MemberNotFoundException;
 import com.mycom.backenddaengplace.member.repository.MemberRepository;
 import com.mycom.backenddaengplace.pet.exception.InvalidBirthDateException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +23,7 @@ import java.time.format.DateTimeParseException;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class MemberService {
 
     private final MemberRepository memberRepository;
@@ -110,20 +112,17 @@ public class MemberService {
             // 새 이미지 업로드
             String imageUrl = s3ImageService.uploadImage(file, S3ImageService.USER_PROFILE_DIR);
             updatedMember.setProfileImageUrl(imageUrl);
-        } else if (request.getProfileImageUrl() != null) {
-            // 파일 업로드가 없고 URL만 전달된 경우
-            updatedMember.setProfileImageUrl(request.getProfileImageUrl());
         }
+        // request의 profileImageUrl은 무시
 
         updatedMember.setNickname(request.getNickname());
         updatedMember.setGender(request.getGender());
         updatedMember.setState(request.getState());
         updatedMember.setCity(request.getCity());
         updatedMember.setBirthDate(birthDate);
-        updatedMember.setProfileImageUrl(request.getProfileImageUrl());
 
-        memberRepository.save(updatedMember);
-        return BaseMemberResponse.from(updatedMember);
+        Member savedMember = memberRepository.save(updatedMember);  // 명시적으로 저장
+        return BaseMemberResponse.from(savedMember);
     }
 
     private LocalDateTime parseBirthDate(String birthDate) {
