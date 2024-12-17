@@ -110,6 +110,9 @@ public class MemberService {
             // 새 이미지 업로드
             String imageUrl = s3ImageService.uploadImage(file, S3ImageService.USER_PROFILE_DIR);
             updatedMember.setProfileImageUrl(imageUrl);
+        } else if (request.getProfileImageUrl() != null) {
+            // 파일 업로드가 없고 URL만 전달된 경우
+            updatedMember.setProfileImageUrl(request.getProfileImageUrl());
         }
 
         updatedMember.setNickname(request.getNickname());
