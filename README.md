@@ -52,6 +52,10 @@
 
 ## 3.2 프로젝트 아키텍쳐
 
+## 3.3 API 명세서
+> API 명세서의 경우 현재 노션에서 관리하고 있습니다.
+
+![image](https://github.com/user-attachments/assets/2110705a-54f0-4d27-8de4-47c2b57ae44b)
 
 # 4. Tasks & Responsibilities (작업 및 역할 분담)
 |  |  |  |
