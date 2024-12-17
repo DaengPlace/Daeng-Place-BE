@@ -4,6 +4,7 @@ import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.review.domain.Review;
 import com.mycom.backenddaengplace.review.domain.ReviewLike;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -21,4 +22,12 @@ public interface ReviewLikeRepository extends JpaRepository<ReviewLike, Long> {
     Optional<ReviewLike> findByReviewAndMember(Review review, Member member);
 
     boolean existsByReviewAndMemberId(Review review, Long memberId);
+
+    @Modifying
+    @Query("DELETE FROM ReviewLike rl WHERE rl.review.id = :reviewId")
+    void deleteByReviewId(Long reviewId);
+
+    @Modifying
+    @Query("DELETE FROM ReviewLike rl WHERE rl.member.id = :memberId")
+    void deleteByMemberId(@Param("memberId") Long memberId);
 }

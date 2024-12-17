@@ -4,6 +4,7 @@ import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.place.domain.Place;
 import com.mycom.backenddaengplace.review.domain.Review;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -27,5 +28,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Query("SELECT r FROM Review r LEFT JOIN FETCH r.traitTag WHERE r.member.id = :memberId")
     List<Review> findByMemberId(@Param("memberId") Long memberId);
+
+    @Modifying
+    @Query("DELETE FROM Review r WHERE r.member.id = :memberId")
+    void deleteByMemberId(@Param("memberId") Long memberId);
 
 }
