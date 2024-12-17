@@ -135,6 +135,10 @@ public class PlaceService {
         return placeQueryRepository.findPopularPlaces(sort, category, pageable);
     }
 
+    public List<PopularPlaceResponse> getPopularCafes(String sort) {
+        return placeQueryRepository.findPopularCafes(sort);
+    }
+
     public AgeGenderPlaceResponse getPopularPlacesByGenderAndAge(Long memberId) {
 
         // 로그인된 사용자 정보로 성별 및 연령대 조회
@@ -158,4 +162,6 @@ public class PlaceService {
             default -> "기타";
         };
     }
+
+
 }
