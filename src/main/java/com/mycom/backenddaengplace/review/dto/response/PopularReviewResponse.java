@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class PopularReviewResponse {
     private Long reviewId;
     private String content;
-    private Integer rating;
+    private Double rating;
     private List<String> imageUrls;
     private long likeCount;
     private boolean isLiked;
@@ -38,7 +38,7 @@ public class PopularReviewResponse {
         return PopularReviewResponse.builder()
                 .reviewId(review.getId())
                 .content(review.getContent())
-                .rating(review.getRating().intValue())
+                .rating(review.getRating())
                 .imageUrls(imageUrls)
                 .likeCount(review.getReviewLikes().size())
                 .isLiked(false)
