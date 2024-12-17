@@ -4,7 +4,7 @@ import com.mycom.backenddaengplace.common.dto.ApiResponse;
 import com.mycom.backenddaengplace.member.dto.request.BaseEmailRequest;
 import com.mycom.backenddaengplace.member.dto.request.EmailCodeCheckRequest;
 import com.mycom.backenddaengplace.member.dto.response.EmailCodeCheckResponse;
-import com.mycom.backenddaengplace.member.dto.response.EmailDuplicateCheckResponse;
+import com.mycom.backenddaengplace.member.dto.response.DuplicateCheckResponse;
 import com.mycom.backenddaengplace.member.dto.response.EmailSendCodeResponse;
 import com.mycom.backenddaengplace.member.service.EmailService;
 import jakarta.mail.MessagingException;
@@ -23,10 +23,10 @@ public class EmailController {
     private final EmailService emailService;
 
     @PostMapping("/check-duplicate")
-    public ResponseEntity<ApiResponse<EmailDuplicateCheckResponse>> checkDuplicateEmail(
+    public ResponseEntity<ApiResponse<DuplicateCheckResponse>> checkDuplicateEmail(
             @Valid @RequestBody BaseEmailRequest request
     ) {
-        EmailDuplicateCheckResponse response = emailService.checkDuplicateEmail(request);
+        DuplicateCheckResponse response = emailService.checkDuplicateEmail(request);
         return ResponseEntity.ok(ApiResponse.success("이메일 중복 체크가 완료되었습니다.", response));
     }
 
