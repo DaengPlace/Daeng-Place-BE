@@ -4,7 +4,6 @@ import com.mycom.backenddaengplace.common.service.S3ImageService;
 import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.member.dto.request.MemberRegisterRequest;
 import com.mycom.backenddaengplace.member.dto.request.MemberUpdateRequest;
-import com.mycom.backenddaengplace.member.dto.request.NicknameCheckRequest;
 import com.mycom.backenddaengplace.member.dto.response.BaseMemberResponse;
 import com.mycom.backenddaengplace.member.dto.response.DuplicateCheckResponse;
 import com.mycom.backenddaengplace.member.exception.MemberNotFoundException;
@@ -34,22 +33,33 @@ public class MemberService {
     }
 
     @Transactional
-    public BaseMemberResponse registerMember(MemberRegisterRequest request) {
+    public BaseMemberResponse registerMember(MemberRegisterRequest request, MultipartFile file) {
         // 카카오 이메일로 기존 회원 조회
         Member existingMember = memberRepository.findByEmail(request.getEmail())
                 .orElse(null);
 
+        String imageUrl = null;
+        if (file != null && !file.isEmpty()) {
+            imageUrl = s3ImageService.uploadImage(file, S3ImageService.USER_PROFILE_DIR);
+        }
+
         if (existingMember != null) {
             // 기존 회원이 있다면 프로필 정보 업데이트
-            return updateExistingMember(existingMember, request);
+            return updateExistingMember(existingMember, request, imageUrl);
         } else {
             // 신규 회원이라면 새로 생성
-            return createNewMember(request);
+            return createNewMember(request, imageUrl);
         }
     }
 
-    private BaseMemberResponse updateExistingMember(Member existingMember, MemberRegisterRequest request) {
+    private BaseMemberResponse updateExistingMember(Member existingMember, MemberRegisterRequest request, String imageUrl) {
         LocalDateTime birthDate = parseBirthDate(request.getBirthDate());
+
+        // 기존 이미지가 있고 새 이미지가 업로드된 경우 기존 이미지 삭제
+        if (imageUrl != null && existingMember.getProfileImageUrl() != null) {
+            s3ImageService.deleteImage(existingMember.getProfileImageUrl());
+        }
+
 
         existingMember.setName(request.getName());
         existingMember.setNickname(request.getNickname());
@@ -57,13 +67,15 @@ public class MemberService {
         existingMember.setGender(request.getGender());
         existingMember.setState(request.getState());
         existingMember.setCity(request.getCity());
-        existingMember.setProfileImageUrl(request.getProfileImageUrl());
+        if (imageUrl != null) {
+            existingMember.setProfileImageUrl(imageUrl);
+        }
 
         Member savedMember = memberRepository.save(existingMember);
         return BaseMemberResponse.from(savedMember);
     }
 
-    private BaseMemberResponse createNewMember(MemberRegisterRequest request) {
+    private BaseMemberResponse createNewMember(MemberRegisterRequest request, String imageUrl) {
         LocalDateTime birthDate = parseBirthDate(request.getBirthDate());
 
         Member member = Member.builder()
@@ -74,7 +86,7 @@ public class MemberService {
                 .gender(request.getGender())
                 .state(request.getState())
                 .city(request.getCity())
-                .profileImageUrl(request.getProfileImageUrl())
+                .profileImageUrl(imageUrl)
                 .locationStatus(false)
                 .build();
 
@@ -83,11 +95,22 @@ public class MemberService {
     }
 
     @Transactional
-    public BaseMemberResponse reviseMember(MemberUpdateRequest request, Long memberId) {
+    public BaseMemberResponse reviseMember(MemberUpdateRequest request, MultipartFile file, Long memberId) {
         Member updatedMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberNotFoundException(memberId));
 
         LocalDateTime birthDate = parseBirthDate(request.getBirthDate());
+
+        // 새 이미지가 업로드된 경우
+        if (file != null && !file.isEmpty()) {
+            // 기존 이미지가 있다면 삭제
+            if (updatedMember.getProfileImageUrl() != null) {
+                s3ImageService.deleteImage(updatedMember.getProfileImageUrl());
+            }
+            // 새 이미지 업로드
+            String imageUrl = s3ImageService.uploadImage(file, S3ImageService.USER_PROFILE_DIR);
+            updatedMember.setProfileImageUrl(imageUrl);
+        }
 
         updatedMember.setNickname(request.getNickname());
         updatedMember.setGender(request.getGender());
@@ -119,23 +142,6 @@ public class MemberService {
         memberRepository.save(deletedMember);
 
         return BaseMemberResponse.from(deletedMember);
-    }
-
-    @Transactional
-    public BaseMemberResponse updateProfileImage(Member member, MultipartFile file) {
-        Member updatedMember = memberRepository.findById(member.getId())
-                .orElseThrow(() -> new MemberNotFoundException(member.getId()));
-
-        // 기존 이미지가 있다면 삭제
-        if (updatedMember.getProfileImageUrl() != null) {
-            s3ImageService.deleteImage(updatedMember.getProfileImageUrl());
-        }
-
-        // 새 이미지 업로드 및 URL 저장
-        String imageUrl = s3ImageService.uploadImage(file, S3ImageService.USER_PROFILE_DIR);
-        updatedMember.setProfileImageUrl(imageUrl);
-
-        return BaseMemberResponse.from(updatedMember);
     }
 
     @Transactional
