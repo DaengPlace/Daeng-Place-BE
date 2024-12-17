@@ -27,6 +27,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.TextStyle;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -187,78 +188,148 @@ public class PlaceQueryRepository {
                         place.address.location.latitude, place.address.location.longitude)
                 .orderBy(orderSpecifier)
                 .fetch();
-        List<OperationHourDto> operationHourDtos = jpaQueryFactory
-                .select(Projections.bean(OperationHourDto.class,
-                        operationHour.place.id.as("placeId"),
-                        operationHour.mondayOpen,
-                        operationHour.mondayClose,
-                        operationHour.tuesdayOpen,
-                        operationHour.tuesdayClose,
-                        operationHour.wednesdayOpen,
-                        operationHour.wednesdayClose,
-                        operationHour.thursdayOpen,
-                        operationHour.thursdayClose,
-                        operationHour.fridayOpen,
-                        operationHour.fridayClose,
-                        operationHour.saturdayOpen,
-                        operationHour.saturdayClose,
-                        operationHour.sundayOpen,
-                        operationHour.sundayClose
-                ))
-                .from(operationHour)
-                .where(operationHour.place.id.in(places.stream().map(PlaceDto::getPlaceId).collect(Collectors.toList())))
-                .fetch();
 
-        // 운영시간 설정
+        List<Long> placeIds = places.stream()
+                .map(PlaceDto::getPlaceId)
+                .collect(Collectors.toList());
+        List<TodayOperationHourDto> operationHours = getTodayOperationHours(placeIds);
+
         for (PlaceDto placeDto : places) {
-            OperationHourDto operationHours = operationHourDtos.stream()
-                    .filter(op -> op.getPlaceId().equals(placeDto.getPlaceId()))
+            operationHours.stream()
+                    .filter(dto -> dto.getPlaceId().equals(placeDto.getPlaceId()))
                     .findFirst()
-                    .orElse(null);
-
-            if (operationHours != null) {
-                TodayOperationHourDto todayOperationHourDto = new TodayOperationHourDto();
-                todayOperationHourDto.setPlaceId(placeDto.getPlaceId());
-
-                // 오늘의 운영 시간만 설정
-                switch (todayName) {
-                    case "월요일":
-                        todayOperationHourDto.setTodayOpen(operationHours.getMondayOpen());
-                        todayOperationHourDto.setTodayClose(operationHours.getMondayClose());
-                        break;
-                    case "화요일":
-                        todayOperationHourDto.setTodayOpen(operationHours.getTuesdayOpen());
-                        todayOperationHourDto.setTodayClose(operationHours.getTuesdayClose());
-                        break;
-                    case "수요일":
-                        todayOperationHourDto.setTodayOpen(operationHours.getWednesdayOpen());
-                        todayOperationHourDto.setTodayClose(operationHours.getWednesdayClose());
-                        break;
-                    case "목요일":
-                        todayOperationHourDto.setTodayOpen(operationHours.getThursdayOpen());
-                        todayOperationHourDto.setTodayClose(operationHours.getThursdayClose());
-                        break;
-                    case "금요일":
-                        todayOperationHourDto.setTodayOpen(operationHours.getFridayOpen());
-                        todayOperationHourDto.setTodayClose(operationHours.getFridayClose());
-                        break;
-                    case "토요일":
-                        todayOperationHourDto.setTodayOpen(operationHours.getSaturdayOpen());
-                        todayOperationHourDto.setTodayClose(operationHours.getSaturdayClose());
-                        break;
-                    case "일요일":
-                        todayOperationHourDto.setTodayOpen(operationHours.getSundayOpen());
-                        todayOperationHourDto.setTodayClose(operationHours.getSundayClose());
-                        break;
-                }
-                placeDto.setOperationHour(todayOperationHourDto);
-            }
+                    .ifPresent(dto -> {
+                        if (placeDto.getOperationHour() == null) {
+                            placeDto.setOperationHour(new TodayOperationHourDto());
+                        }
+                        placeDto.getOperationHour().setTodayOpen(dto.getTodayOpen());
+                        placeDto.getOperationHour().setTodayClose(dto.getTodayClose());
+                    });
         }
 
         return PlaceListResponse.builder()
                 .places(places)
                 .build();
     }
+
+    public List<TodayOperationHourDto> getTodayOperationHours(List<Long> placeIds) {
+        QOperationHour operationHour = QOperationHour.operationHour;
+        String todayName = LocalDateTime.now().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.KOREAN);
+
+        // 오늘의 운영 시간 DTO 리스트
+        List<TodayOperationHourDto> operationHours = new ArrayList<>();
+
+        for (Long placeId : placeIds) {
+            TodayOperationHourDto dto = new TodayOperationHourDto();
+            dto.setPlaceId(placeId);
+
+            switch (todayName) {
+                case "월요일":
+                    LocalTime mondayOpen = jpaQueryFactory
+                            .select(operationHour.mondayOpen)
+                            .from(operationHour)
+                            .where(operationHour.place.id.eq(placeId))
+                            .fetchOne();
+                    LocalTime mondayClose = jpaQueryFactory
+                            .select(operationHour.mondayClose)
+                            .from(operationHour)
+                            .where(operationHour.place.id.eq(placeId))
+                            .fetchOne();
+                    dto.setTodayOpen(mondayOpen);
+                    dto.setTodayClose(mondayClose);
+                    break;
+                case "화요일":
+                    LocalTime tuesdayOpen = jpaQueryFactory
+                            .select(operationHour.tuesdayOpen)
+                            .from(operationHour)
+                            .where(operationHour.place.id.eq(placeId))
+                            .fetchOne();
+                    LocalTime tuesdayClose = jpaQueryFactory
+                            .select(operationHour.tuesdayClose)
+                            .from(operationHour)
+                            .where(operationHour.place.id.eq(placeId))
+                            .fetchOne();
+                    dto.setTodayOpen(tuesdayOpen);
+                    dto.setTodayClose(tuesdayClose);
+                    break;
+                case "수요일":
+                    LocalTime wednesdayOpen = jpaQueryFactory
+                            .select(operationHour.wednesdayOpen)
+                            .from(operationHour)
+                            .where(operationHour.place.id.eq(placeId))
+                            .fetchOne();
+                    LocalTime wednesdayClose = jpaQueryFactory
+                            .select(operationHour.wednesdayClose)
+                            .from(operationHour)
+                            .where(operationHour.place.id.eq(placeId))
+                            .fetchOne();
+                    dto.setTodayOpen(wednesdayOpen);
+                    dto.setTodayClose(wednesdayClose);
+                    break;
+                case "목요일":
+                    LocalTime thursdayOpen = jpaQueryFactory
+                            .select(operationHour.thursdayOpen)
+                            .from(operationHour)
+                            .where(operationHour.place.id.eq(placeId))
+                            .fetchOne();
+                    LocalTime thursdayClose = jpaQueryFactory
+                            .select(operationHour.thursdayClose)
+                            .from(operationHour)
+                            .where(operationHour.place.id.eq(placeId))
+                            .fetchOne();
+                    dto.setTodayOpen(thursdayOpen);
+                    dto.setTodayClose(thursdayClose);
+                    break;
+                case "금요일":
+                    LocalTime fridayOpen = jpaQueryFactory
+                            .select(operationHour.fridayOpen)
+                            .from(operationHour)
+                            .where(operationHour.place.id.eq(placeId))
+                            .fetchOne();
+                    LocalTime fridayClose = jpaQueryFactory
+                            .select(operationHour.fridayClose)
+                            .from(operationHour)
+                            .where(operationHour.place.id.eq(placeId))
+                            .fetchOne();
+                    dto.setTodayOpen(fridayOpen);
+                    dto.setTodayClose(fridayClose);
+                    break;
+                case "토요일":
+                    LocalTime saturdayOpen = jpaQueryFactory
+                            .select(operationHour.saturdayOpen)
+                            .from(operationHour)
+                            .where(operationHour.place.id.eq(placeId))
+                            .fetchOne();
+                    LocalTime saturdayClose = jpaQueryFactory
+                            .select(operationHour.saturdayClose)
+                            .from(operationHour)
+                            .where(operationHour.place.id.eq(placeId))
+                            .fetchOne();
+                    dto.setTodayOpen(saturdayOpen);
+                    dto.setTodayClose(saturdayClose);
+                    break;
+                case "일요일":
+                    LocalTime sundayOpen = jpaQueryFactory
+                            .select(operationHour.sundayOpen)
+                            .from(operationHour)
+                            .where(operationHour.place.id.eq(placeId))
+                            .fetchOne();
+                    LocalTime sundayClose = jpaQueryFactory
+                            .select(operationHour.sundayClose)
+                            .from(operationHour)
+                            .where(operationHour.place.id.eq(placeId))
+                            .fetchOne();
+                    dto.setTodayOpen(sundayOpen);
+                    dto.setTodayClose(sundayClose);
+                    break;
+            }
+            operationHours.add(dto);
+        }
+
+        return operationHours;
+    }
+
+
 
     public Page<PopularPlaceResponse> findPopularPlaces(String sort, Category category, Pageable pageable) {
         QPlace place = QPlace.place;
