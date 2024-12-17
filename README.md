@@ -15,8 +15,6 @@
 | PL | BE | BE | BE |
 | [GitHub](https://github.com/ohyuchan123) | [GitHub]() | [GitHub]() | [GitHub](https://github.com/sai06266) |
 
-<br/>
-<br/>
 
 # 3. Key Features (주요 기능 및 ERD & 아키텍쳐)
 - **회원가입**
@@ -54,8 +52,6 @@
 
 ## 3.2 프로젝트 아키텍쳐
 
-<br/>
-<br/>
 
 # 4. Tasks & Responsibilities (작업 및 역할 분담)
 |  |  |  |
@@ -65,8 +61,6 @@
 | 박종혁   |  <img src="https://fcseoulite.me/files/attach/images/192/288/604/010/36a3040967c668dc209899d2daa1969f.jpg" alt="박종혁" width="100">    |<ul><li>즐겨찾기</li><li>회원가입</li><li>펫 CRUD</li></ul>  |
 | 정재민    |  <img src="https://i.namu.wiki/i/5Veq9acZq3uqIUMsQbKyf4wjHiuk500_e7LUTtdWvG_2m7Wax-Anb5bFATOMsQReegqabE05_P6Swl9h9vUl3g.webp" alt="정재민" width="100">    | <ul><li>장소 필터링</li><li>리뷰 CRUD</li><li>성향 검사</li><li>추천 시스템</li></ul>    |
 
-<br/>
-<br/>
 
 # 5. Technology Stack (기술 스택)
 ## 5.1 Language
