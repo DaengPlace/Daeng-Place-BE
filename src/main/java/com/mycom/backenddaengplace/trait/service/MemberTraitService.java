@@ -14,6 +14,7 @@ import com.mycom.backenddaengplace.trait.repository.TraitAnswerRepository;
 import com.mycom.backenddaengplace.trait.repository.TraitQuestionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +24,10 @@ public class MemberTraitService {
     private final TraitQuestionRepository traitQuestionRepository;
     private final MemberTraitResponseRepository memberTraitResponseRepository;
 
+    @Transactional
     public void saveMemberTraitResponse(MemberTraitResponseRequestList requestList, Member member) {
+        memberTraitResponseRepository.deleteByMemberId(member.getId());
+
         for (TraitResponseRequest request : requestList.getMemberTraitResponseRequestList()) {
 
             TraitQuestion traitQuestion = traitQuestionRepository.findById(request.getTraitQuestionId())

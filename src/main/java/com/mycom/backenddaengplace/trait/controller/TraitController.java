@@ -32,7 +32,7 @@ public class TraitController {
                 traitService.getTraitQuestions(target)));
     }
 
-    @PostMapping("/register")
+    @PutMapping("/register")
     public ResponseEntity<ApiResponse<Void>> registerMemberTraitResponse(@RequestBody MemberTraitResponseRequestList request,
                                                                          @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         memberTraitService.saveMemberTraitResponse(request, customOAuth2User.getMember());
