@@ -147,6 +147,6 @@ public class MemberService {
     @Transactional
     public DuplicateCheckResponse checkDuplicateNickname(String nickname) {
         boolean isValid = memberRepository.existsByNickname(nickname);
-        return DuplicateCheckResponse.from(isValid);
+        return DuplicateCheckResponse.from(!isValid);
     }
 }
