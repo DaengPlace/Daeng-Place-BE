@@ -44,7 +44,7 @@ public class PopularReviewResponse {
                 .isLiked(false)
                 .createdAt(review.getCreatedAt())
                 .memberId(review.getMember().getId())
-                .memberName(review.getMember().getName())
+                .memberName(review.getMember().getNickname())
                 .placeId(review.getPlace().getId())
                 .placeName(review.getPlace().getName())
                 .category(review.getPlace().getCategory())
