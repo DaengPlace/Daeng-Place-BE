@@ -4,7 +4,9 @@ import com.mycom.backenddaengplace.common.service.S3ImageService;
 import com.mycom.backenddaengplace.member.domain.Member;
 import com.mycom.backenddaengplace.member.dto.request.MemberRegisterRequest;
 import com.mycom.backenddaengplace.member.dto.request.MemberUpdateRequest;
+import com.mycom.backenddaengplace.member.dto.request.NicknameCheckRequest;
 import com.mycom.backenddaengplace.member.dto.response.BaseMemberResponse;
+import com.mycom.backenddaengplace.member.dto.response.DuplicateCheckResponse;
 import com.mycom.backenddaengplace.member.exception.MemberNotFoundException;
 import com.mycom.backenddaengplace.member.repository.MemberRepository;
 import com.mycom.backenddaengplace.pet.exception.InvalidBirthDateException;
@@ -134,5 +136,11 @@ public class MemberService {
         updatedMember.setProfileImageUrl(imageUrl);
 
         return BaseMemberResponse.from(updatedMember);
+    }
+
+    @Transactional
+    public DuplicateCheckResponse checkDuplicateNickname(String nickname) {
+        boolean isValid = memberRepository.existsByNickname(nickname);
+        return DuplicateCheckResponse.from(isValid);
     }
 }

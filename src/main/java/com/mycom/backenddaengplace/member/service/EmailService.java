@@ -4,7 +4,7 @@ import com.mycom.backenddaengplace.auth.email.RedisEmailAuthentication;
 import com.mycom.backenddaengplace.member.dto.request.BaseEmailRequest;
 import com.mycom.backenddaengplace.member.dto.request.EmailCodeCheckRequest;
 import com.mycom.backenddaengplace.member.dto.response.EmailCodeCheckResponse;
-import com.mycom.backenddaengplace.member.dto.response.EmailDuplicateCheckResponse;
+import com.mycom.backenddaengplace.member.dto.response.DuplicateCheckResponse;
 import com.mycom.backenddaengplace.member.dto.response.EmailSendCodeResponse;
 import com.mycom.backenddaengplace.member.exception.EmailAuthenticationCodeMismatchException;
 import com.mycom.backenddaengplace.member.exception.EmailNotFoundException;
@@ -34,9 +34,9 @@ public class EmailService {
     private final JavaMailSender javaMailSender;
     private final RedisEmailAuthentication redisEmailAuthentication;
 
-    public EmailDuplicateCheckResponse checkDuplicateEmail(BaseEmailRequest request) {
+    public DuplicateCheckResponse checkDuplicateEmail(BaseEmailRequest request) {
         boolean isValid = memberRepository.existsByEmail(request.getEmail());
-        return EmailDuplicateCheckResponse.from(!isValid);
+        return DuplicateCheckResponse.from(!isValid);
     }
 
     // 랜덤으로 숫자 생성
