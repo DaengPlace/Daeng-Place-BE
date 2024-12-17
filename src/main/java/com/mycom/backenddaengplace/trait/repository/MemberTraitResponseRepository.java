@@ -9,4 +9,6 @@ import java.util.List;
 public interface MemberTraitResponseRepository extends JpaRepository<MemberTraitResponse, MemberTraitResponseId> {
 
     List<MemberTraitResponse> findByMemberId(Long memberId);
+
+    void deleteByMemberId(Long memberId);
 }
