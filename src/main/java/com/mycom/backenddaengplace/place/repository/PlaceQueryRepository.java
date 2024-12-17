@@ -353,6 +353,33 @@ public class PlaceQueryRepository {
         return content;
     }
 
+    public List<PopularPlaceResponse> findPopularCafes(String sort) {
+        QPlace place = QPlace.place;
+        QReview review = QReview.review;
+
+        return jpaQueryFactory
+                .select(Projections.bean(PopularPlaceResponse.class,
+                        place.category.stringValue().as("type"),
+                        place.id.as("placeId"),
+                        place.name,
+                        Expressions.numberTemplate(Double.class,
+                                "ROUND({0}, 1)", review.rating.avg()).as("rating"),
+                        review.rating.avg().multiply(0.7)
+                                .add(review.count().castToNum(Double.class).multiply(0.3))
+                                .as("popularityScore")
+                ))
+                .from(place)
+                .leftJoin(review).on(review.place.eq(place))
+                .where(
+                        place.category.eq(Category.카페)
+                        .and(place.outside.isTrue())
+                )
+                .groupBy(place.id, place.category, place.name)
+                .orderBy(getSortOrderForPopular(sort))
+                .limit(5)
+                .fetch();
+    }
+
     private BooleanExpression ageBetween(DateTimePath<LocalDateTime> birthDate, int targetAge) {
         int currentYear = LocalDateTime.now().getYear();
         int startYear = currentYear - targetAge - 10;

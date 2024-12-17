@@ -63,14 +63,6 @@ public class PlaceController {
         return ResponseEntity.ok(ApiResponse.success("인기 장소 목록 조회를 성공했습니다.", page.getContent()));
     }
 
-    // 검증 메서드는 Controller 클래스 내부의 private 메서드로 추가
-    private void validateSortType(String sort) {
-        List<String> validSortTypes = Arrays.asList("popularity", "rating", "review");
-        if (!validSortTypes.contains(sort)) {
-            throw new InvalidParameterException("정렬 기준이 유효하지 않습니다.");
-        }
-    }
-
     @GetMapping("/gender-popular")
     public ResponseEntity<ApiResponse<AgeGenderPlaceResponse>> getGenderAgePopularPlace(
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
@@ -78,5 +70,22 @@ public class PlaceController {
         Member member = customOAuth2User.getMember();
         AgeGenderPlaceResponse response = placeService.getPopularPlacesByGenderAndAge(member.getId());
         return ResponseEntity.ok(ApiResponse.success("OK", response));
+    }
+
+    @GetMapping("/popular/cafe")
+    public ResponseEntity<ApiResponse<List<PopularPlaceResponse>>> getPopularCafes(
+            @RequestParam(value = "sort", defaultValue = "popularity") String sort) {
+
+        validateSortType(sort);
+        List<PopularPlaceResponse> cafes = placeService.getPopularCafes(sort);
+        return ResponseEntity.ok(ApiResponse.success("야외 시설이 있는 인기 카페 TOP 5 조회를 성공했습니다.", cafes));
+    }
+
+    // 검증 메서드는 Controller 클래스 내부의 private 메서드로 추가
+    private void validateSortType(String sort) {
+        List<String> validSortTypes = Arrays.asList("popularity", "rating", "review");
+        if (!validSortTypes.contains(sort)) {
+            throw new InvalidParameterException("정렬 기준이 유효하지 않습니다.");
+        }
     }
 }
