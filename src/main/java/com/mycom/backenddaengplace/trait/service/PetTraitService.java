@@ -13,6 +13,7 @@ import com.mycom.backenddaengplace.trait.repository.TraitAnswerRepository;
 import com.mycom.backenddaengplace.trait.repository.TraitQuestionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +24,10 @@ public class PetTraitService {
     private final PetTraitResponseRepository petTraitResponseRepository;
     private final PetRepository petRepository;
 
+    @Transactional
     public void savePetTraitResponse(PetTraitResponseRequestList requestList, Long petId) {
+        petTraitResponseRepository.deleteByPetId(petId);
+
         for (TraitResponseRequest request : requestList.getPetTraitResponseRequestList()) {
 
             Pet pet = petRepository.findById(petId)

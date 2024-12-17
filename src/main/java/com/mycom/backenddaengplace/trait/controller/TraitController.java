@@ -39,7 +39,7 @@ public class TraitController {
         return ResponseEntity.ok(ApiResponse.success("성향 검사 결과를 등록했습니다."));
     }
 
-    @PostMapping("/{petId}")
+    @PutMapping("/{petId}")
     public ResponseEntity<ApiResponse<Void>> registerPetTraitResponse(@RequestBody PetTraitResponseRequestList request,
                                                                       @PathVariable Long petId) {
         petTraitService.savePetTraitResponse(request, petId);
