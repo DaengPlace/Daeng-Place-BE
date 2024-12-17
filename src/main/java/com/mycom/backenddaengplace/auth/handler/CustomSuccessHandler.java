@@ -79,7 +79,7 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
         // Refresh Token을 HttpOnly Secure 쿠키로 저장
         Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
         refreshCookie.setHttpOnly(true); // JavaScript에서 접근 불가
-        refreshCookie.setSecure(false);   // HTTPS 환경에서만 전송
+        refreshCookie.setSecure(true);   // HTTPS 환경에서만 전송
         refreshCookie.setPath("/");      // 전체 경로에서 유효
         refreshCookie.setMaxAge(2592000); // 만료 시간 설정 (30일)
         response.addCookie(refreshCookie);
