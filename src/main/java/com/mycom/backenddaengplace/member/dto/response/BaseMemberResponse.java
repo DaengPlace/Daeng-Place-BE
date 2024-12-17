@@ -32,7 +32,7 @@ public class BaseMemberResponse {
                 .state(member.getState())
                 .city(member.getCity())
                 .gender(member.getGender())
-                .birthDate(member.getBirthDate().toString())
+                .birthDate(member.getBirthDate()!= null ? member.getBirthDate().toString():null)
                 .isDeleted(member.getIsDeleted())
                 .deletedAt(member.getDeletedAt())
                 .locationStatus(member.getLocationStatus())

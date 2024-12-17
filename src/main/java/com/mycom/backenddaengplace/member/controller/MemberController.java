@@ -1,5 +1,7 @@
 package com.mycom.backenddaengplace.member.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mycom.backenddaengplace.auth.dto.CustomOAuth2User;
 import com.mycom.backenddaengplace.common.dto.ApiResponse;
 import com.mycom.backenddaengplace.member.domain.Member;
@@ -24,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class MemberController {
 
     private final MemberService memberService;
+    private final ObjectMapper objectMapper;
 
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<BaseMemberResponse>> getMember(
@@ -34,14 +37,39 @@ public class MemberController {
                 memberService.getMember(member.getId())));
     }
 
-    @PutMapping("/profile")
-    public ResponseEntity<ApiResponse<BaseMemberResponse>> updateMember(
-            @Valid @RequestBody MemberUpdateRequest request,
+    @PostMapping
+    public ResponseEntity<ApiResponse<BaseMemberResponse>> registerMember(
+            @RequestParam("memberData") String memberString,
+            @RequestParam(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User
     ) {
-        Member member = customOAuth2User.getMember();
-        BaseMemberResponse response = memberService.reviseMember(request, member.getId());
-        return ResponseEntity.ok(ApiResponse.success("회원 수정이 완료되었습니다.", response));
+        try {
+            MemberRegisterRequest request = objectMapper.readValue(memberString, MemberRegisterRequest.class);
+            Member member = customOAuth2User.getMember();
+            request.setEmail(member.getEmail());
+
+            BaseMemberResponse response = memberService.registerMember(request, file);
+            return ResponseEntity.ok(ApiResponse.success("회원 등록이 완료되었습니다.", response));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("회원 데이터 파싱에 실패했습니다.", e);
+        }
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<ApiResponse<BaseMemberResponse>> updateMember(
+            @RequestParam("memberData") String memberString,
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
+    ) {
+        try {
+            MemberUpdateRequest request = objectMapper.readValue(memberString, MemberUpdateRequest.class);
+            Member member = customOAuth2User.getMember();
+
+            BaseMemberResponse response = memberService.reviseMember(request, file, member.getId());
+            return ResponseEntity.ok(ApiResponse.success("회원 수정이 완료되었습니다.", response));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("회원 데이터 파싱에 실패했습니다.", e);
+        }
     }
 
     @DeleteMapping("/profile")
@@ -51,29 +79,6 @@ public class MemberController {
         Member member = customOAuth2User.getMember();
         BaseMemberResponse response = memberService.logicalDeleteMember(member.getId());
         return ResponseEntity.ok(ApiResponse.success("회원 논리적 삭제가 완료되었습니다.", response));
-    }
-
-    @PostMapping
-    public ResponseEntity<ApiResponse<BaseMemberResponse>> registerMember(
-            @Valid @RequestBody MemberRegisterRequest request,
-            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
-    ) {
-        Member member = customOAuth2User.getMember();
-        // OAuth로 로그인한 사용자의 이메일 정보를 request에 설정
-        request.setEmail(member.getEmail());
-
-        BaseMemberResponse response = memberService.registerMember(request);
-        return ResponseEntity.ok(ApiResponse.success("회원 등록이 완료되었습니다.", response));
-    }
-
-    @PostMapping("/profile/image")
-    public ResponseEntity<ApiResponse<BaseMemberResponse>> updateProfileImage(
-            @RequestParam("file") MultipartFile file,
-            @AuthenticationPrincipal CustomOAuth2User customOAuth2User
-    ) {
-        Member member = customOAuth2User.getMember();
-        BaseMemberResponse response = memberService.updateProfileImage(member, file);
-        return ResponseEntity.ok(ApiResponse.success("프로필 이미지가 업데이트되었습니다.", response));
     }
 
     @PostMapping("/check-duplicate-nickname")
