@@ -5,12 +5,12 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class EmailDuplicateCheckResponse {
+public class DuplicateCheckResponse {
 
     private Boolean isValid;
 
-    public static EmailDuplicateCheckResponse from(Boolean isValid) {
-        return EmailDuplicateCheckResponse.builder()
+    public static DuplicateCheckResponse from(Boolean isValid) {
+        return DuplicateCheckResponse.builder()
                 .isValid(isValid)
                 .build();
     }
