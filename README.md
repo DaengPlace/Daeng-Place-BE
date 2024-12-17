@@ -45,7 +45,7 @@
 - **사용자 및 반려견 성향 진단**
   - 사용자 성향 진단
   - 반려견 성향 진단
-  - 성햔 진단 기반의 장소 추천
+  - 성향 진단 기반의 장소 추천
 
 ## 3.1 프로젝트 ERD
 ![image](https://github.com/user-attachments/assets/48eeb8b9-4cc5-4642-b67c-1574275ccf77)
