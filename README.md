@@ -62,7 +62,7 @@
 |-----------------|-----------------|-----------------|
 | 오유찬    |  <img src="https://i.namu.wiki/i/4qLKxb0WiFRbid5wm4Dt5dNFlkZjGDNTvXrEo19EWE59o-GDUWyyHYRlpM8IRwkEdFd4xpochkypCsrgA35COA.webp" alt="오유찬" width="100"> | <ul><li>프로젝트 계획 및 관리</li><li>백엔드 배포 관리(무중단 배포)</li><li>리뷰 CRUD</li><li>장소 필터링</li><li>추천 시스템 로직 구현</li><li>이미지 업로드</li></ul>     |
 | 김동규   |  <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="김동규" width="100">| <ul><li>소셜 로그인</li><li>**QUICK SERVICE - OCR(영수증 인증 리뷰)**</li></ul> |
-| 박종혁   |  <img src="https://fcseoulite.me/files/attach/images/192/288/604/010/36a3040967c668dc209899d2daa1969f.jpg" alt="박종혁" width="100">    |<ul><li>즐겨찾기</li><li>회원가입</li><li>펫 CRUD</li><li>반려견 URD</li></ul>  |
+| 박종혁   |  <img src="https://fcseoulite.me/files/attach/images/192/288/604/010/36a3040967c668dc209899d2daa1969f.jpg" alt="박종혁" width="100">    |<ul><li>즐겨찾기</li><li>회원가입</li><li>펫 CRUD</li></ul>  |
 | 정재민    |  <img src="https://i.namu.wiki/i/5Veq9acZq3uqIUMsQbKyf4wjHiuk500_e7LUTtdWvG_2m7Wax-Anb5bFATOMsQReegqabE05_P6Swl9h9vUl3g.webp" alt="정재민" width="100">    | <ul><li>장소 필터링</li><li>리뷰 CRUD</li><li>성향 검사</li><li>추천 시스템</li></ul>    |
 
 <br/>
