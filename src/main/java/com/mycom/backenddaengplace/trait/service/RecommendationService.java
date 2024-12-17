@@ -5,7 +5,6 @@ import com.mycom.backenddaengplace.pet.domain.Pet;
 import com.mycom.backenddaengplace.pet.repository.PetRepository;
 import com.mycom.backenddaengplace.place.dto.response.PopularPlaceResponse;
 import com.mycom.backenddaengplace.place.enums.Category;
-import com.mycom.backenddaengplace.place.repository.PlaceQueryRepository;
 import com.mycom.backenddaengplace.trait.domain.MemberTraitResponse;
 import com.mycom.backenddaengplace.trait.domain.PetTraitResponse;
 import com.mycom.backenddaengplace.trait.exception.UnauthorizedException;
@@ -14,7 +13,6 @@ import com.mycom.backenddaengplace.trait.repository.PetTraitResponseRepository;
 import com.mycom.backenddaengplace.trait.repository.PlaceRecommendationQueryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,10 +23,8 @@ import java.util.*;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class RecommendationService {
-    private static final int RECOMMENDATION_SIZE = 3;
 
     private final PetTraitResponseRepository petTraitResponseRepository;
-    private final PlaceQueryRepository placeQueryRepository;
     private final PlaceRecommendationQueryRepository recommendationQueryRepository;
     private final MemberTraitResponseRepository memberTraitResponseRepository;
     private final PetRepository petRepository;
@@ -46,10 +42,9 @@ public class RecommendationService {
         // 2. 반려견의 성향 진단 결과 확인
         List<PetTraitResponse> petTraits = petTraitResponseRepository.findByPetId(petId);
 
-        // 성향 진단이 없는 경우 -> 인기 시설 반환
+        // 성향 진단이 없는 경우 -> 빈 배열 반환
         if (petTraits.isEmpty()) {
-            return placeQueryRepository.findPopularPlaces("popularity", null, PageRequest.of(0, RECOMMENDATION_SIZE))
-                    .getContent();
+            return Collections.emptyList();
         }
 
         // 3. 성향에 기반한 카테고리 결정
@@ -63,12 +58,9 @@ public class RecommendationService {
 
         List<MemberTraitResponse> memberTraits = memberTraitResponseRepository.findByMemberId(member.getId());
 
-        int age = LocalDate.now().getYear() - member.getBirthDate().getYear();
-        int ageGroup = (age / 10) * 10;
-
         // 성향 진단 없는 경우
         if(memberTraits.isEmpty()){
-            return placeQueryRepository.getPopularPlacesByGenderAndAge(member.getGender(), ageGroup);
+            return Collections.emptyList();
         }
 
         boolean isCostEffective = false;
