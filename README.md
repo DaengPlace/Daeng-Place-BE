@@ -13,7 +13,7 @@
 |:------:|:------:|:------:|:------:|
 | <img src="https://i.namu.wiki/i/4qLKxb0WiFRbid5wm4Dt5dNFlkZjGDNTvXrEo19EWE59o-GDUWyyHYRlpM8IRwkEdFd4xpochkypCsrgA35COA.webp" alt="오유찬" width="150"> | <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="김동규" width="150"> | <img src="https://fcseoulite.me/files/attach/images/192/288/604/010/36a3040967c668dc209899d2daa1969f.jpg" alt="박종혁" width="150"> | <img src="https://i.namu.wiki/i/5Veq9acZq3uqIUMsQbKyf4wjHiuk500_e7LUTtdWvG_2m7Wax-Anb5bFATOMsQReegqabE05_P6Swl9h9vUl3g.webp" alt="정재민" width="150"> |
 | PL | BE | BE | BE |
-| [GitHub](https://github.com/ohyuchan123) | [GitHub]() | [GitHub]() | [GitHub](https://github.com/sai06266) |
+| [GitHub](https://github.com/ohyuchan123) | [GitHub](https://github.com/Estar0622) | [GitHub](https://github.com/pardessuccess) | [GitHub](https://github.com/sai06266) |
 
 
 # 3. Key Features (주요 기능 및 ERD & 아키텍쳐)
