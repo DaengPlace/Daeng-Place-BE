@@ -196,3 +196,4 @@ SMS, 이메일 중복확인 API 개발
 
 # 10. 컨벤션 수행 결과
 ![image](https://github.com/user-attachments/assets/46f5fdb9-79b6-4381-bbdf-5bab895fab72)
+![image](https://github.com/user-attachments/assets/0236ea3c-8ddb-4529-aae2-8920f59f840f)
