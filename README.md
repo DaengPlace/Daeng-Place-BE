@@ -70,9 +70,9 @@
 
 # 5. Technology Stack (기술 스택)
 ## 5.1 Language
-|  |  |
-|-----------------|-----------------|
-| Java    |<img src="https://cdn.iconscout.com/icon/free/png-256/free-java-60-1174953.png?f=webp" alt="JAVA" width="100">| 
+|  |  |  |
+|-----------------|-----------------|-----------------|
+| Java    |<img src="https://cdn.iconscout.com/icon/free/png-256/free-java-60-1174953.png?f=webp" alt="JAVA" width="100">| 17.0.11 |
 
 <br/>
 
