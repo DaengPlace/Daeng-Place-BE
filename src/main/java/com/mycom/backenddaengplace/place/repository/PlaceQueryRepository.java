@@ -142,7 +142,13 @@ public class PlaceQueryRepository {
         }
 
         // 정렬 기준 처리 (sortBy)
-        OrderSpecifier<?> orderSpecifier = getSortOrderForSearch(criteria.getSortBy(), place);
+        OrderSpecifier<?> orderSpecifier = getSortOrderForSearch(
+                criteria.getSortBy(),
+                place,
+                location,
+                criteria.getLatitude(),
+                criteria.getLongitude()
+        );
 
         // 장소 조회 쿼리
         List<PlaceDto> places = jpaQueryFactory
@@ -283,16 +289,21 @@ public class PlaceQueryRepository {
         return PageableExecutionUtils.getPage(content, pageable, () -> total);
     }
 
-    private OrderSpecifier<?> getSortOrderForSearch(String sortBy, QPlace place) {
+    private OrderSpecifier<?> getSortOrderForSearch(String sortBy, QPlace place, QLocation location, Double userLat, Double userLon) {
         if (sortBy == null) {
-            return place.name.asc();
+            return Expressions.numberTemplate(Double.class,
+                    "ST_Distance_Sphere(Point({0}, {1}), Point({2}, {3}))",
+                    place.address.location.longitude, place.address.location.latitude, userLon, userLat).asc();
         }
 
         return switch (sortBy) {
             case "name" -> place.name.asc();
             case "rating" -> QReview.review.rating.avg().desc();
             case "review" -> QReview.review.count().desc();
-            default -> place.name.asc();
+            default -> Expressions.numberTemplate(Double.class,
+                            "ST_Distance_Sphere(Point({0}, {1}), Point({2}, {3}))",
+                            location.longitude, location.latitude, userLon, userLat)
+                    .asc();
         };
     }
 
