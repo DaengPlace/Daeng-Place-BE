@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 @Builder
 public class MemberReviewResponse {
     private Long reviewId;
+    private Long placeId;
     private String nickname;
     private String placeName;
     private Category category;
@@ -26,6 +27,7 @@ public class MemberReviewResponse {
     public static MemberReviewResponse from(Review review) {
         return MemberReviewResponse.builder()
                 .reviewId(review.getId())
+                .placeId(review.getPlace().getId())
                 .nickname(review.getMember().getNickname())
                 .placeName(review.getPlace().getName())
                 .category(review.getPlace().getCategory())
