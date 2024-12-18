@@ -18,6 +18,7 @@ import com.mycom.backenddaengplace.trait.repository.MemberTraitResponseRepositor
 import com.mycom.backenddaengplace.trait.repository.PetTraitResponseRepository;
 import com.mycom.backenddaengplace.trait.repository.TraitTagCountRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class MemberService {
 
     private final S3ImageService s3ImageService;
@@ -120,18 +122,14 @@ public class MemberService {
 
         LocalDateTime birthDate = parseBirthDate(request.getBirthDate());
 
-        // 새 이미지가 업로드된 경우
         if (file != null && !file.isEmpty()) {
-            // 기존 이미지가 있다면 삭제
+            log.info("Uploading new file...");
             if (updatedMember.getProfileImageUrl() != null) {
                 s3ImageService.deleteImage(updatedMember.getProfileImageUrl());
             }
-            // 새 이미지 업로드
             String imageUrl = s3ImageService.uploadImage(file, S3ImageService.USER_PROFILE_DIR);
             updatedMember.setProfileImageUrl(imageUrl);
-        }
-        // 파일이 없는 경우에만 request의 profileImageUrl 사용
-        else if (request.getProfileImageUrl() != null) {
+        } else if (request.getProfileImageUrl() != null) {
             updatedMember.setProfileImageUrl(request.getProfileImageUrl());
         }
 
@@ -140,9 +138,8 @@ public class MemberService {
         updatedMember.setState(request.getState());
         updatedMember.setCity(request.getCity());
         updatedMember.setBirthDate(birthDate);
-        updatedMember.setProfileImageUrl(request.getProfileImageUrl());
+        Member savedMember = memberRepository.save(updatedMember);
 
-        memberRepository.save(updatedMember);
         return BaseMemberResponse.from(updatedMember);
     }
 
