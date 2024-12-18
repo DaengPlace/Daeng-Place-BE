@@ -77,7 +77,7 @@
 |-----------------|-----------------|-----------------|-----------------|-----------------|-----------------|
 | Spring    |  <img src="https://blog.kakaocdn.net/dn/diVmCB/btqOcQWrLh9/K1AW5ftq5ih97pkt2rK9nk/img.png" alt="spring" width="100">    | 3.3.5   |JWT   | <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8LJrZbMTtW1Hv4-ZIGC8UghRJUl8e6rzS9g&s" alt="Jwt" width="100">  | |
 | MySQL       |  <img src="https://rastalion.dev/wp-content/uploads/2019/04/mysql_PNG19.png" alt="mysql" width="100">    | 8.4.3 |Oauth2   | <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmrtF1vDXPOPYq-Hu1IYMf9DZReMpMte2fnw&s" alt="Oauth2" width="100">  | |
-| REDIS       |  <img src="https://rastalion.dev/wp-content/uploads/2019/09/redis.png" alt="redis" width="100">    | |
+| REDIS       |  <img src="https://rastalion.dev/wp-content/uploads/2019/09/redis.png" alt="redis" width="100">    | 7.2.6 |
 | AWS CLOUD |  <img src="https://static-00.iconduck.com/assets.00/aws-icon-2048x2048-ptyrjxdo.png" alt="aws" width="100">    | | Docker   | <img src="https://img1.daumcdn.net/thumb/R800x0/?scode=mtistory2&fname=https%3A%2F%2Ft1.daumcdn.net%2Fcfile%2Ftistory%2F9981E6375B8CF0802A" alt="Docker" width="100">  | |
 
 <br/>
