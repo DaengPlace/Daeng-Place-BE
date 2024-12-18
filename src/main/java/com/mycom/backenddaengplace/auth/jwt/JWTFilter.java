@@ -120,6 +120,7 @@ public class JWTFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
         return path.equals("/hc")
                 || path.equals("/health")
+                || path.equals("/logout")
                 || path.startsWith("/oauth2")
                 || path.startsWith("/kakao/callback")
                 || path.startsWith("/auth");
