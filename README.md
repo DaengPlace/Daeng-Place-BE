@@ -100,12 +100,7 @@ project/
 ├── settings.gradle         # Gradle 프로젝트 설정
 ├── dev.env                 # 개발 환경 변수
 ├── imagedefinitions.json   # Docker 이미지 정의
-├── gradlew                 # Gradle 래퍼 실행 스크립트 (Unix)
-├── gradlew.bat             # Gradle 래퍼 실행 스크립트 (Windows)
 ├── gradle/                 # Gradle 래퍼 설정
-│   └── wrapper/
-│       ├── gradle-wrapper.jar
-│       └── gradle-wrapper.properties
 ├── src/
 │   ├── main/
 │   │   ├── java/
