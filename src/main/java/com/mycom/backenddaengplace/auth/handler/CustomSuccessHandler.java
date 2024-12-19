@@ -85,7 +85,7 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
         response.addCookie(refreshCookie);
 
         // 리다이렉트 URL에 Access Token만 추가
-        String redirectUrl = String.format("http://localhost:3000%s?accessToken=%s", path, accessToken);
+        String redirectUrl = String.format("https://daengplace.vercel.app%s?accessToken=%s", path, accessToken);
 
         response.sendRedirect(redirectUrl);
     }
