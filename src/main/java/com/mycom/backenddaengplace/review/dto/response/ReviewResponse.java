@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 public class ReviewResponse {
     private Long reviewId;
     private String memberNickname;
+    private String memberProfileImage;
     private Long placeId;
     private Double rating;
     private String content;
@@ -32,13 +33,17 @@ public class ReviewResponse {
                         .collect(Collectors.toList()) :
                 new ArrayList<>();
 
-        String nickName;
+        String nickName = (Boolean.TRUE.equals(review.getMember().getIsDeleted())) ? "삭제된 사용자" : review.getMember().getNickname();
 
-        nickName = (Boolean.TRUE.equals(review.getMember().getIsDeleted())) ? "삭제된 사용자" : review.getMember().getNickname();
+
+        String profileImage = (Boolean.TRUE.equals(review.getMember().getIsDeleted()))
+                ? null
+                : review.getMember().getProfileImageUrl();
 
         return ReviewResponse.builder()
                 .reviewId(review.getId())
                 .memberNickname(nickName)
+                .memberProfileImage(profileImage)
                 .placeId(review.getPlace().getId())
                 .rating(review.getRating())
                 .content(review.getContent())
