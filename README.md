@@ -50,7 +50,7 @@
 
 ## 3.2 프로젝트 아키텍쳐
 
-![image](https://github.com/user-attachments/assets/6f9544cd-0262-4c38-b4bb-052baf11f4a9)
+![image](https://github.com/user-attachments/assets/4632b666-9c65-41e9-b402-0d9df312bf05)
 
 ## 3.3 API 명세서
 > API 명세서의 경우 현재 노션에서 관리하고 있습니다.
